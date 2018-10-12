@@ -14,7 +14,8 @@
 		"collation": {}
 	},
 	"field": {
-		"name": "New field"
+		"name": "New field",
+		"required": true
 	},
 	"patternField": {
 		"name": "^[a-zA-Z0-9_.-]{20}$"

@@ -143,7 +143,16 @@ making sure that you maintain a proper JSON format.
 			},
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"disabledOnCondition": [{
+					"key": "required",
+					"value": true
+				}]
+			},
 			"primaryKey",
 			"foreignCollection",
 			"foreignField",
@@ -181,7 +190,16 @@ making sure that you maintain a proper JSON format.
 			},
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"disabledOnCondition": [{
+					"key": "required",
+					"value": true
+				}]
+			},
 			"sample",
 			"comments"
 		],
@@ -242,7 +260,16 @@ making sure that you maintain a proper JSON format.
 			},
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"disabledOnCondition": [{
+					"key": "required",
+					"value": true
+				}]
+			},
 			"primaryKey",
 			"foreignCollection",
 			"foreignField",
@@ -289,7 +316,16 @@ making sure that you maintain a proper JSON format.
 			},
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"disabledOnCondition": [{
+					"key": "required",
+					"value": true
+				}]
+			},
 			"sample",
 			"comments"
 		],
@@ -323,7 +359,16 @@ making sure that you maintain a proper JSON format.
 			"type",
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"disabledOnCondition": [{
+					"key": "required",
+					"value": true
+				}]
+			},
 			"comments"
 		],
 		"___1": [],
@@ -363,7 +408,16 @@ making sure that you maintain a proper JSON format.
 			},
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"disabledOnCondition": [{
+					"key": "required",
+					"value": true
+				}]
+			},
 			"minProperties",
 			"maxProperties",
 			"additionalProperties",
@@ -399,7 +453,16 @@ making sure that you maintain a proper JSON format.
 			},
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"disabledOnCondition": [{
+					"key": "required",
+					"value": true
+				}]
+			},
 			"minItems",
 			"maxItems",
 			"uniqueItems",
@@ -449,7 +512,16 @@ making sure that you maintain a proper JSON format.
 			},
 			"description",
 			"dependencies",
-			"required",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"disabledOnCondition": [{
+					"key": "required",
+					"value": true
+				}]
+			},
 			"minProperties",
 			"maxProperties",
 			"additionalProperties",
@@ -507,7 +579,16 @@ making sure that you maintain a proper JSON format.
 			},
 			"dependencies",
 			"description",
-			"required",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"disabledOnCondition": [{
+					"key": "required",
+					"value": true
+				}]
+			},
 			"default",
 			"pattern",
 			"sample",
@@ -551,7 +632,16 @@ making sure that you maintain a proper JSON format.
 			},
 			"dependencies",
 			"description",
-			"required",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"disabledOnCondition": [{
+					"key": "required",
+					"value": true
+				}]
+			},
 			"sample",
 			"comments"
 		]	
