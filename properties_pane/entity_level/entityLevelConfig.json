@@ -93,6 +93,27 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			{
+				"propertyName": "Namespace",
+				"propertyKeyword": "bucketId",
+				"propertyTooltip": "Namespace",
+				"propertyType": "selecthashed"
+			},
+			{
+				"propertyName": "Additional properties",
+				"propertyKeyword": "additionalProperties",
+				"propertyTooltip": "Description",
+				"propertyType": "checkbox",
+				"template": "boolean"
+			},
+			{
+				"propertyName": "Description",
+				"propertyKeyword": "description",
+				"propertyValidate": false,
+				"propertyTooltip": "Description",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
 				"propertyName": "Comments",
 				"propertyKeyword": "comments",
 				"shouldValidate": false,
