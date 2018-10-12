@@ -1,0 +1,28 @@
+{
+    "name": "Avro",
+    "version": "0.0.1",
+    "versionDate": "2018-08-25",
+    "author": "hackolade",
+    "engines": {
+        "hackolade": "2.1.x",
+        "hackoladePlugin": "1.0.0"
+    },
+    "contributes": {
+        "target": {
+            "applicationTarget": "Avro",
+            "title": "Apache Avro Schema",
+            "versions": []
+        },
+        "features": {
+            "jaySchemaHasRequiredPatternField": false,
+			"disablePatternField": false,
+			"enableForwardEngineering": false,
+			"disableReverseEngineering": true,
+            "nestedCollections": false,
+			"disableChoices": true,
+			"enableJsonType": false			
+        }
+    },
+    "description": "Hackolade plugin for Apache Avro Schema",
+    "disabled": false
+}

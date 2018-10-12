@@ -1,0 +1,51 @@
+{
+	"name": "map",
+	"erdAbbreviation": "<map>",
+	"dtdAbbreviation": "{...}",
+	"parentType": "document",
+	"useSample": true,
+	"defaultValues": {
+		"subtype": "map<string>",
+		"keyType": "string",
+		"dependencies": [],
+		"primaryKey": false,
+		"properties": [],
+		"minProperties": "",
+		"maxProperties": "",
+		"additionalProperties": false
+	},
+	"subtypes": {
+		"string": {
+			"childValueType": "map<str>"
+		},
+		"int": {
+			"childValueType": "map<int>"
+		},
+		"long": {
+			"childValueType": "map<long>"
+		},
+		"float": {
+			"childValueType": "map<float>"
+		},
+		"double": {
+			"childValueType": "map<double>"
+		}
+	},
+	"keyTypes": {
+		"string": {
+			"childValueName": "New field"
+		},
+		"int": {
+			"childValueName": "12345"
+		},
+		"long": {
+			"childValueName": "12345"
+		},
+		"float": {
+			"childValueName": "123.45"
+		},
+		"double": {
+			"childValueName": "123.45"
+		}
+	}
+}

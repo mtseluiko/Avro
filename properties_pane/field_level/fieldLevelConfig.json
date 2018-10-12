@@ -1,0 +1,559 @@
+/*
+* Copyright © 2016-2017 by IntegrIT S.A. dba Hackolade.  All rights reserved.
+*
+* The copyright to the computer software herein is the property of IntegrIT S.A.
+* The software may be used and/or copied only with the written permission of 
+* IntegrIT S.A. or in accordance with the terms and conditions stipulated in 
+* the agreement/contract under which the software has been supplied. 
+
+
+In order to define custom properties for any object's properties pane, you may copy/paste from the following,
+making sure that you maintain a proper JSON format.
+
+			{
+				"propertyName": "Simple text",
+				"propertyKeyword": "simpletextProp",
+				"shouldValidate": false,
+				"propertyType": "text",
+				"sampleGen": "&containerName|&entityName|&random|<value>"
+			},
+			{
+				"propertyName": "Text area",
+				"propertyKeyword": "textareaProp",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Dropdown selection",
+				"propertyKeyword": "dropdownProp",
+				"shouldValidate": false,
+				"propertyTooltip": "Select from list of options",
+				"propertyType": "select",
+				"options": [
+					"Option 1",
+					"Option 2",
+					"Option 3",
+					"Option 4"
+				]
+			},
+			{
+				"propertyName": "Numeric",
+				"propertyKeyword": "numericProp",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"sampleGen": "&containerName|&entityName|&random|<value>"
+			},
+			{
+				"propertyName": "Checkbox",
+				"propertyKeyword": "checkboxProp",
+				"shouldValidate": false,
+				"propertyType": "checkbox"
+			},
+			{
+				"propertyName": "Group",
+				"propertyType": "group",
+				"propertyKeyword": "grpProp",
+				"shouldValidate": true,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Simple Grp Text",
+						"propertyKeyword": "simpleGrpText",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					},
+					{
+						"propertyName": "Group Number",
+						"propertyKeyword": "grpNumber",
+						"propertyValidate": true,
+						"propertyType": "numeric",
+						"valueType": "number",
+						"allowNegative": false
+					}
+				]
+			},
+            {
+                "propertyName": "Field List",
+                "propertyKeyword": "keyList",
+                "shouldValidate": false,
+                "propertyType": "tagInput",
+                "template": "collectiontree"
+            }, 
+            {
+                "propertyName": "Field List w/ dropdown",
+                "propertyKeyword": "keyListOrder",
+                "shouldValidate": false,
+                "propertyType": "tagInput",
+                "template": "collectiontree",
+                "attributeList": [
+                    "ascending",
+                    "descending"
+                ]
+            }
+*/
+
+{
+	"lowerTab": "JsonDetails",
+	"structure": {
+		"string": [
+			"name",
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "fieldDoc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			"default",
+			{
+				"propertyName": "Order",
+				"propertyKeyword": "fieldOrder",
+				"shouldValidate": false,
+				"propertyTooltip": "Select from list of options",
+				"propertyType": "select",
+				"options": [
+					"ascending",
+					"descending",
+					"ignore"
+				]
+			},
+			{
+				"propertyName": "Aliases",
+				"propertyType": "group",
+				"propertyKeyword": "fieldAliases",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Alias name",
+						"propertyKeyword": "fieldAliasName",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			"description",
+			"dependencies",
+			"required",
+			"primaryKey",
+			"foreignCollection",
+			"foreignField",
+			"relationshipType",
+			"sample",
+			"comments"
+		],
+		"bytes": [
+			"name",
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "fieldDoc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Aliases",
+				"propertyType": "group",
+				"propertyKeyword": "fieldAliases",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Alias name",
+						"propertyKeyword": "fieldAliasName",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			"description",
+			"dependencies",
+			"required",
+			"sample",
+			"comments"
+		],
+		"number": [
+			"name",
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Subtype",
+				"propertyKeyword": "mode",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"int",
+					"long",
+					"float",
+					"double"
+				],
+				"data": "options",
+				"valueType": "string"
+			},
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "fieldDoc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			"default",
+			{
+				"propertyName": "Order",
+				"propertyKeyword": "fieldOrder",
+				"shouldValidate": false,
+				"propertyTooltip": "Select from list of options",
+				"propertyType": "select",
+				"options": [
+					"ascending",
+					"descending",
+					"ignore"
+				]
+			},
+			{
+				"propertyName": "Aliases",
+				"propertyType": "group",
+				"propertyKeyword": "fieldAliases",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Alias name",
+						"propertyKeyword": "fieldAliasName",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			"description",
+			"dependencies",
+			"required",
+			"primaryKey",
+			"foreignCollection",
+			"foreignField",
+			"relationshipType",
+			"default",
+			"unit",
+			"minimum",
+			"exclusiveMinimum",
+			"maximum",
+			"exclusiveMaximum",
+			"multipleOf",
+			"divisibleBy",
+			"sample",
+			"comments"
+		],
+		"boolean": [
+			"name",
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "fieldDoc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			"default",
+			{
+				"propertyName": "Aliases",
+				"propertyType": "group",
+				"propertyKeyword": "fieldAliases",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Alias name",
+						"propertyKeyword": "fieldAliasName",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			"description",
+			"dependencies",
+			"required",
+			"sample",
+			"comments"
+		],
+		"null": [
+			"name",
+			"schemaId",
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "fieldDoc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Aliases",
+				"propertyType": "group",
+				"propertyKeyword": "fieldAliases",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Alias name",
+						"propertyKeyword": "fieldAliasName",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			"type",
+			"description",
+			"dependencies",
+			"required",
+			"comments"
+		],
+		"___1": [],
+		"record": [
+			"name",
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Namespace",
+				"propertyKeyword": "fieldNamespace",
+				"shouldValidate": false,
+				"propertyType": "text"
+			},
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "fieldDoc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Aliases",
+				"propertyType": "group",
+				"propertyKeyword": "fieldAliases",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Alias name",
+						"propertyKeyword": "fieldAliasName",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			"description",
+			"dependencies",
+			"required",
+			"minProperties",
+			"maxProperties",
+			"additionalProperties",
+			"comments"
+		],
+		"array": [
+			"name",
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "fieldDoc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Aliases",
+				"propertyType": "group",
+				"propertyKeyword": "fieldAliases",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Alias name",
+						"propertyKeyword": "fieldAliasName",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			"description",
+			"dependencies",
+			"required",
+			"minItems",
+			"maxItems",
+			"uniqueItems",
+			"additionalItems",
+			"comments"
+		],
+		"map": [
+			"name",
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "fieldDoc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Values",
+				"propertyKeyword": "mapValuesType",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"string",
+					"int",
+					"long",
+					"float",
+					"double"
+				]
+			},
+			{
+				"propertyName": "Aliases",
+				"propertyType": "group",
+				"propertyKeyword": "fieldAliases",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Alias name",
+						"propertyKeyword": "fieldAliasName",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			"description",
+			"dependencies",
+			"required",
+			"minProperties",
+			"maxProperties",
+			"additionalProperties",
+			"comments"
+		],
+		"enum": [
+			"name",
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Namespace",
+				"propertyKeyword": "fieldNamespace",
+				"shouldValidate": false,
+				"propertyType": "text"
+			},
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "fieldDoc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Aliases",
+				"propertyType": "group",
+				"propertyKeyword": "fieldAliases",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Alias name",
+						"propertyKeyword": "fieldAliasName",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			{
+				"propertyName": "Symbols",
+				"propertyType": "group",
+				"propertyKeyword": "enumSymbols",
+				"shouldValidate": true,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Simple Grp Text",
+						"propertyKeyword": "simpleGrpText",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			"dependencies",
+			"description",
+			"required",
+			"default",
+			"pattern",
+			"sample",
+			"comments"
+		],
+		"fixed": [
+			"name",
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "fieldDoc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Aliases",
+				"propertyType": "group",
+				"propertyKeyword": "fieldAliases",
+				"shouldValidate": false,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "Alias name",
+						"propertyKeyword": "fieldAliasName",
+						"shouldValidate": false,
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Size",
+				"propertyKeyword": "fixedSize",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false
+			},
+			"dependencies",
+			"description",
+			"required",
+			"sample",
+			"comments"
+		]	
+	}
+}
