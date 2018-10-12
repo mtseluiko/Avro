@@ -1,5 +1,5 @@
-# Google Cloud Firestore
-Plugin to enable Google Cloud Firestore as a target in Hackolade data modeling.
+# Avro
+Plugin to enable Avro as a target in Hackolade data modeling.
 
 <div class="main-content">
 
