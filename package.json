@@ -17,7 +17,7 @@
             "jaySchemaHasRequiredPatternField": false,
 			"disablePatternField": false,
 			"enableForwardEngineering": false,
-			"disableReverseEngineering": true,
+			"disableReverseEngineering": false,
             "nestedCollections": false,
 			"disableChoices": true,
 			"enableJsonType": false			

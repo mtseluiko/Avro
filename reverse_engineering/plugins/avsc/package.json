@@ -1,9 +1,9 @@
 {
-  "name": "FIRESTORE",
+  "name": "Avro",
   "version": "1.0.0",
   "description": "",
   "author": "Hackolade",
   "dependencies": {
-    "nodejs-firestore": "^0.10.1"
-  }
+  },
+  "type": "file"
 }
