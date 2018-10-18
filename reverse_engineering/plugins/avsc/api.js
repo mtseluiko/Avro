@@ -54,6 +54,8 @@ const handleRecursiveSchema = (data, schema, parentSchema = {}) => {
 const handleType = (data, prop, schema, parentSchema) => {
 	if (Array.isArray(data[prop])) {
 		schema = handleMultipleTypes(data, prop, schema, parentSchema);
+	} else if (typeof data[prop] === 'object') {
+		handleRecursiveSchema(data[prop], schema);
 	} else {
 		schema[prop] = data[prop];
 	}
@@ -116,7 +118,7 @@ const handleItems = (data, prop, schema) => {
 	const items = data[prop];
 	
 	if (typeof items === 'object') {
-		schema.items = _.cloneDeep(items);
+		schema.items = {};
 		handleRecursiveSchema(items, schema.items, schema);
 	} else {
 		schema.items = {
