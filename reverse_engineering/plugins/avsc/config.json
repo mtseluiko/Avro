@@ -1,5 +1,5 @@
 {
   "menu_label": "Avro Schema file",
-  "id": "reAvroSchema",
-  "extension": "avsc"
+  "name": "avsc",
+  "extensions": ["avsc"]
 }
