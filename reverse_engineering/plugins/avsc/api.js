@@ -9,18 +9,47 @@ module.exports = {
 	reFromFile(data, logger, callback) {
 		readFileData(data.filePath)
 		.then(fileData => {
-
+			return parseData(fileData);
+		})
+		.then(schema => {
+			const jsonSchema = convertToJsonSchema(schema);
+			return callback(null, jsonSchema);
 		})
 		.catch(callback);
 	}
 };
 
+const readFileData = (filePath) => {
+	return new Promise((resolve, reject) => {
+		// resolve(sampleSchema);
+		fs.readFile(filePath, 'utf-8', (err, content) => {
+			if(err){
+				reject(err);
+			} else {
+				resolve(content);
+			}
+		});
+	});
+};
+
+const parseData = (fileData) => {
+	return new Promise((resolve, reject) => {
+		try {
+			resolve(JSON.parse(fileData));
+		} catch(err) {
+			reject(err);
+		}
+	});
+};
+
 const reFromFile = (data, logger, callback) => {
 	readFileData(data.filePath)
 	.then(fileData => {
-		const jsonSchema = convertToJsonSchema(fileData);
-		console.log(JSON.stringify(jsonSchema, null, 4));
-		return callback(null, fileData);
+		return parseData(fileData);
+	})
+	.then(schema => {
+		const jsonSchema = convertToJsonSchema(schema);
+		return callback(null, jsonSchema);
 	})
 	.catch(callback);
 };
@@ -28,6 +57,8 @@ const reFromFile = (data, logger, callback) => {
 const convertToJsonSchema = (data) => {
 	let jsonSchema = {};
 	handleRecursiveSchema(data, jsonSchema);
+	jsonSchema.type = 'object';
+	jsonSchema.$schema = 'http://json-schema.org/draft-04/schema#';
 	return jsonSchema;
 };
 
@@ -57,9 +88,10 @@ const handleType = (data, prop, schema, parentSchema) => {
 	} else if (typeof data[prop] === 'object') {
 		handleRecursiveSchema(data[prop], schema);
 	} else {
-		schema[prop] = data[prop];
+		schema = getType(schema, data, data[prop]);
 	}
 };
+
 
 const handleMultipleTypes = (data, prop, schema, parentSchema) => {
 	const hasComplexType = data[prop].find(item => typeof item !== 'string');
@@ -79,6 +111,29 @@ const removeChangedField = (parentSchema, name) => {
 		// delete multiple array item
 	}
 	return parentSchema;
+};
+
+const getType = (schema, field, type) => {
+	switch(type) {
+		case 'string':
+		case 'bytes':
+		case 'number':
+		case 'boolean':
+		case 'null':
+		case 'record':
+		case 'array':
+		case 'enum':
+		case 'fixed':
+			return Object.assign(schema, { type });
+		case 'map':
+			return Object.assign(schema, {
+				type,
+				subtype: `map<${field.values}>`,
+				keyType: 'string'
+			});
+		default:
+			return Object.assign(schema, { type: 'string' });
+	}
 };
 
 const getChoice = (data, prop, parentSchema) => {
@@ -131,77 +186,3 @@ const handleOtherProps = (data, prop, schema) => {
 	schema[prop] = data[prop];
 	return;
 };
-
-const sampleSchema = {
-	"type": "record",
-	"name": "Document",
-	"fields": [{
-		"name": "DocId",
-		"type": "long"
-	}, {
-		"name": "Links",
-		"type": ["null", {
-			"name": "Links",
-			"type": "record",
-			"fields": [{
-				"name": "Backward",
-				"type": {
-					"type": "array",
-					"items": "long"
-				}
-			}, {
-				"name": "Forward",
-				"type": {
-					"type": "array",
-					"items": "long"
-				}
-			}]
-		}]
-	}, {
-		"name": "Name",
-		"type": {
-			"type": "array",
-			"items": {
-				"name": "Name",
-				"type": "record",
-				"fields": [{
-					"name": "Language",
-					"type": {
-						"type": "array",
-						"items": {
-							"name": "Language",
-							"type": "record",
-							"fields": [{
-								"name": "Code",
-								"type": "string"
-							}, {
-								"name": "Country",
-								"type": ["null", "string"]
-							}]
-						}
-					}
-				}, {
-					"name": "Url",
-					"type": ["null", "string"]
-				}]
-			}
-		}
-	}]
-};
-
-const readFileData = (filePath) => {
-	return new Promise((resolve, reject) => {
-		resolve(sampleSchema);
-		// fs.readFile(filePath, 'utf-8', (err, content) => {
-		// 	if(err){
-		// 		reject(err);
-		// 	} else {
-		// 		resolve(content);
-		// 	}
-		// });
-	});
-};
-
-reFromFile({}, {}, (err, res) => {
-	console.log(err, res);
-});
