@@ -3,7 +3,7 @@
 const fs = require('fs');
 const _ = require('lodash');
 const avro = require('avsc');
-const snappy = require('snappy');
+const snappy = require('snappyjs');
 const DEFAULT_FIELD_NAME = 'New Field';
 
 module.exports = {
@@ -50,7 +50,8 @@ const handleFileData = (filePath) => {
 const readAvroData = (filePath, cb) => {
 	const codecs = {
 		snappy: function (buf, cb) {
-			return snappy.uncompress(buf.slice(0, buf.length - 4), cb);
+			const uncompressed = snappy.uncompress(buf);
+			return cb(uncompressed);
 		},
 		null: function (buf, cb) { cb(null, buf); },
 		//other codecs
@@ -227,7 +228,7 @@ const reFromFile = (data, logger, callback) => {
 	.catch(callback);
 };
 
-reFromFile({ filePath: '/home/eduard/Downloads/twitter.avro'} , {}, (err, res) => {
+reFromFile({ filePath: '/home/eduard/Downloads/userdata1.avro'} , {}, (err, res) => {
 	console.log(err, res);
 });
 
