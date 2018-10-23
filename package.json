@@ -14,13 +14,8 @@
             "versions": []
         },
         "features": {
-            "jaySchemaHasRequiredPatternField": false,
-			"disablePatternField": false,
-			"enableForwardEngineering": false,
-			"disableReverseEngineering": false,
-            "nestedCollections": false,
-			"disableChoices": true,
-			"enableJsonType": false			
+			"enableForwardEngineering": true,
+			"disableReverseEngineering": false	
         }
     },
     "description": "Hackolade plugin for Apache Avro Schema",
