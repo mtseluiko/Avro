@@ -137,7 +137,7 @@
 	"MONGODB_SCRIPT_WARNING_MESSAGE": "This view is not associated to a type (viewOn property).",
 	"TYPE": {},
 	"CENTRAL_PANE___TAB_MODEL_DEFINITIONS": "Model Definitions",
-	"CENTRAL_PANE___FE_SCRIPT": "Avro Schema",
+	"CENTRAL_PANE___FE_SCRIPT": "Avro File",
 	"CONTEXT_MENU___ADD_MODEL_REFERENCE": "Model Definition",
 	"CONTEXT_MENU___GO_TO_DEFINITION": "Go to Model Definition",
 	"DOCUMENTATION___DB_DEFINITIONS": "Model Definitions",
