@@ -1,6 +1,6 @@
 'use strict'
 
-const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases'];
+const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases', 'symbols'];
 
 module.exports = {
 	generateScript(data, logger, cb) {
@@ -39,21 +39,34 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}) => {
 };
 
 const handleType = (schema, prop, avroSchema, parentSchema) => {
-    avroSchema = getType(avroSchema, schema, schema[prop]);
+    if (Array.isArray(schema[prop])) {
+        avroSchema = handleMultiple(avroSchema, schema, prop);
+    } else {
+        avroSchema = getFieldWithConvertedType(avroSchema, schema, schema[prop]);
+    }
 };
 
-const getType = (schema, field, type) => {
+const handleMultiple = (avroSchema, schema, prop) => {
+    avroSchema[prop] = schema[prop].map(type => {
+        const field = getFieldWithConvertedType({}, {}, type);
+        return field.type;
+    });
+    return avroSchema;
+};
+
+const getFieldWithConvertedType = (schema, field, type) => {
 	switch(type) {
 		case 'string':
 		case 'bytes':
-		case 'number':
 		case 'boolean':
 		case 'null':
 		case 'record':
 		case 'array':
 		case 'enum':
 		case 'fixed':
-			return Object.assign(schema, { type });
+            return Object.assign(schema, { type });
+        case 'number':
+            return Object.assign(schema, { type:  field.mode });
 		case 'map':
 			return Object.assign(schema, {
 				type,

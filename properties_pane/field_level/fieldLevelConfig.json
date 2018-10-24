@@ -106,7 +106,7 @@ making sure that you maintain a proper JSON format.
 			"type",
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "fieldDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
@@ -157,7 +157,7 @@ making sure that you maintain a proper JSON format.
 			"type",
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "fieldDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
@@ -205,7 +205,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "fieldDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
@@ -264,7 +264,7 @@ making sure that you maintain a proper JSON format.
 			"type",
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "fieldDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
@@ -298,7 +298,7 @@ making sure that you maintain a proper JSON format.
 			"schemaId",
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "fieldDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
@@ -339,7 +339,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "fieldDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
@@ -375,7 +375,7 @@ making sure that you maintain a proper JSON format.
 			"type",
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "fieldDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
@@ -412,7 +412,7 @@ making sure that you maintain a proper JSON format.
 			"type",
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "fieldDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
@@ -467,7 +467,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "fieldDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
@@ -508,7 +508,7 @@ making sure that you maintain a proper JSON format.
 			"name",
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "fieldDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
