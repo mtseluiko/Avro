@@ -1,5 +1,5 @@
 {
-  "menu_label": "Avro file",
+  "menu_label": "Avro schema or data file",
   "name": "avsc",
   "extensions": ["avsc", "avro"]
 }
