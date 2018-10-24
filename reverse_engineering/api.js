@@ -220,23 +220,3 @@ const handleOtherProps = (data, prop, schema) => {
 	schema[prop] = data[prop];
 	return;
 };
-
-/*
-
-const reFromFile = (data, logger, callback) => {
-	handleFileData(data.filePath)
-	.then(fileData => {
-		return parseData(fileData);
-	})
-	.then(schema => {
-		const jsonSchema = convertToJsonSchema(schema);
-		return callback(null, jsonSchema);
-	})
-	.catch(callback);
-};
-
-reFromFile({ filePath: '/home/eduard/Downloads/userdata1.avro'} , {}, (err, res) => {
-	console.log(err, res);
-});
-
-*/
