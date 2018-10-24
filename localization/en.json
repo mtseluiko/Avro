@@ -8,7 +8,7 @@
 	"MAIN_MENU___ADD_ATTRIBUTE": "Add Field",
 	"MAIN_MENU___INSERT_FIELD": "Insert Field",
 	"MAIN_MENU___APPEND_FIELD": "Append Field",
-	"MAIN_MENU___FORWARD_DB_COLLECTIONS": "Avro File",
+	"MAIN_MENU___FORWARD_DB_COLLECTIONS": "Avro Schema",
 	"TOOLBAR___ADD_BUCKET": "Add namespace",
 	"TOOLBAR___ADD_COLLECTION": "Add record",
 	"TOOLBAR___ADD_CHILD_COLLECTION": "Add Child Collection",
