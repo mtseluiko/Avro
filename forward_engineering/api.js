@@ -96,7 +96,7 @@ const handleItems = (schema, prop, avroSchema) => {
         schema[prop] = [schema[prop]];
     }
 
-    avroSchema[prop] = Object.assign({}, schema[prop][0]);
+    avroSchema[prop] = {};
     handleRecursiveSchema(schema[prop][0], avroSchema[prop], schema);
 };
 
