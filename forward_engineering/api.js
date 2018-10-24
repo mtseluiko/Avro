@@ -1,6 +1,6 @@
 'use strict'
 
-const ADDITIONAL_PROPS = ['name', 'doc'];
+const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases'];
 
 module.exports = {
 	generateScript(data, logger, cb) {
@@ -17,13 +17,6 @@ module.exports = {
 
 const getRecordName = (data) => {
     return data.entityData.name || data.entityData.collectionName;
-};
-
-const generateScript = (data, logger, cb) => {
-    let avroSchema = { name: data.name };
-    handleRecursiveSchema(data.schema, avroSchema);
-    avroSchema.type = 'record';
-    return cb(null, avroSchema);
 };
 
 const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}) => {
@@ -64,11 +57,16 @@ const getType = (schema, field, type) => {
 		case 'map':
 			return Object.assign(schema, {
 				type,
-				values: field.subtype
+				values: getValues(type, field.subtype)
 			});
 		default:
 			return Object.assign(schema, { type: 'string' });
 	}
+};
+
+const getValues = (type, subtype) => {
+    const regex = new RegExp('\\' + type + '<(.*?)\>');
+    return subtype.match(regex)[1] || 'string';
 };
 
 const handleFields = (schema, prop, avroSchema) => {
@@ -94,78 +92,3 @@ const handleOtherProps = (schema, prop, avroSchema) => {
         avroSchema[prop] = schema[prop];
     }
 };
-
-
-/*
-
-const data = {
-    jsonSchema: { 
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-            "New field": {
-                "type": "string"
-            },
-            "New field(1)": {
-                "type": "bytes"
-            },
-            "New field(2)": {
-                "type": "number"
-            },
-            "New field(3)": {
-                "type": "boolean"
-            },
-            "New field(4)": {
-                "type": "null"
-            },
-            "New field(5)": {
-                "type": "record",
-                "additionalProperties": false
-            },
-            "New field(6)": {
-                "type": "array",
-                "additionalItems": true,
-                "uniqueItems": false,
-                "required": [
-                    null
-                ],
-                "items": {
-                    "type": "string",
-                    "arrayItem": true
-                }
-            },
-            "New field(7)": {
-                "type": "map",
-                "subtype": "map<string>",
-                "keyType": "string",
-                "additionalProperties": false
-            },
-            "New field(8)": {
-                "type": "enum",
-                "pattern": "[A-Za-z0-9_]"
-            },
-            "New field(9)": {
-                "type": "fixed"
-            }
-        },
-        "required": [
-            "New field",
-            "New field(1)",
-            "New field(2)",
-            "New field(3)",
-            "New field(5)",
-            "New field(6)",
-            "New field(7)",
-            "New field(8)",
-            "New field(9)"
-        ]
-    },
-    name: 'AllTypes'
-};
-
-generateScript(data, {}, (err, res) => {
-    console.log(err, res);
-});
-
-*/

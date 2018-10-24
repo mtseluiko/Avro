@@ -144,7 +144,6 @@ const getType = (schema, field, type) => {
 	switch(type) {
 		case 'string':
 		case 'bytes':
-		case 'number':
 		case 'boolean':
 		case 'null':
 		case 'record':
@@ -152,6 +151,14 @@ const getType = (schema, field, type) => {
 		case 'enum':
 		case 'fixed':
 			return Object.assign(schema, { type });
+		case 'int':
+		case 'long':
+		case 'float':
+		case 'double':
+			return Object.assign(schema, {
+				type: 'number',
+				mode: type
+			});
 		case 'map':
 			return Object.assign(schema, {
 				type,

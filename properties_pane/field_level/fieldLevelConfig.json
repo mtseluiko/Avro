@@ -115,7 +115,7 @@ making sure that you maintain a proper JSON format.
 			"default",
 			{
 				"propertyName": "Order",
-				"propertyKeyword": "fieldOrder",
+				"propertyKeyword": "order",
 				"shouldValidate": false,
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
@@ -127,19 +127,10 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Aliases",
-				"propertyType": "group",
-				"propertyKeyword": "fieldAliases",
-				"shouldValidate": false,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Alias name",
-						"propertyKeyword": "fieldAliasName",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "aliases",
+				"multi": true,
+				"valueType": "array"
 			},
 			"description",
 			"dependencies",
@@ -174,19 +165,10 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Aliases",
-				"propertyType": "group",
-				"propertyKeyword": "fieldAliases",
-				"shouldValidate": false,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Alias name",
-						"propertyKeyword": "fieldAliasName",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "aliases",
+				"multi": true,
+				"valueType": "array"
 			},
 			"description",
 			"dependencies",
@@ -232,7 +214,7 @@ making sure that you maintain a proper JSON format.
 			"default",
 			{
 				"propertyName": "Order",
-				"propertyKeyword": "fieldOrder",
+				"propertyKeyword": "order",
 				"shouldValidate": false,
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
@@ -244,19 +226,10 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Aliases",
-				"propertyType": "group",
-				"propertyKeyword": "fieldAliases",
-				"shouldValidate": false,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Alias name",
-						"propertyKeyword": "fieldAliasName",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "aliases",
+				"multi": true,
+				"valueType": "array"
 			},
 			"description",
 			"dependencies",
@@ -300,19 +273,10 @@ making sure that you maintain a proper JSON format.
 			"default",
 			{
 				"propertyName": "Aliases",
-				"propertyType": "group",
-				"propertyKeyword": "fieldAliases",
-				"shouldValidate": false,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Alias name",
-						"propertyKeyword": "fieldAliasName",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "aliases",
+				"multi": true,
+				"valueType": "array"
 			},
 			"description",
 			"dependencies",
@@ -342,19 +306,10 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Aliases",
-				"propertyType": "group",
-				"propertyKeyword": "fieldAliases",
-				"shouldValidate": false,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Alias name",
-						"propertyKeyword": "fieldAliasName",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "aliases",
+				"multi": true,
+				"valueType": "array"
 			},
 			"type",
 			"description",
@@ -392,19 +347,10 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Aliases",
-				"propertyType": "group",
-				"propertyKeyword": "fieldAliases",
-				"shouldValidate": false,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Alias name",
-						"propertyKeyword": "fieldAliasName",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "aliases",
+				"multi": true,
+				"valueType": "array"
 			},
 			"description",
 			"dependencies",
@@ -437,19 +383,10 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Aliases",
-				"propertyType": "group",
-				"propertyKeyword": "fieldAliases",
-				"shouldValidate": false,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Alias name",
-						"propertyKeyword": "fieldAliasName",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "aliases",
+				"multi": true,
+				"valueType": "array"
 			},
 			"description",
 			"dependencies",
@@ -496,19 +433,10 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Aliases",
-				"propertyType": "group",
-				"propertyKeyword": "fieldAliases",
-				"shouldValidate": false,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Alias name",
-						"propertyKeyword": "fieldAliasName",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "aliases",
+				"multi": true,
+				"valueType": "array"
 			},
 			"description",
 			"dependencies",
@@ -547,35 +475,17 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Aliases",
-				"propertyType": "group",
-				"propertyKeyword": "fieldAliases",
-				"shouldValidate": false,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Alias name",
-						"propertyKeyword": "fieldAliasName",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "aliases",
+				"multi": true,
+				"valueType": "array"
 			},
 			{
 				"propertyName": "Symbols",
-				"propertyType": "group",
-				"propertyKeyword": "enumSymbols",
-				"shouldValidate": true,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Simple Grp Text",
-						"propertyKeyword": "simpleGrpText",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "symbols",
+				"multi": true,
+				"valueType": "array"
 			},
 			"dependencies",
 			"description",
@@ -606,19 +516,10 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Aliases",
-				"propertyType": "group",
-				"propertyKeyword": "fieldAliases",
-				"shouldValidate": false,
-				"propertyTooltip": "",
-				"structure": [
-					{
-						"propertyName": "Alias name",
-						"propertyKeyword": "fieldAliasName",
-						"shouldValidate": false,
-						"propertyTooltip": "",
-						"propertyType": "text"
-					}
-				]
+				"propertyType": "text",
+				"propertyKeyword": "aliases",
+				"multi": true,
+				"valueType": "array"
 			},
 			"schemaId",
 			"type",
