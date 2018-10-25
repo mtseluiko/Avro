@@ -14,7 +14,12 @@ module.exports = {
 		})
 		.then(schema => {
 			const jsonSchema = convertToJsonSchema(schema);
-			return callback(null, jsonSchema);
+			try {
+				const strJsonSchema = JSON.stringify(jsonSchema);
+				return callback(null, strJsonSchema);
+			} catch (err) {
+				return callback(handleErrorObject(err))
+			}
 		})
 		.catch(callback);
 	}
@@ -241,6 +246,6 @@ const reFromFile = (data, logger, callback) => {
 };
 
 
-reFromFile({ filePath: '/home/eduard/Downloads/userdata.avsc'} , {}, (err, res) => {
+reFromFile({ filePath: '/home/eduard/Downloads/test.avsc'} , {}, (err, res) => {
 	console.log(err, res);
 });
