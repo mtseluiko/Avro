@@ -246,6 +246,6 @@ const reFromFile = (data, logger, callback) => {
 };
 
 
-reFromFile({ filePath: '/home/eduard/Downloads/test.avsc'} , {}, (err, res) => {
-	console.log(err, res);
-});
+// reFromFile({ filePath: '/home/eduard/Downloads/test.avsc'} , {}, (err, res) => {
+// 	console.log(err, res);
+// });

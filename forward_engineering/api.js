@@ -48,7 +48,7 @@ const handleType = (schema, prop, avroSchema, parentSchema) => {
 
 const handleMultiple = (avroSchema, schema, prop) => {
     avroSchema[prop] = schema[prop].map(type => {
-        const field = getFieldWithConvertedType({}, {}, type);
+        const field = getFieldWithConvertedType({}, schema, type);
         return field.type;
     });
     return avroSchema;
@@ -66,7 +66,7 @@ const getFieldWithConvertedType = (schema, field, type) => {
 		case 'fixed':
             return Object.assign(schema, { type });
         case 'number':
-            return Object.assign(schema, { type:  field.mode });
+            return Object.assign(schema, { type:  field.mode || 'int' });
 		case 'map':
 			return Object.assign(schema, {
 				type,
@@ -105,3 +105,40 @@ const handleOtherProps = (schema, prop, avroSchema) => {
         avroSchema[prop] = schema[prop];
     }
 };
+
+/*
+
+const generateScript = (data, logger, cb) => {
+    let avroSchema = { name: data.name };
+    handleRecursiveSchema(data.jsonSchema, avroSchema);
+    avroSchema.type = 'record';
+    return cb(null, avroSchema);
+};
+
+const data = {
+    jsonSchema: {
+        "$schema": "http://json-schema.org/draft-04/schema#",
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+            "New field": {
+                "type": [
+                    "null",
+                    "number"
+                ],
+                "GUID": "862bf4f0-d86e-11e8-84f5-af43cfb5bf4b",
+                "mode": "long"
+            }
+        },
+        "required": [
+            "New field"
+        ]
+    },
+    name: 'Multi'
+};
+
+generateScript(data, {}, (err, res) => {
+    console.log(err, res);
+});
+
+*/
