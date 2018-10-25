@@ -30,7 +30,7 @@ const handleFileData = (filePath) => {
 		const fileType = getFileType(filePath);
 		const respond = (err, content) => {
 			if(err){
-				reject(err);
+				reject(handleErrorObject(err));
 			} else {
 				resolve(content);
 			}
@@ -53,8 +53,7 @@ const readAvroData = (filePath, cb) => {
 			const uncompressed = snappy.uncompress(buf);
 			return cb(uncompressed);
 		},
-		null: function (buf, cb) { cb(null, buf); },
-		//other codecs
+		null: function (buf, cb) { cb(null, buf); }
 	};
 
 
@@ -64,7 +63,7 @@ const readAvroData = (filePath, cb) => {
 				const schema = JSON.stringify(type);
 				return cb(null, schema);
 			} catch (error) {
-				return cb(error);
+				return cb(handleErrorObject(error));
 			}
 		})
 		.on('error', cb);
@@ -76,7 +75,7 @@ const parseData = (fileData) => {
 		try {
 			resolve(JSON.parse(fileData));
 		} catch(err) {
-			reject(err);
+			reject(handleErrorObject(err));
 		}
 	});
 };
@@ -220,3 +219,28 @@ const handleOtherProps = (data, prop, schema) => {
 	schema[prop] = data[prop];
 	return;
 };
+
+const handleErrorObject = (error) => {
+	let plainObject = {};
+	Object.getOwnPropertyNames(error).forEach(function(key) {
+		plainObject[key] = error[key];
+	});
+	return plainObject;
+};
+
+const reFromFile = (data, logger, callback) => {
+	handleFileData(data.filePath)
+	.then(fileData => {
+		return parseData(fileData);
+	})
+	.then(schema => {
+		const jsonSchema = convertToJsonSchema(schema);
+		return callback(null, jsonSchema);
+	})
+	.catch(callback);
+};
+
+
+reFromFile({ filePath: '/home/eduard/Downloads/userdata.avsc'} , {}, (err, res) => {
+	console.log(err, res);
+});
