@@ -5,8 +5,7 @@
 	"parentType": "document",
 	"useSample": true,
 	"defaultValues": {
-		"subtype": "map<string>",
-		"keyType": "string",
+		"subtype": "string",
 		"dependencies": [],
 		"primaryKey": false,
 		"properties": [],
@@ -16,36 +15,19 @@
 	},
 	"subtypes": {
 		"string": {
-			"childValueType": "map<str>"
+			"childValueType": "string"
 		},
 		"int": {
-			"childValueType": "map<int>"
+			"childValueType": "number"
 		},
 		"long": {
-			"childValueType": "map<long>"
+			"childValueType": "number"
 		},
 		"float": {
-			"childValueType": "map<float>"
+			"childValueType": "number"
 		},
 		"double": {
-			"childValueType": "map<double>"
-		}
-	},
-	"keyTypes": {
-		"string": {
-			"childValueName": "New field"
-		},
-		"int": {
-			"childValueName": "12345"
-		},
-		"long": {
-			"childValueName": "12345"
-		},
-		"float": {
-			"childValueName": "123.45"
-		},
-		"double": {
-			"childValueName": "123.45"
+			"childValueType": "number"
 		}
 	}
 }

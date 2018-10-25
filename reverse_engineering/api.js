@@ -166,7 +166,7 @@ const getType = (schema, field, type) => {
 		case 'map':
 			return Object.assign(schema, {
 				type,
-				subtype: `map<${field.values}>`,
+				subtype: field.values, // `map<${field.values}>`,
 				keyType: 'string'
 			});
 		default:
