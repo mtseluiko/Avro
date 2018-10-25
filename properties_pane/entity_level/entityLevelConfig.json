@@ -86,7 +86,7 @@ making sure that you maintain a proper JSON format.
 		"structure": [
 			{
 				"propertyName": "Doc",
-				"propertyKeyword": "recordDoc",
+				"propertyKeyword": "doc",
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
