@@ -84,9 +84,8 @@ const getFieldWithConvertedType = (schema, field, type) => {
 };
 
 const getValues = (type, subtype) => {
-    // const regex = new RegExp('\\' + type + '<(.*?)\>');
-    // return subtype.match(regex)[1] || 'string';
-    return subtype;
+    const regex = new RegExp('\\' + type + '<(.*?)\>');
+    return subtype.match(regex)[1] || 'string';
 };
 
 const handleFields = (schema, prop, avroSchema) => {
