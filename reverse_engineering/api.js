@@ -231,20 +231,3 @@ const handleErrorObject = (error) => {
 	});
 	return plainObject;
 };
-
-const reFromFile = (data, logger, callback) => {
-	handleFileData(data.filePath)
-	.then(fileData => {
-		return parseData(fileData);
-	})
-	.then(schema => {
-		const jsonSchema = convertToJsonSchema(schema);
-		return callback(null, jsonSchema);
-	})
-	.catch(callback);
-};
-
-
-// reFromFile({ filePath: '/home/eduard/Downloads/test.avsc'} , {}, (err, res) => {
-// 	console.log(err, res);
-// });

@@ -5,7 +5,7 @@
 	"parentType": "document",
 	"useSample": true,
 	"defaultValues": {
-		"subtype": "string",
+		"subtype": "map<string>",
 		"dependencies": [],
 		"primaryKey": false,
 		"properties": [],

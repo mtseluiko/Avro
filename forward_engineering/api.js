@@ -137,6 +137,12 @@ const handleOneOf = (schema, avroSchema) => {
         if (field.items) {
             multipleField.items = Object.assign((multipleField.items || {}), field.items);
         }
+
+        [...ADDITIONAL_PROPS, 'mode', 'subtype'].forEach(prop => {
+            if (field[prop]) {
+                multipleField[prop] = field[prop];
+            }
+        });
     });
 
     schema.properties = Object.assign((schema.properties || {}), multipleFieldsHash);
@@ -153,63 +159,3 @@ const handleOtherProps = (schema, prop, avroSchema) => {
         avroSchema[prop] = schema[prop];
     }
 };
-
-const generateScript = (data, logger, cb) => {
-    let avroSchema = { name: data.name };
-    handleRecursiveSchema(data.jsonSchema, avroSchema);
-    avroSchema.type = 'record';
-    return cb(null, avroSchema);
-};
-
-const data = {
-    jsonSchema: {
-        "$schema": "http://json-schema.org/draft-04/schema#",
-        "type": "object",
-        "additionalProperties": true,
-        "properties": {
-            "New field": {
-                "type": [
-                    "null",
-                    "number"
-                ],
-                "mode": "long"
-            }
-        },
-        "oneOf": [
-            {
-                "type": "object",
-                "properties": {
-                    "New field1": {
-                        "type": "number"
-                    }
-                },
-                "additionalProperties": true,
-                "required": [
-                    "New field"
-                ]
-            },
-            {
-                "type": "object",
-                "properties": {
-                    "New field1": {
-                        "type": "map",
-                        "subtype": "string",
-                        "additionalProperties": false
-                    }
-                },
-                "additionalProperties": false,
-                "required": [
-                    "New field"
-                ]
-            }
-        ],
-        "required": [
-            "New field"
-        ]
-    },
-    name: 'Multi'
-};
-
-generateScript(data, {}, (err, res) => {
-    console.log(err, res);
-});
