@@ -20,6 +20,10 @@ const getRecordName = (data) => {
 };
 
 const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}) => {
+    if (schema.oneOf) {
+        handleOneOf(schema, avroSchema);
+    }
+
     for (let prop in schema) {
 		switch(prop) {
 			case 'type':
@@ -34,7 +38,9 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}) => {
 			default:
 				handleOtherProps(schema, prop, avroSchema);
 		}
-	}
+    }
+
+    
 	return;
 };
 
@@ -101,13 +107,53 @@ const handleItems = (schema, prop, avroSchema) => {
     handleRecursiveSchema(schema[prop][0], avroSchema[prop], schema);
 };
 
+const handleOneOf = (schema, avroSchema) => {
+    let allSubSchemaFields = [];
+    schema.oneOf.forEach(subSchema => {
+        allSubSchemaFields = allSubSchemaFields.concat(Object.keys(subSchema.properties).map(item => {
+            return Object.assign({
+                name: item
+            }, subSchema.properties[item]);
+        }));
+    });
+    const sharedFieldNames = uniqBy(allSubSchemaFields, 'name');
+    const commonFields = allSubSchemaFields.filter(item => sharedFieldNames.includes(item.name));
+    
+    let multipleFieldsHash = {};
+    commonFields.forEach(field => {
+        if (!multipleFieldsHash[field.name]) {
+            multipleFieldsHash[field.name] = {
+                name: field.name,
+                type: []
+            };
+        }
+        let multipleField = multipleFieldsHash[field.name];
+        let fieldTypes = (Array.isArray(field.type) ? field.type : [field.type]);
+        multipleField.type = multipleField.type.concat(fieldTypes);
+
+        if (field.properties) {
+            multipleField.properties = Object.assign((multipleField.properties || {}), field.properties);
+        }
+
+        if (field.items) {
+            multipleField.items = Object.assign((multipleField.items || {}), field.items);
+        }
+    });
+
+    schema.properties = Object.assign((schema.properties || {}), multipleFieldsHash);
+};
+
+const uniqBy = (arr, prop) => {
+    return arr.map(function(e) { return e[prop]; }).filter(function(e,i,a){
+        return i === a.indexOf(e);
+    });
+};
+
 const handleOtherProps = (schema, prop, avroSchema) => {
     if (ADDITIONAL_PROPS.includes(prop)) {
         avroSchema[prop] = schema[prop];
     }
 };
-
-/*
 
 const generateScript = (data, logger, cb) => {
     let avroSchema = { name: data.name };
@@ -120,17 +166,44 @@ const data = {
     jsonSchema: {
         "$schema": "http://json-schema.org/draft-04/schema#",
         "type": "object",
-        "additionalProperties": false,
+        "additionalProperties": true,
         "properties": {
             "New field": {
                 "type": [
                     "null",
                     "number"
                 ],
-                "GUID": "862bf4f0-d86e-11e8-84f5-af43cfb5bf4b",
                 "mode": "long"
             }
         },
+        "oneOf": [
+            {
+                "type": "object",
+                "properties": {
+                    "New field1": {
+                        "type": "number"
+                    }
+                },
+                "additionalProperties": true,
+                "required": [
+                    "New field"
+                ]
+            },
+            {
+                "type": "object",
+                "properties": {
+                    "New field1": {
+                        "type": "map",
+                        "subtype": "string",
+                        "additionalProperties": false
+                    }
+                },
+                "additionalProperties": false,
+                "required": [
+                    "New field"
+                ]
+            }
+        ],
         "required": [
             "New field"
         ]
@@ -141,5 +214,3 @@ const data = {
 generateScript(data, {}, (err, res) => {
     console.log(err, res);
 });
-
-*/
