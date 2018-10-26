@@ -14,19 +14,19 @@
 		"additionalProperties": false
 	},
 	"subtypes": {
-		"string": {
+		"map<string>": {
 			"childValueType": "string"
 		},
-		"int": {
+		"map<int>": {
 			"childValueType": "number"
 		},
-		"long": {
+		"map<long>": {
 			"childValueType": "number"
 		},
-		"float": {
+		"map<float>": {
 			"childValueType": "number"
 		},
-		"double": {
+		"map<double>": {
 			"childValueType": "number"
 		}
 	}

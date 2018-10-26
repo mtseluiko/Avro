@@ -424,11 +424,11 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
-					"string",
-					"int",
-					"long",
-					"float",
-					"double"
+					{ "value": "map<string>", "name": "string" },
+					{ "value": "map<int>", "name": "int" },
+					{ "value": "map<long>", "name": "long" },
+					{ "value": "map<float>", "name": "float" },
+					{ "value": "map<double>", "name": "double" }
 				]
 			},
 			{
