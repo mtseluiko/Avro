@@ -1,6 +1,6 @@
 'use strict'
 
-const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases', 'symbols'];
+const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases', 'symbols', 'namespace'];
 
 module.exports = {
 	generateScript(data, logger, cb) {

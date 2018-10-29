@@ -8,6 +8,8 @@ const snappy = require('snappyjs');
 const DEFAULT_FIELD_NAME = 'New Field';
 let stateExtension = null;
 
+const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases', 'symbols', 'namespace'];
+
 module.exports = {
 	reFromFile(data, logger, callback) {
 		handleFileData(data.filePath)
@@ -222,7 +224,9 @@ const handleItems = (data, prop, schema) => {
 };
 
 const handleOtherProps = (data, prop, schema) => {
-	schema[prop] = data[prop];
+	if (ADDITIONAL_PROPS.includes(prop)) {
+		schema[prop] = data[prop];
+	}
 	return;
 };
 
