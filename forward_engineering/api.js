@@ -10,6 +10,7 @@ module.exports = {
 
         handleRecursiveSchema(jsonSchema, avroSchema);
         avroSchema.type = 'record';
+        avroSchema = reorderAvroSchema(avroSchema);
         avroSchema = JSON.stringify(avroSchema, null, 4);
         return cb(null, avroSchema);
 	}
@@ -17,6 +18,14 @@ module.exports = {
 
 const getRecordName = (data) => {
     return data.entityData.name || data.entityData.collectionName;
+};
+
+const reorderAvroSchema = (avroSchema) => {
+    const schemaFields = avroSchema.fields;
+    delete avroSchema.fields;
+    return Object.assign({}, avroSchema, {
+        fields: schemaFields
+    });
 };
 
 const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}) => {
@@ -39,7 +48,6 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}) => {
 				handleOtherProps(schema, prop, avroSchema);
 		}
     }
-
     
 	return;
 };

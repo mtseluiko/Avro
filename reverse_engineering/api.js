@@ -19,7 +19,7 @@ module.exports = {
 		.then(schema => {
 			const jsonSchema = convertToJsonSchema(schema);
 			try {
-				const strJsonSchema = JSON.stringify(jsonSchema);
+				const strJsonSchema = JSON.stringify(jsonSchema, null, 4);
 				return callback(null, { jsonSchema: strJsonSchema, extension: stateExtension });
 			} catch (err) {
 				return callback(handleErrorObject(err))
