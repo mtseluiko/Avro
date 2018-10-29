@@ -1,10 +1,12 @@
 'use strict'
 
 const fs = require('fs');
+const path = require('path');
 const _ = require('lodash');
 const avro = require('avsc');
 const snappy = require('snappyjs');
 const DEFAULT_FIELD_NAME = 'New Field';
+let stateExtension = null;
 
 module.exports = {
 	reFromFile(data, logger, callback) {
@@ -16,7 +18,7 @@ module.exports = {
 			const jsonSchema = convertToJsonSchema(schema);
 			try {
 				const strJsonSchema = JSON.stringify(jsonSchema);
-				return callback(null, strJsonSchema);
+				return callback(null, { jsonSchema: strJsonSchema, extension: stateExtension });
 			} catch (err) {
 				return callback(handleErrorObject(err))
 			}
@@ -25,14 +27,14 @@ module.exports = {
 	}
 };
 
-const getFileType = (filePath) => {
-	const type = filePath.slice(-4);
-	return type;
+const getFileExt = (filePath) => {
+	return path.extname(filePath);
 };
 
 const handleFileData = (filePath) => {
 	return new Promise((resolve, reject) => {
-		const fileType = getFileType(filePath);
+		const extension = getFileExt(filePath);
+		stateExtension = extension;
 		const respond = (err, content) => {
 			if(err){
 				reject(handleErrorObject(err));
@@ -41,9 +43,9 @@ const handleFileData = (filePath) => {
 			}
 		};
 
-		if (fileType === 'avro') {
+		if (extension === '.avro') {
 			readAvroData(filePath, respond);
-		} else if (fileType === 'avsc') {
+		} else if (extension === '.avsc') {
 			fs.readFile(filePath, 'utf-8', respond);
 		} else {
 			const error = new Error(`The file ${filePath} is not recognized as Avro Schema or Data.`)
