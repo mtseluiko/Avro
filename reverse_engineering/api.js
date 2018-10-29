@@ -22,10 +22,14 @@ module.exports = {
 				const strJsonSchema = JSON.stringify(jsonSchema, null, 4);
 				return callback(null, { jsonSchema: strJsonSchema, extension: stateExtension });
 			} catch (err) {
+				logger.log('error', { message: err.message, stack: err.stack }, 'Parsing Avro Schema Error');
 				return callback(handleErrorObject(err))
 			}
 		})
-		.catch(callback);
+		.catch(err => {
+			logger.log('error', { message: err.message, stack: err.stack }, 'Avro Reverse-Engineering Error');
+			callback(err)
+		});
 	}
 };
 

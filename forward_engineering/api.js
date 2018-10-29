@@ -4,15 +4,22 @@ const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases', 'symbols', 'namespa
 
 module.exports = {
 	generateScript(data, logger, cb) {
-        let name = getRecordName(data);
-        let avroSchema = { name };
-        let jsonSchema = JSON.parse(data.jsonSchema);
-
-        handleRecursiveSchema(jsonSchema, avroSchema);
-        avroSchema.type = 'record';
-        avroSchema = reorderAvroSchema(avroSchema);
-        avroSchema = JSON.stringify(avroSchema, null, 4);
-        return cb(null, avroSchema);
+        try {
+            let name = getRecordName(data);
+            let avroSchema = { name };
+            let jsonSchema = JSON.parse(data.jsonSchema);
+    
+            handleRecursiveSchema(jsonSchema, avroSchema);
+            avroSchema.type = 'record';
+            avroSchema = reorderAvroSchema(avroSchema);
+            avroSchema = JSON.stringify(avroSchema, null, 4);
+            return cb(null, avroSchema);
+        } catch(err) {
+            logger.log('error', { message: err.message, stack: err.stack }, 'Avro Forward-Engineering Error');
+            setTimeout(() => {
+				callback({ message: err.message, stack: err.stack });
+			}, 150);
+        }
 	}
 };
 
