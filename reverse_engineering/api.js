@@ -94,6 +94,7 @@ const convertToJsonSchema = (data) => {
 	handleRecursiveSchema(data, jsonSchema);
 	jsonSchema.type = 'object';
 	jsonSchema.$schema = 'http://json-schema.org/draft-04/schema#';
+	delete jsonSchema.namespace;
 	return jsonSchema;
 };
 
