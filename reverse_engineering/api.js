@@ -19,8 +19,10 @@ module.exports = {
 		.then(schema => {
 			const jsonSchema = convertToJsonSchema(schema);
 			try {
+				const namespace = jsonSchema.namespace;
+				delete jsonSchema.namespace;
 				const strJsonSchema = JSON.stringify(jsonSchema, null, 4);
-				return callback(null, { jsonSchema: strJsonSchema, extension: stateExtension });
+				return callback(null, { jsonSchema: strJsonSchema, extension: stateExtension, containerName: namespace });
 			} catch (err) {
 				logger.log('error', { message: err.message, stack: err.stack }, 'Parsing Avro Schema Error');
 				return callback(handleErrorObject(err))
@@ -98,7 +100,6 @@ const convertToJsonSchema = (data) => {
 	handleRecursiveSchema(data, jsonSchema);
 	jsonSchema.type = 'object';
 	jsonSchema.$schema = 'http://json-schema.org/draft-04/schema#';
-	delete jsonSchema.namespace;
 	return jsonSchema;
 };
 

@@ -5,11 +5,15 @@ const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases', 'symbols', 'namespa
 module.exports = {
 	generateScript(data, logger, cb) {
         try {
-            let name = getRecordName(data);
+            const name = getRecordName(data);
             let avroSchema = { name };
             let jsonSchema = JSON.parse(data.jsonSchema);
     
             handleRecursiveSchema(jsonSchema, avroSchema);
+            
+            if (data.containerData) {
+                avroSchema.namespace = data.containerData.name;
+            }
             avroSchema.type = 'record';
             avroSchema = reorderAvroSchema(avroSchema);
             avroSchema = JSON.stringify(avroSchema, null, 4);
