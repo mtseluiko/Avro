@@ -1,0 +1,13 @@
+{
+  "name": "Avro",
+  "version": "1.0.0",
+  "description": "",
+  "author": "Hackolade",
+  "dependencies": {
+    "avsc": "^5.4.6",
+    "lodash": "^4.17.11",
+    "snappyjs": "^0.6.0"
+  },
+  "type": "file",
+  "installed": false
+}

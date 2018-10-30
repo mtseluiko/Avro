@@ -1,0 +1,22 @@
+{
+	"name": "fixed",
+	"erdAbbreviation": "<fxd>",
+	"dtdAbbreviation": "{fxd}",
+	"parentType": "string",
+	"useSample": true,
+	"defaultValues": {
+		"required": true,
+		"minLength": "",
+		"maxLength": "",
+		"pattern": "",
+		"default": "",
+		"primaryKey": false,
+		"relationshipType": "",
+		"parentRelationship": "",
+		"childRelationships": [],
+		"foreignCollection": "",
+		"foreignField": [],
+		"enum": [],
+		"sample": ""
+	}
+}
