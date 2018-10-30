@@ -20,7 +20,9 @@ module.exports = {
 			const jsonSchema = convertToJsonSchema(schema);
 			try {
 				const namespace = jsonSchema.namespace;
+				jsonSchema.title = jsonSchema.name;
 				delete jsonSchema.namespace;
+				delete jsonSchema.name;
 				const strJsonSchema = JSON.stringify(jsonSchema, null, 4);
 				return callback(null, { jsonSchema: strJsonSchema, extension: stateExtension, containerName: namespace });
 			} catch (err) {

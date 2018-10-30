@@ -506,6 +506,14 @@ making sure that you maintain a proper JSON format.
 		],
 		"fixed": [
 			"name",
+			"schemaId",
+			"type",
+			{
+				"propertyName": "Namespace",
+				"propertyKeyword": "namespace",
+				"shouldValidate": false,
+				"propertyType": "text"
+			},
 			{
 				"propertyName": "Doc",
 				"propertyKeyword": "doc",
