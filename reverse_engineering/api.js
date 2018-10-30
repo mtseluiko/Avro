@@ -65,7 +65,7 @@ const handleFileData = (filePath) => {
 const readAvroData = (filePath, cb) => {
 	const codecs = {
 		snappy: function (buf, cb) {
-			const uncompressed = snappy.uncompress(buf);
+			const uncompressed = snappy.uncompress(buf.slice(0, buf.length - 4));
 			return cb(uncompressed);
 		},
 		null: function (buf, cb) { cb(null, buf); }
