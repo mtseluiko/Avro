@@ -533,7 +533,7 @@ making sure that you maintain a proper JSON format.
 			"type",
 			{
 				"propertyName": "Size",
-				"propertyKeyword": "fixedSize",
+				"propertyKeyword": "size",
 				"propertyValidate": true,
 				"propertyType": "numeric",
 				"valueType": "number",
