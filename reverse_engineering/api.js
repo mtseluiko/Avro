@@ -8,7 +8,7 @@ const snappy = require('snappyjs');
 const DEFAULT_FIELD_NAME = 'New Field';
 let stateExtension = null;
 
-const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases', 'symbols', 'namespace'];
+const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
 
 module.exports = {
 	reFromFile(data, logger, callback) {
@@ -109,7 +109,7 @@ const handleRecursiveSchema = (data, schema, parentSchema = {}) => {
 	for (let prop in data) {
 		switch(prop) {
 			case 'type':
-				handleType(data, prop, schema, parentSchema);
+				handleType(data, schema, parentSchema);
 				break;
 			case 'fields':
 				handleFields(data, prop, schema);
@@ -125,25 +125,27 @@ const handleRecursiveSchema = (data, schema, parentSchema = {}) => {
 };
 
 
-const handleType = (data, prop, schema, parentSchema) => {
-	if (Array.isArray(data[prop])) {
-		schema = handleMultipleTypes(data, prop, schema, parentSchema);
-	} else if (typeof data[prop] === 'object') {
-		handleRecursiveSchema(data[prop], schema);
+const handleType = (data, schema, parentSchema) => {
+	if (Array.isArray(data.type)) {
+		schema = handleMultipleTypes(data, schema, parentSchema);
+	} else if (typeof data.type === 'object') {
+		handleRecursiveSchema(data.type, schema);
 	} else {
-		schema = getType(schema, data, data[prop]);
+		schema = getType(schema, data, data.type);
 	}
 };
 
 
-const handleMultipleTypes = (data, prop, schema, parentSchema) => {
-	const hasComplexType = data[prop].find(item => typeof item !== 'string');
+const handleMultipleTypes = (data, schema, parentSchema) => {
+	const hasComplexType = data.type.find(item => typeof item !== 'string');
 
 	if (hasComplexType) {
-		parentSchema = getChoice(data, prop, parentSchema);
+		parentSchema = getChoice(data, parentSchema);
 		parentSchema = removeChangedField(parentSchema, data.name);
 	} else {
-		schema[prop] = data[prop];
+		const typeObjects = data.type.map(type => getType({}, data, type));
+		schema = Object.assign(schema, ...typeObjects);
+		schema.type = typeObjects.map(item => item.type);
 	}
 };
 
@@ -185,9 +187,9 @@ const getType = (schema, field, type) => {
 	}
 };
 
-const getChoice = (data, prop, parentSchema) => {
+const getChoice = (data, parentSchema) => {
 	parentSchema.oneOf = [];
-	data[prop].forEach(item => {
+	data.type.forEach(item => {
 		const name = data.name || DEFAULT_FIELD_NAME;
 		const subField = getSubField(item);
 		const subFieldSchema = {};
