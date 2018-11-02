@@ -180,6 +180,10 @@ const uniqBy = (arr, prop) => {
 const handleOtherProps = (schema, prop, avroSchema) => {
     if (ADDITIONAL_PROPS.includes(prop)) {
         avroSchema[prop] = schema[prop];
+
+        if (prop === 'size') {
+            avroSchema[prop] = Number(avroSchema[prop]);
+        }
     }
 };
 
