@@ -85,6 +85,13 @@ making sure that you maintain a proper JSON format.
 		"lowerTab": "Details",
 		"structure": [
 			{
+				"propertyName": "Record",
+				"propertyKeyword": "collectionName",
+				"shouldValidate": true,
+				"propertyTooltip": "",
+				"propertyType": "text"
+			},
+			{
 				"propertyName": "Doc",
 				"propertyKeyword": "doc",
 				"propertyValidate": false,

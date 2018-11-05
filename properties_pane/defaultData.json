@@ -9,12 +9,12 @@
 		"indexes": []
 	},
 	"collection": {
-		"collectionName": "New record",
+		"collectionName": "New_record",
 		"collectionUsers": [],
 		"collation": {}
 	},
 	"field": {
-		"name": "New field",
+		"name": "New_field",
 		"required": true
 	},
 	"patternField": {
