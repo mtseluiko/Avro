@@ -8,7 +8,7 @@ const snappy = require('snappyjs');
 const DEFAULT_FIELD_NAME = 'New Field';
 let stateExtension = null;
 
-const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const ADDITIONAL_PROPS = ['name', '_name', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
 
 module.exports = {
 	reFromFile(data, logger, callback) {
@@ -225,6 +225,8 @@ const handleItems = (data, prop, schema) => {
 	
 	if (typeof items === 'object') {
 		schema.items = {};
+		items._name = items.name;
+		delete items.name;
 		handleRecursiveSchema(items, schema.items, schema);
 	} else {
 		schema.items = {
