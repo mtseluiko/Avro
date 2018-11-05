@@ -1,5 +1,5 @@
 {
 	"collectionName": "^[A-Za-z_][A-Za-z0-9_]*$", 
 	"name": "^[A-Za-z_][A-Za-z0-9_]*$", 
-	"_name": "^[A-Za-z_][A-Za-z0-9_]*$" 
+	"arrayItemName": "^[A-Za-z_][A-Za-z0-9_]*$" 
 }

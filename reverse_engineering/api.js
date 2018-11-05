@@ -5,10 +5,10 @@ const path = require('path');
 const _ = require('lodash');
 const avro = require('avsc');
 const snappy = require('snappyjs');
-const DEFAULT_FIELD_NAME = 'New Field';
+const DEFAULT_FIELD_NAME = 'New_field';
 let stateExtension = null;
 
-const ADDITIONAL_PROPS = ['name', '_name', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
 
 module.exports = {
 	reFromFile(data, logger, callback) {
@@ -225,7 +225,7 @@ const handleItems = (data, prop, schema) => {
 	
 	if (typeof items === 'object') {
 		schema.items = {};
-		items._name = items.name;
+		items.arrayItemName = items.name;
 		delete items.name;
 		handleRecursiveSchema(items, schema.items, schema);
 	} else {

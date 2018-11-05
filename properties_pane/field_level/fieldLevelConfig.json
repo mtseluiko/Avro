@@ -330,7 +330,7 @@ making sure that you maintain a proper JSON format.
 		"record": [
 			{
 				"propertyName": "Name",
-				"propertyKeyword": "_name",
+				"propertyKeyword": "arrayItemName",
 				"shouldValidate": true,
 				"propertyType": "text",
 				"dependency": {
@@ -382,7 +382,7 @@ making sure that you maintain a proper JSON format.
 		"array": [
 			{
 				"propertyName": "Name",
-				"propertyKeyword": "_name",
+				"propertyKeyword": "arrayItemName",
 				"shouldValidate": true,
 				"propertyType": "text",
 				"dependency": {
@@ -429,7 +429,7 @@ making sure that you maintain a proper JSON format.
 		"map": [
 			{
 				"propertyName": "Name",
-				"propertyKeyword": "_name",
+				"propertyKeyword": "arrayItemName",
 				"shouldValidate": true,
 				"propertyType": "text",
 				"dependency": {
@@ -488,7 +488,7 @@ making sure that you maintain a proper JSON format.
 		"enum": [
 			{
 				"propertyName": "Name",
-				"propertyKeyword": "_name",
+				"propertyKeyword": "arrayItemName",
 				"shouldValidate": true,
 				"propertyType": "text",
 				"dependency": {
@@ -547,7 +547,7 @@ making sure that you maintain a proper JSON format.
 		"fixed": [
 			{
 				"propertyName": "Name",
-				"propertyKeyword": "_name",
+				"propertyKeyword": "arrayItemName",
 				"shouldValidate": true,
 				"propertyType": "text",
 				"dependency": {

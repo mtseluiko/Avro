@@ -1,8 +1,9 @@
 'use strict'
 
-const ADDITIONAL_PROPS = ['name', '_name', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
 const DEFAULT_TYPE = 'string';
-const DEFAULT_NAME = 'new_name';
+const DEFAULT_NAME = 'New_field';
+let nameIndex = 0;
 
 module.exports = {
 	generateScript(data, logger, cb) {
@@ -19,8 +20,10 @@ module.exports = {
             avroSchema.type = 'record';
             avroSchema = reorderAvroSchema(avroSchema);
             avroSchema = JSON.stringify(avroSchema, null, 4);
+            nameIndex = 0;
             return cb(null, avroSchema);
         } catch(err) {
+            nameIndex = 0;
             logger.log('error', { message: err.message, stack: err.stack }, 'Avro Forward-Engineering Error');
             setTimeout(() => {
 				return cb({ message: err.message, stack: err.stack });
@@ -63,6 +66,7 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, key) => {
     }
     handleComplexTypeStructure(avroSchema, parentSchema);
     handleSchemaName(avroSchema, parentSchema);
+    handleEmptyNestedObjects(avroSchema);
 	return;
 };
 
@@ -120,7 +124,7 @@ const handleFields = (schema, avroSchema) => {
         let avroField = Object.assign({}, { name: key });
         handleRecursiveSchema(field, avroField, schema);
         return avroField;
-	});
+    });
 };
 
 const handleItems = (schema, avroSchema) => {
@@ -213,11 +217,28 @@ const handleComplexTypeStructure = (avroSchema, parentSchema) => {
 
 const handleSchemaName = (avroSchema, parentSchema) => {
     if (!avroSchema.name && isComplexType(avroSchema.type) && avroSchema.type !== 'array') {
-        avroSchema.name = avroSchema._name || parentSchema.name || DEFAULT_NAME;
-        delete avroSchema._name;
+        avroSchema.name = avroSchema.arrayItemName || parentSchema.name || getDefaultName();
+        delete avroSchema.arrayItemName;
+    }
+};
+
+const getDefaultName = () => {
+    if (nameIndex) {
+        return `${DEFAULT_NAME}_${nameIndex++}`;
+    } else {
+        nameIndex++;
+        return  DEFAULT_NAME;
     }
 };
 
 const isComplexType = (type) => {
     return ['record', 'array', 'fixed', 'enum', 'map'].includes(type);
+};
+
+const handleEmptyNestedObjects = (avroSchema) => {
+    if (avroSchema.type && avroSchema.type === 'record') {
+        avroSchema.fields = (avroSchema.fields) ? avroSchema.fields : [];
+    } else if (avroSchema.type && avroSchema.type === 'array') {
+        avroSchema.items = (avroSchema.items) ? avroSchema.items : DEFAULT_TYPE;
+    }
 };
