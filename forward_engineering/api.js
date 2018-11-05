@@ -206,6 +206,7 @@ const handleComplexTypeStructure = (avroSchema, parentSchema) => {
         if ((schemaContent.type === 'array' || schemaContent.type === 'map') && name) {
             delete schemaContent.name;
         }
+        delete schemaContent.arrayItemName;
 
         avroSchema.name = name;
         avroSchema.type = schemaContent;
@@ -222,8 +223,8 @@ const handleComplexTypeStructure = (avroSchema, parentSchema) => {
 const handleSchemaName = (avroSchema, parentSchema) => {
     if (!avroSchema.name && isComplexType(avroSchema.type) && avroSchema.type !== 'array') {
         avroSchema.name = avroSchema.arrayItemName || parentSchema.name || getDefaultName();
-        delete avroSchema.arrayItemName;
     }
+    delete avroSchema.arrayItemName;
 };
 
 const getDefaultName = () => {
