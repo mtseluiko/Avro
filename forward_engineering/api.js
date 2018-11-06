@@ -1,6 +1,11 @@
 'use strict'
 
-const ADDITIONAL_PROPS = ['name', 'doc', 'order', 'aliases', 'symbols', 'namespace'];
+const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const DEFAULT_TYPE = 'string';
+const DEFAULT_NAME = 'New_field';
+const VALID_FULL_NAME_REGEX = /[^A-Za-z0-9_]/g;
+const VALID_FIRST_NAME_LETTER_REGEX = /^[0-9]/;
+let nameIndex = 0;
 
 module.exports = {
 	generateScript(data, logger, cb) {
@@ -17,11 +22,13 @@ module.exports = {
             avroSchema.type = 'record';
             avroSchema = reorderAvroSchema(avroSchema);
             avroSchema = JSON.stringify(avroSchema, null, 4);
+            nameIndex = 0;
             return cb(null, avroSchema);
         } catch(err) {
+            nameIndex = 0;
             logger.log('error', { message: err.message, stack: err.stack }, 'Avro Forward-Engineering Error');
             setTimeout(() => {
-				callback({ message: err.message, stack: err.stack });
+				return cb({ message: err.message, stack: err.stack });
 			}, 150);
         }
 	}
@@ -39,42 +46,49 @@ const reorderAvroSchema = (avroSchema) => {
     });
 };
 
-const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}) => {
+const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, key) => {
     if (schema.oneOf) {
-        handleOneOf(schema, avroSchema);
+        handleOneOf(schema);
     }
 
     for (let prop in schema) {
 		switch(prop) {
 			case 'type':
-				handleType(schema, prop, avroSchema, parentSchema);
+				handleType(schema, avroSchema);
 				break;
 			case 'properties':
-				handleFields(schema, prop, avroSchema);
+				handleFields(schema, avroSchema);
 				break;
 			case 'items':
-				handleItems(schema, prop, avroSchema);
+				handleItems(schema, avroSchema);
 				break;
 			default:
 				handleOtherProps(schema, prop, avroSchema);
 		}
     }
-    
+    handleComplexTypeStructure(avroSchema, parentSchema);
+    handleSchemaName(avroSchema, parentSchema);
+    avroSchema = reorderName(avroSchema);
+    handleEmptyNestedObjects(avroSchema);
 	return;
 };
 
-const handleType = (schema, prop, avroSchema, parentSchema) => {
-    if (Array.isArray(schema[prop])) {
-        avroSchema = handleMultiple(avroSchema, schema, prop);
+const handleType = (schema, avroSchema) => {
+    if (Array.isArray(schema.type)) {
+        avroSchema = handleMultiple(avroSchema, schema, 'type');
     } else {
-        avroSchema = getFieldWithConvertedType(avroSchema, schema, schema[prop]);
+        avroSchema = getFieldWithConvertedType(avroSchema, schema, schema.type);
     }
 };
 
 const handleMultiple = (avroSchema, schema, prop) => {
-    avroSchema[prop] = schema[prop].map(type => {
-        const field = getFieldWithConvertedType({}, schema, type);
-        return field.type;
+    avroSchema[prop] = schema[prop].map(item => {
+        if (item && typeof item === 'object') {
+            return item.type;
+        } else {
+            const field = getFieldWithConvertedType({}, schema, item);
+            return field.type;
+        }
     });
     return avroSchema;
 };
@@ -98,34 +112,37 @@ const getFieldWithConvertedType = (schema, field, type) => {
 				values: getValues(type, field.subtype)
 			});
 		default:
-			return Object.assign(schema, { type: 'string' });
+			return Object.assign(schema, { type: DEFAULT_TYPE });
 	}
 };
 
 const getValues = (type, subtype) => {
     const regex = new RegExp('\\' + type + '<(.*?)\>');
-    return subtype.match(regex)[1] || 'string';
+    return subtype.match(regex)[1] || DEFAULT_TYPE;
 };
 
-const handleFields = (schema, prop, avroSchema) => {
-	avroSchema.fields = Object.keys(schema[prop]).map(key => {
-        let field = schema[prop][key];
+const handleFields = (schema, avroSchema) => {
+	avroSchema.fields = Object.keys(schema.properties).map(key => {
+        let field = schema.properties[key];
         let avroField = Object.assign({}, { name: key });
         handleRecursiveSchema(field, avroField, schema);
         return avroField;
-	});
+    });
 };
 
-const handleItems = (schema, prop, avroSchema) => {
-    if (!Array.isArray(schema[prop])) {
-        schema[prop] = [schema[prop]];
+const handleItems = (schema, avroSchema) => {
+    schema.items = !Array.isArray(schema.items) ? [schema.items] : schema.items;
+
+    const arrayItemType = schema.items[0].type || DEFAULT_TYPE;
+    if (isComplexType(arrayItemType)) {
+        avroSchema.items = {};
+        handleRecursiveSchema(schema.items[0], avroSchema.items, schema);
+    } else {
+        avroSchema.items = getFieldWithConvertedType({}, schema.items[0], arrayItemType).type;
     }
-
-    avroSchema[prop] = {};
-    handleRecursiveSchema(schema[prop][0], avroSchema[prop], schema);
 };
 
-const handleOneOf = (schema, avroSchema) => {
+const handleOneOf = (schema) => {
     let allSubSchemaFields = [];
     schema.oneOf.forEach(subSchema => {
         allSubSchemaFields = allSubSchemaFields.concat(Object.keys(subSchema.properties).map(item => {
@@ -146,22 +163,18 @@ const handleOneOf = (schema, avroSchema) => {
             };
         }
         let multipleField = multipleFieldsHash[field.name];
-        let fieldTypes = (Array.isArray(field.type) ? field.type : [field.type]);
-        multipleField.type = multipleField.type.concat(fieldTypes);
+        const filedType = field.type;
 
-        if (field.properties) {
-            multipleField.properties = Object.assign((multipleField.properties || {}), field.properties);
+        if (isComplexType(filedType)) {
+            let newField =  {};
+            handleRecursiveSchema(field, newField);
+            multipleField.type.push(newField);
+            //additional props
+        } else if (Array.isArray(filedType)) {
+            multipleField.type = multipleField.type.concat(filedType);
+        } else {
+            multipleField.type = multipleField.type.concat([filedType]);
         }
-
-        if (field.items) {
-            multipleField.items = Object.assign((multipleField.items || {}), field.items);
-        }
-
-        [...ADDITIONAL_PROPS, 'mode', 'subtype'].forEach(prop => {
-            if (field[prop]) {
-                multipleField[prop] = field[prop];
-            }
-        });
     });
 
     schema.properties = Object.assign((schema.properties || {}), multipleFieldsHash);
@@ -176,5 +189,84 @@ const uniqBy = (arr, prop) => {
 const handleOtherProps = (schema, prop, avroSchema) => {
     if (ADDITIONAL_PROPS.includes(prop)) {
         avroSchema[prop] = schema[prop];
+
+        if (prop === 'size') {
+            avroSchema[prop] = Number(avroSchema[prop]);
+        }
+    }
+};
+
+const handleComplexTypeStructure = (avroSchema, parentSchema) => {
+    const rootComplexProps = ['doc', 'default']; 
+    const isParentArray = parentSchema && parentSchema.type && parentSchema.type === 'array';
+    
+    if (!isParentArray && isComplexType(avroSchema.type)) {
+        const name = avroSchema.name;
+        const schemaContent = Object.assign({}, avroSchema);
+       
+        Object.keys(avroSchema).forEach(function(key) { delete avroSchema[key]; });
+
+        if ((schemaContent.type === 'array' || schemaContent.type === 'map') && name) {
+            delete schemaContent.name;
+        }
+        delete schemaContent.arrayItemName;
+
+        avroSchema.name = name;
+        avroSchema.type = schemaContent;
+
+        rootComplexProps.forEach(prop => {
+            if (schemaContent.hasOwnProperty(prop)) {
+                avroSchema[prop] = schemaContent[prop];
+                delete schemaContent[prop];
+            }
+        });
+    }
+};
+
+const handleSchemaName = (avroSchema, parentSchema) => {
+    if (!avroSchema.name && isComplexType(avroSchema.type) && avroSchema.type !== 'array') {
+        avroSchema.name = avroSchema.arrayItemName || parentSchema.name || getDefaultName();
+    }
+
+    if (avroSchema.name) {
+        avroSchema.name = avroSchema.name.replace(VALID_FULL_NAME_REGEX, '_')
+        .replace(VALID_FIRST_NAME_LETTER_REGEX, '_');
+    }
+    delete avroSchema.arrayItemName;
+};
+
+const getDefaultName = () => {
+    if (nameIndex) {
+        return `${DEFAULT_NAME}_${nameIndex++}`;
+    } else {
+        nameIndex++;
+        return  DEFAULT_NAME;
+    }
+};
+
+const reorderName = (avroSchema) => {
+    let objKeys = Object.keys(avroSchema);
+    if (objKeys.includes('name')) {
+        objKeys = ['name', ...objKeys.filter(item => item !== 'name')];
+    }
+
+    objKeys.forEach(prop => {
+        const tempValue = avroSchema[prop];
+        delete avroSchema[prop];
+        avroSchema[prop] = tempValue;
+    });
+
+    return avroSchema;
+};
+
+const isComplexType = (type) => {
+    return ['record', 'array', 'fixed', 'enum', 'map'].includes(type);
+};
+
+const handleEmptyNestedObjects = (avroSchema) => {
+    if (avroSchema.type && avroSchema.type === 'record') {
+        avroSchema.fields = (avroSchema.fields) ? avroSchema.fields : [];
+    } else if (avroSchema.type && avroSchema.type === 'array') {
+        avroSchema.items = (avroSchema.items) ? avroSchema.items : DEFAULT_TYPE;
     }
 };

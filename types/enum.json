@@ -17,6 +17,7 @@
 		"foreignCollection": "",
 		"foreignField": [],
 		"enum": [],
-		"sample": ""
+		"sample": "",
+		"symbols": ["123"]
 	}
 }
