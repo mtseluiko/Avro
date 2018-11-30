@@ -1,10 +1,16 @@
 'use strict'
 
+const fs = require('fs');
+const path = require('path');
 const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
 const DEFAULT_TYPE = 'string';
 const DEFAULT_NAME = 'New_field';
 const VALID_FULL_NAME_REGEX = /[^A-Za-z0-9_]/g;
 const VALID_FIRST_NAME_LETTER_REGEX = /^[0-9]/;
+const readConfig = (pathToConfig) => {
+	return JSON.parse(fs.readFileSync(path.join(__dirname, pathToConfig)).toString().replace(/\/\*[.\s\S]*?\*\//ig, ""));
+};
+const fieldLevelConfig = readConfig('../properties_pane/field_level/fieldLevelConfig.json');
 let nameIndex = 0;
 
 module.exports = {
@@ -70,6 +76,7 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, key) => {
     handleSchemaName(avroSchema, parentSchema);
     avroSchema = reorderName(avroSchema);
     handleEmptyNestedObjects(avroSchema);
+    handleTargetProperties(schema, avroSchema);
 	return;
 };
 
@@ -232,6 +239,12 @@ const handleSchemaName = (avroSchema, parentSchema) => {
         avroSchema.name = avroSchema.name.replace(VALID_FULL_NAME_REGEX, '_')
         .replace(VALID_FIRST_NAME_LETTER_REGEX, '_');
     }
+
+    if(avroSchema.type && avroSchema.type.name) {
+        avroSchema.type.name = avroSchema.type.name.replace(VALID_FULL_NAME_REGEX, '_')
+        .replace(VALID_FIRST_NAME_LETTER_REGEX, '_');
+    }
+
     delete avroSchema.arrayItemName;
 };
 
@@ -270,3 +283,32 @@ const handleEmptyNestedObjects = (avroSchema) => {
         avroSchema.items = (avroSchema.items) ? avroSchema.items : DEFAULT_TYPE;
     }
 };
+
+const getTargetFieldLevelPropertyNames = (type, data) => {
+    if (!fieldLevelConfig.structure[type]) {
+        return [];
+    }
+
+    return fieldLevelConfig.structure[type].filter(property => {
+        if (typeof property === 'object' && property.isTargetProperty) {
+            if (property.dependency) {
+                return (data[property.dependency.key] == property.dependency.value);
+            } else {
+                return true;
+            }
+        }
+
+        return false;
+    }).map(property => property.propertyKeyword);
+};
+
+const handleTargetProperties = (schema, avroSchema) => {
+    if (schema.type) {
+        const targetProperties = getTargetFieldLevelPropertyNames(schema.type, schema);
+        targetProperties.forEach(prop => {
+            avroSchema[prop] = schema[prop];
+        });
+    }
+};
+
+//handleTargetProperties({}, {});
