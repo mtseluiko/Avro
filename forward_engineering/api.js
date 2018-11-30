@@ -310,5 +310,3 @@ const handleTargetProperties = (schema, avroSchema) => {
         });
     }
 };
-
-//handleTargetProperties({}, {});
