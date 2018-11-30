@@ -156,6 +156,43 @@ making sure that you maintain a proper JSON format.
 			"schemaId",
 			"type",
 			{
+				"propertyName": "Logical type",
+				"propertyKeyword": "logicalType",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"",
+					"decimal"
+				],
+				"isTargetProperty": true
+			},
+			{
+				"propertyName": "Precision",
+				"propertyKeyword": "precision",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"dependency": {
+					"key": "logicalType",
+					"value": "decimal"
+				},
+				"isTargetProperty": true
+			},
+			{
+				"propertyName": "Scale",
+				"propertyKeyword": "scale",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"dependency": {
+					"key": "logicalType",
+					"value": "decimal"
+				},
+				"isTargetProperty": true
+			},
+			{
 				"propertyName": "Doc",
 				"propertyKeyword": "doc",
 				"propertyValidate": false,
@@ -202,6 +239,39 @@ making sure that you maintain a proper JSON format.
 				],
 				"data": "options",
 				"valueType": "string"
+			},
+			{
+				"propertyName": "Logical type",
+				"propertyKeyword": "logicalType",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"",
+					"date",
+					"time-millis"
+				],
+				"dependency": {
+					"key": "mode",
+					"value": "int"
+				},
+				"isTargetProperty": true
+			},
+			{
+				"propertyName": "Logical type",
+				"propertyKeyword": "logicalType",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"",
+					"time-micros",
+					"timestamp-millis",
+					"timestamp-micros"
+				],
+				"dependency": {
+					"key": "mode",
+					"value": "long"
+				},
+				"isTargetProperty": true
 			},
 			{
 				"propertyName": "Doc",
@@ -558,6 +628,44 @@ making sure that you maintain a proper JSON format.
 			"name",
 			"schemaId",
 			"type",
+			{
+				"propertyName": "Logical type",
+				"propertyKeyword": "logicalType",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"",
+					"decimal",
+					"duration"
+				],
+				"isTargetProperty": true
+			},
+			{
+				"propertyName": "Precision",
+				"propertyKeyword": "precision",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"dependency": {
+					"key": "logicalType",
+					"value": "decimal"
+				},
+				"isTargetProperty": true
+			},
+			{
+				"propertyName": "Scale",
+				"propertyKeyword": "scale",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"dependency": {
+					"key": "logicalType",
+					"value": "decimal"
+				},
+				"isTargetProperty": true
+			},
 			{
 				"propertyName": "Namespace",
 				"propertyKeyword": "namespace",
