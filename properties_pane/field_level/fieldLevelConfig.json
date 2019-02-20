@@ -398,17 +398,10 @@ making sure that you maintain a proper JSON format.
 		],
 		"___1": [],
 		"record": [
-			{
-				"propertyName": "Name",
-				"propertyKeyword": "arrayItemName",
-				"shouldValidate": true,
-				"propertyType": "text",
-				"dependency": {
-					"key": "arrayItem",
-  					"value": true
-				}
-			},
+			"arrayItemName",
+			"arrayItemCode",
 			"name",
+			"code",
 			"schemaId",
 			"type",
 			{
@@ -450,17 +443,10 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"array": [
-			{
-				"propertyName": "Name",
-				"propertyKeyword": "arrayItemName",
-				"shouldValidate": true,
-				"propertyType": "text",
-				"dependency": {
-					"key": "arrayItem",
-  					"value": true
-				}
-			},
+			"arrayItemName",
+			"arrayItemCode",
 			"name",
+			"code",
 			"schemaId",
 			"type",
 			{
@@ -497,17 +483,10 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"map": [
-			{
-				"propertyName": "Name",
-				"propertyKeyword": "arrayItemName",
-				"shouldValidate": true,
-				"propertyType": "text",
-				"dependency": {
-					"key": "arrayItem",
-  					"value": true
-				}
-			},
+			"arrayItemName",
+			"arrayItemCode",
 			"name",
+			"code",
 			"schemaId",
 			"type",
 			{
@@ -556,17 +535,10 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"enum": [
-			{
-				"propertyName": "Name",
-				"propertyKeyword": "arrayItemName",
-				"shouldValidate": true,
-				"propertyType": "text",
-				"dependency": {
-					"key": "arrayItem",
-  					"value": true
-				}
-			},
+			"arrayItemName",
+			"arrayItemCode",
 			"name",
+			"code",
 			"schemaId",
 			"type",
 			{
@@ -615,17 +587,10 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"fixed": [
-			{
-				"propertyName": "Name",
-				"propertyKeyword": "arrayItemName",
-				"shouldValidate": true,
-				"propertyType": "text",
-				"dependency": {
-					"key": "arrayItem",
-  					"value": true
-				}
-			},
+			"arrayItemName",
+			"arrayItemCode",
 			"name",
+			"code",
 			"schemaId",
 			"type",
 			{

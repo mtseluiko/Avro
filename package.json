@@ -4,7 +4,7 @@
     "versionDate": "2018-11-06",
     "author": "hackolade",
     "engines": {
-        "hackolade": "2.1.x",
+        "hackolade": "2.4.5",
         "hackoladePlugin": "1.0.0"
     },
     "contributes": {
@@ -16,7 +16,8 @@
         "features": {
 			"enableForwardEngineering": true,
 			"disableReverseEngineering": false,
-            "enableJsonType": false    
+            "enableJsonType": false,
+            "enableArrayItemName": true
         }
     },
     "description": "Hackolade plugin for Apache Avro Schema",
