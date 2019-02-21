@@ -13,27 +13,27 @@ const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 's
 module.exports = {
 	reFromFile(data, logger, callback) {
 		handleFileData(data.filePath)
-		.then(fileData => {
-			return parseData(fileData);
-		})
-		.then(schema => {
-			const jsonSchema = convertToJsonSchema(schema);
-			try {
-				const namespace = jsonSchema.namespace;
-				jsonSchema.title = jsonSchema.name;
-				delete jsonSchema.namespace;
-				delete jsonSchema.name;
-				const strJsonSchema = JSON.stringify(jsonSchema, null, 4);
-				return callback(null, { jsonSchema: strJsonSchema, extension: stateExtension, containerName: namespace });
-			} catch (err) {
-				logger.log('error', { message: err.message, stack: err.stack }, 'Parsing Avro Schema Error');
-				return callback(handleErrorObject(err))
-			}
-		})
-		.catch(err => {
-			logger.log('error', { message: err.message, stack: err.stack }, 'Avro Reverse-Engineering Error');
-			callback(err)
-		});
+			.then(fileData => {
+				return parseData(fileData);
+			})
+			.then(schema => {
+				const jsonSchema = convertToJsonSchema(schema);
+				try {
+					const namespace = jsonSchema.namespace;
+					jsonSchema.title = jsonSchema.name;
+					delete jsonSchema.namespace;
+					delete jsonSchema.name;
+					const strJsonSchema = JSON.stringify(jsonSchema, null, 4);
+					return callback(null, { jsonSchema: strJsonSchema, extension: stateExtension, containerName: namespace });
+				} catch (err) {
+					logger.log('error', { message: err.message, stack: err.stack }, 'Parsing Avro Schema Error');
+					return callback(handleErrorObject(err))
+				}
+			})
+			.catch(err => {
+				logger.log('error', { message: err.message, stack: err.stack }, 'Avro Reverse-Engineering Error');
+				callback(err)
+			});
 	}
 };
 
@@ -46,7 +46,7 @@ const handleFileData = (filePath) => {
 		const extension = getFileExt(filePath);
 		stateExtension = extension;
 		const respond = (err, content) => {
-			if(err){
+			if(err) {
 				reject(handleErrorObject(err));
 			} else {
 				resolve(content);
@@ -75,7 +75,7 @@ const readAvroData = (filePath, cb) => {
 
 
 	avro.createFileDecoder(filePath, { codecs })
-		.on('metadata', (type, codecs, header) => { 
+		.on('metadata', (type, codecs, header) => {
 			try {
 				const schema = JSON.stringify(type);
 				return cb(null, schema);
@@ -188,23 +188,76 @@ const getType = (schema, field, type) => {
 };
 
 const getChoice = (data, parentSchema) => {
-	parentSchema.oneOf = [];
+	if (parentSchema.oneOf) {
+		parentSchema = getAllOf(data, parentSchema);
+		parentSchema.allOf.push(getOneOfSubSchema(parentSchema.oneOf, { oneOf_meta: parentSchema.oneOf_meta }));
+
+		delete parentSchema.oneOf;
+		delete parentSchema.oneOf_meta;
+	} else {
+		parentSchema.oneOf = [];
+
+		data.type.forEach(item => {
+			let name = data.name || DEFAULT_FIELD_NAME;
+
+			const subField = getSubField(item);
+			const subFieldSchema = {};
+			handleRecursiveSchema(subField, subFieldSchema);
+
+			if (data.doc) {
+				subFieldSchema.doc = data.doc;
+			}
+
+			parentSchema.oneOf.push(getCommonSubSchema(subFieldSchema, name, item.name));
+
+			if (!parentSchema.oneOf_meta) {
+				parentSchema.oneOf_meta = { name: name };
+			}
+		});
+	}
+
+	return parentSchema;
+};
+
+const getAllOf = (data, parentSchema) => {
+	parentSchema.allOf = [];
+	const oneOf = [];
+
 	data.type.forEach(item => {
 		const name = data.name || DEFAULT_FIELD_NAME;
 		const subField = getSubField(item);
 		const subFieldSchema = {};
+
 		handleRecursiveSchema(subField, subFieldSchema);
-		
-		const subSchema = {
-			type: 'object',
-			properties: {
-				[name]: subFieldSchema
-			}
-		};
-		parentSchema.oneOf.push(subSchema);
+		oneOf.push(getCommonSubSchema(subFieldSchema, name));
+
 	});
+
+	parentSchema.allOf.push(getOneOfSubSchema(oneOf, { oneOf_meta: { name: data.name } }));
+
 	return parentSchema;
-};
+}
+
+const getSubSchema = (data) => {
+	return Object.assign({
+		type: 'object'
+	}, data);
+}
+
+const getOneOfSubSchema = (subSchemas, subSchemasMeta) => {
+	const subSchemaProperties = subSchemasMeta ? Object.assign({ oneOf: subSchemas }, subSchemasMeta) : { oneOf: subSchemas };
+	return getSubSchema(subSchemaProperties);
+}
+
+const getCommonSubSchema = (properties, fieldName, itemName) => {
+	const name = itemName ? itemName : fieldName;
+
+	return getSubSchema({
+		properties: {
+			[name]: properties
+		}
+	});
+}
 
 const getSubField = (item) => {
 	const field = (typeof item === 'object') ? item : { type: item };
@@ -222,7 +275,7 @@ const handleFields = (data, prop, schema) => {
 
 const handleItems = (data, prop, schema) => {
 	const items = data[prop];
-	
+
 	if (typeof items === 'object') {
 		schema.items = {};
 		items.arrayItemName = items.name;
@@ -244,7 +297,7 @@ const handleOtherProps = (data, prop, schema) => {
 
 const handleErrorObject = (error) => {
 	let plainObject = {};
-	Object.getOwnPropertyNames(error).forEach(function(key) {
+	Object.getOwnPropertyNames(error).forEach(function (key) {
 		plainObject[key] = error[key];
 	});
 	return plainObject;
