@@ -9,5 +9,5 @@
     "snappyjs": "^0.6.0"
   },
   "type": "file",
-  "installed": false
+  "installed": true
 }
