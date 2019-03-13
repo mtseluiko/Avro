@@ -156,7 +156,7 @@ const getFieldWithConvertedType = (schema, field, type) => {
         case 'fixed':
             return Object.assign(schema, { type });
         case 'number':
-            return Object.assign(schema, { type:  field.mode || 'int' });
+            return Object.assign(schema, { type: getNumberType(field) });
         case 'map':
             return Object.assign(schema, {
                 type,
@@ -314,5 +314,18 @@ const handleTargetProperties = (schema, avroSchema) => {
         targetProperties.forEach(prop => {
             avroSchema[prop] = schema[prop];
         });
+    }
+};
+
+const getNumberType = (field) => {
+    const type = field.mode || 'int';
+
+    if (field.logicalType) {
+        return {
+            type: type,
+            logicalType: field.logicalType
+        };
+    } else {
+        return type;
     }
 };
