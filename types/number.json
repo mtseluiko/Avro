@@ -8,6 +8,7 @@
 	"defaultValues": {
 		"required": true,
 		"unit": "",
+		"logicalType": "",
 		"minimum": "",
 		"exclusiveMinimum": false,
 		"maximum": "",

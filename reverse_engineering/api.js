@@ -137,7 +137,7 @@ const handleType = (data, schema, parentSchema) => {
 
 
 const handleMultipleTypes = (data, schema, parentSchema) => {
-	const hasComplexType = data.type.find(item => typeof item !== 'string');
+	const hasComplexType = data.type.some(isComplexType);
 
 	if (hasComplexType) {
 		parentSchema = getChoice(data, parentSchema);
@@ -146,6 +146,25 @@ const handleMultipleTypes = (data, schema, parentSchema) => {
 		const typeObjects = data.type.map(type => getType({}, data, type));
 		schema = Object.assign(schema, ...typeObjects);
 		schema.type = typeObjects.map(item => item.type);
+	}
+};
+
+const isComplexType = (type) => {
+	if (typeof type === 'string') {
+		return false;
+	}
+
+	const isNumber = [
+		'int',
+		'long',
+		'float',
+		'double',
+	].includes(type.type);
+
+	if (isNumber) {
+		return false;
+	} else {
+		return true;
 	}
 };
 
@@ -159,6 +178,10 @@ const removeChangedField = (parentSchema, name) => {
 };
 
 const getType = (schema, field, type) => {
+	if (Object(type) === type) {
+		return Object.assign({}, schema, type, getType(schema, field, type.type));
+	}
+
 	switch(type) {
 		case 'string':
 		case 'bytes':
@@ -190,6 +213,7 @@ const getType = (schema, field, type) => {
 const getChoice = (data, parentSchema) => {
 	if (parentSchema.oneOf) {
 		parentSchema = getAllOf(data, parentSchema);
+		parentSchema.additionalProperties = true;
 		parentSchema.allOf.push(getOneOfSubSchema(parentSchema.oneOf, { oneOf_meta: parentSchema.oneOf_meta }));
 
 		delete parentSchema.oneOf;
