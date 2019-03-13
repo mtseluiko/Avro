@@ -190,6 +190,7 @@ const getType = (schema, field, type) => {
 const getChoice = (data, parentSchema) => {
 	if (parentSchema.oneOf) {
 		parentSchema = getAllOf(data, parentSchema);
+		parentSchema.additionalProperties = true;
 		parentSchema.allOf.push(getOneOfSubSchema(parentSchema.oneOf, { oneOf_meta: parentSchema.oneOf_meta }));
 
 		delete parentSchema.oneOf;
