@@ -129,6 +129,10 @@ const handleType = (data, schema, parentSchema) => {
 	if (Array.isArray(data.type)) {
 		schema = handleMultipleTypes(data, schema, parentSchema);
 	} else if (typeof data.type === 'object') {
+		if (data.type.name) {		
+			schema.typeName = data.type.name;		
+		}		
+			
 		handleRecursiveSchema(data.type, schema);
 	} else {
 		schema = getType(schema, data, data.type);
@@ -302,8 +306,6 @@ const handleItems = (data, prop, schema) => {
 
 	if (typeof items === 'object') {
 		schema.items = {};
-		items.arrayItemName = items.name;
-		delete items.name;
 		handleRecursiveSchema(items, schema.items, schema);
 	} else {
 		schema.items = {

@@ -405,6 +405,12 @@ making sure that you maintain a proper JSON format.
 			"schemaId",
 			"type",
 			{
+				"propertyName": "Type name",
+				"propertyKeyword": "typeName",
+				"shouldValidate": false,
+				"propertyType": "text"
+			},
+			{
 				"propertyName": "Namespace",
 				"propertyKeyword": "namespace",
 				"shouldValidate": false,
@@ -542,6 +548,12 @@ making sure that you maintain a proper JSON format.
 			"schemaId",
 			"type",
 			{
+				"propertyName": "Type name",
+				"propertyKeyword": "typeName",
+				"shouldValidate": false,
+				"propertyType": "text"
+			},
+			{
 				"propertyName": "Namespace",
 				"propertyKeyword": "namespace",
 				"shouldValidate": false,
@@ -593,6 +605,12 @@ making sure that you maintain a proper JSON format.
 			"code",
 			"schemaId",
 			"type",
+			{
+				"propertyName": "Type name",
+				"propertyKeyword": "typeName",
+				"shouldValidate": false,
+				"propertyType": "text"
+			},
 			{
 				"propertyName": "Logical type",
 				"propertyKeyword": "logicalType",
