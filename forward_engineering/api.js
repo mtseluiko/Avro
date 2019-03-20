@@ -150,11 +150,15 @@ const getFieldWithConvertedType = (schema, field, type) => {
         case 'bytes':
         case 'boolean':
         case 'null':
-        case 'record':
         case 'array':
+            return Object.assign(schema, { type });
+        case 'record':
         case 'enum':
         case 'fixed':
-            return Object.assign(schema, { type });
+            return Object.assign(schema, { 
+				type,
+				typeName: field.typeName 
+			});
         case 'number':
             return Object.assign(schema, { type: getNumberType(field) });
         case 'map':
@@ -203,7 +207,7 @@ const handleOtherProps = (schema, prop, avroSchema) => {
     if (ADDITIONAL_PROPS.includes(prop)) {
         avroSchema[prop] = schema[prop];
 
-        if (prop === 'size') {
+	    if (prop === 'size') {
             avroSchema[prop] = Number(avroSchema[prop]);
         }
     }
@@ -215,7 +219,7 @@ const handleComplexTypeStructure = (avroSchema, parentSchema) => {
 
     if (!isParentArray && isComplexType(avroSchema.type)) {
         const name = avroSchema.name;
-        const schemaContent = Object.assign({}, avroSchema);
+        const schemaContent = Object.assign({}, avroSchema, { name: avroSchema.typeName || avroSchema.name });
 
         Object.keys(avroSchema).forEach(function(key) { delete avroSchema[key]; });
 
@@ -223,6 +227,7 @@ const handleComplexTypeStructure = (avroSchema, parentSchema) => {
             delete schemaContent.name;
         }
         delete schemaContent.arrayItemName;
+		delete schemaContent.typeName;
 
         avroSchema.name = name;
         avroSchema.type = schemaContent;
