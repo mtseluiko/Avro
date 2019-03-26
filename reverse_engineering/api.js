@@ -227,7 +227,7 @@ const moveOneofInAllof = (parentSchema) => {
 const getChoice = (data, parentSchema) => {
 	if (parentSchema.oneOf) {
 		if (!parentSchema.allOf) {
-      parentSchema = getAllOf(data, parentSchema);
+			parentSchema = getAllOf(data, parentSchema);
 		}
 
 		parentSchema = moveOneofInAllof(parentSchema);
