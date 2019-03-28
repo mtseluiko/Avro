@@ -215,56 +215,59 @@ const getType = (schema, field, type) => {
 };
 
 const getChoice = (data, parentSchema) => {
+	const oneOfItem = getOneOf(data);
+	
 	if (parentSchema.oneOf) {
-		parentSchema = getAllOf(data, parentSchema);
+		const allOfItem = parentSchema.allOf || [];
+
 		parentSchema.additionalProperties = true;
-		parentSchema.allOf.push(getOneOfSubSchema(parentSchema.oneOf, { oneOf_meta: parentSchema.oneOf_meta }));
+		parentSchema.allOf = addOneOfToAllOf(allOfItem, parentSchema);
+		parentSchema.allOf = addOneOfToAllOf(parentSchema.allOf, oneOfItem);
 
 		delete parentSchema.oneOf;
 		delete parentSchema.oneOf_meta;
+	} else if (parentSchema.allOf) {
+		parentSchema.allOf = addOneOfToAllOf(parentSchema.allOf, oneOfItem);
 	} else {
-		parentSchema.oneOf = [];
-
-		data.type.forEach(item => {
-			let name = data.name || DEFAULT_FIELD_NAME;
-
-			const subField = getSubField(item);
-			const subFieldSchema = {};
-			handleRecursiveSchema(subField, subFieldSchema);
-
-			if (data.doc) {
-				subFieldSchema.doc = data.doc;
-			}
-
-			parentSchema.oneOf.push(getCommonSubSchema(subFieldSchema, name, item.name));
-
-			if (!parentSchema.oneOf_meta) {
-				parentSchema.oneOf_meta = { name: name };
-			}
-		});
+		parentSchema.oneOf_meta = oneOfItem.oneOf_meta;
+		parentSchema.oneOf = oneOfItem.oneOf;
 	}
 
 	return parentSchema;
 };
 
-const getAllOf = (data, parentSchema) => {
-	parentSchema.allOf = [];
-	const oneOf = [];
+const getOneOf = (data) => {
+	const oneOf = data.type.map(item => {
+		let name = data.name || DEFAULT_FIELD_NAME;
 
-	data.type.forEach(item => {
-		const name = data.name || DEFAULT_FIELD_NAME;
 		const subField = getSubField(item);
 		const subFieldSchema = {};
-
 		handleRecursiveSchema(subField, subFieldSchema);
-		oneOf.push(getCommonSubSchema(subFieldSchema, name));
 
+		if (data.doc) {
+			subFieldSchema.doc = data.doc;
+		}
+
+		return getCommonSubSchema(subFieldSchema, name, item.name);
 	});
+	const oneOf_meta = {
+		name: data.name
+	};
 
-	parentSchema.allOf.push(getOneOfSubSchema(oneOf, { oneOf_meta: { name: data.name } }));
+	return {
+		oneOf,
+		oneOf_meta
+	};
+};
 
-	return parentSchema;
-}
+const addOneOfToAllOf = (allOf, { oneOf, oneOf_meta }) => {
+	const subSchema = getOneOfSubSchema(oneOf, { oneOf_meta });
+	
+	return [
+		...allOf,
+		subSchema
+	];
+};
 
 const getSubSchema = (data) => {
 	return Object.assign({

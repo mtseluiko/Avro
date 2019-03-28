@@ -3,6 +3,7 @@
 	"erdAbbreviation": "<rec>",
 	"dtdAbbreviation": "{...}",
 	"parentType": "document",
+	"default": true,
 	"defaultValues": {
 		"required": true,
 		"primaryKey": false,
