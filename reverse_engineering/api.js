@@ -228,14 +228,13 @@ const getChoice = (data, parentSchema) => {
 			const subFieldSchema = {};
 			handleRecursiveSchema(subField, subFieldSchema);
 
-			if (data.doc) {
-				subFieldSchema.doc = data.doc;
-			}
-
 			parentSchema.oneOf.push(getCommonSubSchema(subFieldSchema, name, item.name));
 
 			if (!parentSchema.oneOf_meta) {
-				parentSchema.oneOf_meta = { name: name };
+				let meta = Object.assign({}, data);
+				delete meta.type;
+				
+				parentSchema.oneOf_meta = meta;
 			}
 		});
 	}
@@ -257,7 +256,10 @@ const getAllOf = (data, parentSchema) => {
 
 	});
 
-	parentSchema.allOf.push(getOneOfSubSchema(oneOf, { oneOf_meta: { name: data.name } }));
+	let meta = Object.assign({}, data);
+	delete meta.type;
+	
+	parentSchema.allOf.push(getOneOfSubSchema(oneOf, { oneOf_meta: meta }));
 
 	return parentSchema;
 }

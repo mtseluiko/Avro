@@ -676,6 +676,28 @@ making sure that you maintain a proper JSON format.
 			},
 			"sample",
 			"comments"
-		]	
+		],
+		"choice": [
+			"name",
+			"code",
+			"description",
+			"comments",
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"propertyValidate": false,
+				"propertyTooltip": "default",
+				"propertyType": "details",
+				"template": "textarea"
+			},
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "doc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			}
+		]
 	}
 }
