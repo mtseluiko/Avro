@@ -214,16 +214,6 @@ const getType = (schema, field, type) => {
 	}
 };
 
-const moveOneofInAllof = (parentSchema) => {
-  parentSchema.additionalProperties = true;
-	parentSchema.allOf.push(getOneOfSubSchema(parentSchema.oneOf, { oneOf_meta: parentSchema.oneOf_meta }));
-
-	delete parentSchema.oneOf;
-	delete parentSchema.oneOf_meta;
-	
-	return parentSchema;
-}
-
 const getChoice = (data, parentSchema) => {
 	const oneOfItem = getOneOf(data);
 	
