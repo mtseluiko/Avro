@@ -99,7 +99,7 @@ const handleChoice = (schema, choice) => {
 	const choiceRawMeta = schema[`${choice}_meta`];
 
 	let choiceMeta = {};
-    let allSubSchemaFields = [];
+	let allSubSchemaFields = [];
 	
 	if (choiceRawMeta) {
 		Object.keys(choiceRawMeta).forEach(prop => {
@@ -109,46 +109,46 @@ const handleChoice = (schema, choice) => {
 		})
 	}
 	
-    schema[choice].forEach(subSchema => {
-        if (subSchema.oneOf) {
-            handleChoice(subSchema, 'oneOf');
-        }
-        allSubSchemaFields = allSubSchemaFields.concat(Object.keys(subSchema.properties).map(item => {
-            return Object.assign({
-                name: item
-            }, subSchema.properties[item]);
-        }));
-    });
+	schema[choice].forEach(subSchema => {
+		if (subSchema.oneOf) {
+			handleChoice(subSchema, 'oneOf');
+		}
+		allSubSchemaFields = allSubSchemaFields.concat(Object.keys(subSchema.properties).map(item => {
+			return Object.assign({
+				name: item
+			}, subSchema.properties[item]);
+		}));
+	});
 
-    let multipleFieldsHash = {};
-    allSubSchemaFields.forEach(field => {
+	let multipleFieldsHash = {};
+	allSubSchemaFields.forEach(field => {
 		const fieldName = choiceMeta.name || field.name;
-        if (!multipleFieldsHash[fieldName]) {
+		if (!multipleFieldsHash[fieldName]) {
 			if (choiceMeta.default) {
 				choiceMeta.default = convertDefaultMetaFieldType(field.type, choiceMeta.default);
 			}
 			
-            multipleFieldsHash[fieldName] = Object.assign({}, field.choiceMeta, {
-                name: fieldName,
-                type: [],
+			multipleFieldsHash[fieldName] = Object.assign({}, field.choiceMeta, {
+				name: fieldName,
+				type: [],
 				choiceMeta
-            });
-        }
-        let multipleField = multipleFieldsHash[fieldName];
-        const filedType = field.type;
+			});
+		}
+		let multipleField = multipleFieldsHash[fieldName];
+		const filedType = field.type;
 
-        if (isComplexType(filedType)) {
-            let newField = {};
-            handleRecursiveSchema(field, newField);
-            multipleField.type.push(newField);
-        } else if (Array.isArray(filedType)) {
-            multipleField.type = multipleField.type.concat(filedType);
-        } else {
-            multipleField.type = multipleField.type.concat([filedType]);
-        }
-    });
+		if (isComplexType(filedType)) {
+			let newField = {};
+			handleRecursiveSchema(field, newField);
+			multipleField.type.push(newField);
+		} else if (Array.isArray(filedType)) {
+			multipleField.type = multipleField.type.concat(filedType);
+		} else {
+			multipleField.type = multipleField.type.concat([filedType]);
+		}
+	});
 
-    schema.properties = Object.assign((schema.properties || {}), multipleFieldsHash);
+	schema.properties = Object.assign((schema.properties || {}), multipleFieldsHash);
 };
 
 const handleType = (schema, avroSchema) => {
