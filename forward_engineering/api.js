@@ -102,11 +102,15 @@ const handleChoice = (schema, choice) => {
 	let allSubSchemaFields = [];
 	
 	if (choiceRawMeta) {
-		Object.keys(choiceRawMeta).forEach(prop => {
-			if (ADDITIONAL_PROPS.includes(prop) && choiceRawMeta[prop] !== "undefined") {
-				choiceMeta[prop] = choiceRawMeta[prop]
+		choiceMeta = Object.keys(choiceRawMeta).reduce((choiceMeta, prop) => {
+			if (ADDITIONAL_PROPS.includes(prop) && typeof choiceRawMeta[prop] !== "undefined") {
+				return Object.assign({}, choiceMeta, {
+					[prop]: choiceRawMeta[prop]
+				});
 			}
-		})
+			
+			return choiceMeta;
+		}, {});
 	}
 	
 	schema[choice].forEach(subSchema => {
