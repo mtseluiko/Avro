@@ -243,16 +243,12 @@ const getOneOf = (data) => {
 		const subField = getSubField(item);
 		const subFieldSchema = {};
 		handleRecursiveSchema(subField, subFieldSchema);
-
-		if (data.doc) {
-			subFieldSchema.doc = data.doc;
-		}
-
+		
 		return getCommonSubSchema(subFieldSchema, name, item.name);
 	});
-	const oneOf_meta = {
-		name: data.name
-	};
+	
+	let oneOf_meta = Object.assign({}, data);
+	delete oneOf_meta.type;
 
 	return {
 		oneOf,

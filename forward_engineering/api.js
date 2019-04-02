@@ -85,9 +85,34 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, key) => {
 };
 
 const handleChoice = (schema, choice) => {
-	let allSubSchemaFields = [];
-	const choiceMeta = schema[`${choice}_meta`] ? schema[`${choice}_meta`].name : null;
+	const convertDefaultMetaFieldType = (type, value) => {
+		if (type === 'null' && value === 'null') {
+			return null;
+		}
+		if (type === 'number' && !isNaN(value)) {
+			return Number(value);
+		}
+		
+		return value;
+	};
+	
+	const choiceRawMeta = schema[`${choice}_meta`];
 
+	let choiceMeta = {};
+	let allSubSchemaFields = [];
+	
+	if (choiceRawMeta) {
+		choiceMeta = Object.keys(choiceRawMeta).reduce((choiceMeta, prop) => {
+			if (ADDITIONAL_PROPS.includes(prop) && typeof choiceRawMeta[prop] !== "undefined") {
+				return Object.assign({}, choiceMeta, {
+					[prop]: choiceRawMeta[prop]
+				});
+			}
+			
+			return choiceMeta;
+		}, {});
+	}
+	
 	schema[choice].forEach(subSchema => {
 		if (subSchema.oneOf) {
 			handleChoice(subSchema, 'oneOf');
@@ -101,13 +126,19 @@ const handleChoice = (schema, choice) => {
 
 	let multipleFieldsHash = {};
 	allSubSchemaFields.forEach(field => {
-		if (!multipleFieldsHash[choiceMeta || field.name]) {
-			multipleFieldsHash[choiceMeta || field.name] = {
-				name: choiceMeta || field.name,
-				type: []
-			};
+		const fieldName = choiceMeta.name || field.name;
+		if (!multipleFieldsHash[fieldName]) {
+			if (choiceMeta.default) {
+				choiceMeta.default = convertDefaultMetaFieldType(field.type, choiceMeta.default);
+			}
+			
+			multipleFieldsHash[fieldName] = Object.assign({}, field.choiceMeta, {
+				name: fieldName,
+				type: [],
+				choiceMeta
+			});
 		}
-		let multipleField = multipleFieldsHash[choiceMeta || field.name];
+		let multipleField = multipleFieldsHash[fieldName];
 		const filedType = field.type;
 
 		if (isComplexType(filedType)) {
