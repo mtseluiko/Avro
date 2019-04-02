@@ -133,16 +133,62 @@ const handleType = (schema, avroSchema) => {
 };
 
 const handleMultiple = (avroSchema, schema, prop) => {
-	avroSchema[prop] = schema[prop].map(item => {
-		if (item && typeof item === 'object') {
-			return item.type;
+	avroSchema[prop] = schema[prop].map(type => {
+		if (type && typeof type === 'object') {
+			return type.type;
 		} else {
-			const field = getFieldWithConvertedType({}, schema, item);
+			const field = getFieldWithConvertedType({}, schema, type);
+			if (isComplexType(type)) {
+				const fieldName = field.typeName || schema.name;
+				const fieldProperties = getMultipleComplexTypeProperties(schema, type);
+
+				Object.keys(fieldProperties).forEach(prop => {
+					delete schema[prop];
+				});
+
+				return Object.assign({}, fieldProperties, {
+					name: fieldName,
+					type
+				})
+			}
+
 			return field.type;
 		}
 	});
 	return avroSchema;
 };
+
+const getMultipleComplexTypeProperties = (schema, type) => {
+	const commonComplexFields = ["aliases", "doc", "default"];
+	const allowedComplexFields = {
+		"enum": [
+			"symbols",
+			"pattern",
+			"namespace"
+		],
+		"fixed": [
+			"size",
+			"namespace"
+		],
+		"array": ["items"],
+		"map": ["values"],
+		"record": ["fields"]
+	};
+
+	const currentTypeFields = commonComplexFields.concat(allowedComplexFields[type]);
+
+	const fieldProperties = currentTypeFields.reduce((fieldProps, prop) => {
+		if (schema[prop]) {
+			return Object.assign({}, fieldProps, {
+				[prop]: schema[prop]
+			});
+		}
+
+		return fieldProps;
+	}, {});
+
+	return fieldProperties;
+}
 
 const getFieldWithConvertedType = (schema, field, type) => {
 	switch(type) {
