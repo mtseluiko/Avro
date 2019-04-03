@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
 const DEFAULT_TYPE = 'string';
 const DEFAULT_NAME = 'New_field';
 const VALID_FULL_NAME_REGEX = /[^A-Za-z0-9_]/g;
@@ -15,6 +15,7 @@ let nameIndex = 0;
 
 module.exports = {
 	generateScript(data, logger, cb) {
+		logger.clear();
 		try {
 			const name = getRecordName(data);
 			let avroSchema = { name };
@@ -33,15 +34,19 @@ module.exports = {
 		} catch(err) {
 			nameIndex = 0;
 			logger.log('error', { message: err.message, stack: err.stack }, 'Avro Forward-Engineering Error');
-			setTimeout(() => {
-				return cb({ message: err.message, stack: err.stack });
-			}, 150);
+			cb({ message: err.message, stack: err.stack });
 		}
 	}
 };
 
 const getRecordName = (data) => {
-	return data.entityData.name || data.entityData.collectionName;
+	return (
+		data.entityData.code
+		||
+		data.entityData.name
+		||
+		data.entityData.collectionName
+	);
 };
 
 const reorderAvroSchema = (avroSchema) => {
@@ -85,9 +90,40 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, key) => {
 };
 
 const handleChoice = (schema, choice) => {
-	let allSubSchemaFields = [];
-	const choiceMeta = schema[`${choice}_meta`] ? schema[`${choice}_meta`].name : null;
+	const convertDefaultMetaFieldType = (type, value) => {
+		if (type === 'null' && value === 'null') {
+			return null;
+		}
+		if (type === 'number' && !isNaN(value)) {
+			return Number(value);
+		}
+		
+		return value;
+	};
+	
+	const choiceRawMeta = schema[`${choice}_meta`];
 
+	let choiceMeta = {};
+	let allSubSchemaFields = [];
+	
+	if (choiceRawMeta) {
+		choiceMeta = Object.keys(choiceRawMeta).reduce((choiceMeta, prop) => {
+			if (ADDITIONAL_PROPS.includes(prop) && typeof choiceRawMeta[prop] !== "undefined") {
+				return Object.assign({}, choiceMeta, {
+					[prop]: choiceRawMeta[prop]
+				});
+			}
+			
+			return choiceMeta;
+		}, {});
+
+		const choiceMetaName = choiceRawMeta.code || choiceRawMeta.name;
+
+		if (choiceMetaName) {
+			choiceMeta.name = choiceMetaName;
+		}
+	}
+	
 	schema[choice].forEach(subSchema => {
 		if (subSchema.oneOf) {
 			handleChoice(subSchema, 'oneOf');
@@ -101,13 +137,19 @@ const handleChoice = (schema, choice) => {
 
 	let multipleFieldsHash = {};
 	allSubSchemaFields.forEach(field => {
-		if (!multipleFieldsHash[choiceMeta || field.name]) {
-			multipleFieldsHash[choiceMeta || field.name] = {
-				name: choiceMeta || field.name,
-				type: []
-			};
+		const fieldName = choiceMeta.name || field.name;
+		if (!multipleFieldsHash[fieldName]) {
+			if (choiceMeta.default) {
+				choiceMeta.default = convertDefaultMetaFieldType(field.type, choiceMeta.default);
+			}
+			
+			multipleFieldsHash[fieldName] = Object.assign({}, field.choiceMeta, {
+				name: fieldName,
+				type: [],
+				choiceMeta
+			});
 		}
-		let multipleField = multipleFieldsHash[choiceMeta || field.name];
+		let multipleField = multipleFieldsHash[fieldName];
 		const filedType = field.type;
 
 		if (isComplexType(filedType)) {
@@ -133,16 +175,62 @@ const handleType = (schema, avroSchema) => {
 };
 
 const handleMultiple = (avroSchema, schema, prop) => {
-	avroSchema[prop] = schema[prop].map(item => {
-		if (item && typeof item === 'object') {
-			return item.type;
+	avroSchema[prop] = schema[prop].map(type => {
+		if (type && typeof type === 'object') {
+			return type.type;
 		} else {
-			const field = getFieldWithConvertedType({}, schema, item);
+			const field = getFieldWithConvertedType({}, schema, type);
+			if (isComplexType(type)) {
+				const fieldName = field.typeName || schema.name;
+				const fieldProperties = getMultipleComplexTypeProperties(schema, type);
+
+				Object.keys(fieldProperties).forEach(prop => {
+					delete schema[prop];
+				});
+
+				return Object.assign({}, fieldProperties, {
+					name: fieldName,
+					type
+				})
+			}
+
 			return field.type;
 		}
 	});
 	return avroSchema;
 };
+
+const getMultipleComplexTypeProperties = (schema, type) => {
+	const commonComplexFields = ["aliases", "doc", "default"];
+	const allowedComplexFields = {
+		"enum": [
+			"symbols",
+			"pattern",
+			"namespace"
+		],
+		"fixed": [
+			"size",
+			"namespace"
+		],
+		"array": ["items"],
+		"map": ["values"],
+		"record": ["fields"]
+	};
+
+	const currentTypeFields = commonComplexFields.concat(allowedComplexFields[type]);
+
+	const fieldProperties = currentTypeFields.reduce((fieldProps, prop) => {
+		if (schema[prop]) {
+			return Object.assign({}, fieldProps, {
+				[prop]: schema[prop]
+			});
+		}
+
+		return fieldProps;
+	}, {});
+
+	return fieldProperties;
+}
 
 const getFieldWithConvertedType = (schema, field, type) => {
 	switch(type) {
@@ -187,13 +275,19 @@ const handleFields = (schema, avroSchema) => {
 
 const handleItems = (schema, avroSchema) => {
 	schema.items = !Array.isArray(schema.items) ? [schema.items] : schema.items;
+	const schemaItem = schema.items[0] || {};
+	const arrayItemType = schemaItem.type || DEFAULT_TYPE;
+	const schemaItemName = schemaItem.code || schemaItem.name;
 
-	const arrayItemType = schema.items[0].type || DEFAULT_TYPE;
 	if (isComplexType(arrayItemType)) {
 		avroSchema.items = {};
-		handleRecursiveSchema(schema.items[0], avroSchema.items, schema);
+		handleRecursiveSchema(schemaItem, avroSchema.items, schema);
 	} else {
-		avroSchema.items = getFieldWithConvertedType({}, schema.items[0], arrayItemType).type;
+		avroSchema.items = getFieldWithConvertedType({}, schemaItem, arrayItemType).type;
+	}
+
+	if (schemaItemName) {
+		avroSchema.items.name = schemaItemName;
 	}
 };
 
