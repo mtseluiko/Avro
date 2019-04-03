@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
 const DEFAULT_TYPE = 'string';
 const DEFAULT_NAME = 'New_field';
 const VALID_FULL_NAME_REGEX = /[^A-Za-z0-9_]/g;
@@ -15,6 +15,7 @@ let nameIndex = 0;
 
 module.exports = {
 	generateScript(data, logger, cb) {
+		logger.clear();
 		try {
 			const name = getRecordName(data);
 			let avroSchema = { name };
@@ -33,15 +34,19 @@ module.exports = {
 		} catch(err) {
 			nameIndex = 0;
 			logger.log('error', { message: err.message, stack: err.stack }, 'Avro Forward-Engineering Error');
-			setTimeout(() => {
-				return cb({ message: err.message, stack: err.stack });
-			}, 150);
+			cb({ message: err.message, stack: err.stack });
 		}
 	}
 };
 
 const getRecordName = (data) => {
-	return data.entityData.name || data.entityData.collectionName;
+	return (
+		data.entityData.code
+		||
+		data.entityData.name
+		||
+		data.entityData.collectionName
+	);
 };
 
 const reorderAvroSchema = (avroSchema) => {
@@ -111,6 +116,12 @@ const handleChoice = (schema, choice) => {
 			
 			return choiceMeta;
 		}, {});
+
+		const choiceMetaName = choiceRawMeta.code || choiceRawMeta.name;
+
+		if (choiceMetaName) {
+			choiceMeta.name = choiceMetaName;
+		}
 	}
 	
 	schema[choice].forEach(subSchema => {
@@ -264,13 +275,19 @@ const handleFields = (schema, avroSchema) => {
 
 const handleItems = (schema, avroSchema) => {
 	schema.items = !Array.isArray(schema.items) ? [schema.items] : schema.items;
+	const schemaItem = schema.items[0] || {};
+	const arrayItemType = schemaItem.type || DEFAULT_TYPE;
+	const schemaItemName = schemaItem.code || schemaItem.name;
 
-	const arrayItemType = schema.items[0].type || DEFAULT_TYPE;
 	if (isComplexType(arrayItemType)) {
 		avroSchema.items = {};
-		handleRecursiveSchema(schema.items[0], avroSchema.items, schema);
+		handleRecursiveSchema(schemaItem, avroSchema.items, schema);
 	} else {
-		avroSchema.items = getFieldWithConvertedType({}, schema.items[0], arrayItemType).type;
+		avroSchema.items = getFieldWithConvertedType({}, schemaItem, arrayItemType).type;
+	}
+
+	if (schemaItemName) {
+		avroSchema.items.name = schemaItemName;
 	}
 };
 
