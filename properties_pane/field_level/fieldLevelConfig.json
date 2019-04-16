@@ -445,7 +445,12 @@ making sure that you maintain a proper JSON format.
 			},
 			"minProperties",
 			"maxProperties",
-			"additionalProperties",
+			{
+				"propertyName": "Additional Properties",
+				"propertyKeyword": "additionalProperties",
+				"propertyType": "checkbox",
+				"isTargetProperty": true
+			},
 			"comments"
 		],
 		"array": [
@@ -485,7 +490,12 @@ making sure that you maintain a proper JSON format.
 			"minItems",
 			"maxItems",
 			"uniqueItems",
-			"additionalItems",
+			{
+				"propertyName": "Additional Items",
+				"propertyKeyword": "additionalItems",
+				"propertyType": "checkbox",
+				"isTargetProperty": true
+			},
 			"comments"
 		],
 		"map": [
@@ -537,7 +547,12 @@ making sure that you maintain a proper JSON format.
 			},
 			"minProperties",
 			"maxProperties",
-			"additionalProperties",
+			{
+				"propertyName": "Additional Properties",
+				"propertyKeyword": "additionalProperties",
+				"propertyType": "checkbox",
+				"isTargetProperty": true
+			},
 			"comments"
 		],
 		"enum": [
