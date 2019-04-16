@@ -85,7 +85,12 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, key) => {
 	handleSchemaName(avroSchema, parentSchema);
 	avroSchema = reorderName(avroSchema);
 	handleEmptyNestedObjects(avroSchema);
-	handleTargetProperties(schema, avroSchema);
+	handleTargetProperties(schema, avroSchema, parentSchema);
+	handleRequired({
+		name: avroSchema.name,
+		parentSchema,
+		avroSchema
+	});
 	return;
 };
 
@@ -283,7 +288,8 @@ const handleItems = (schema, avroSchema) => {
 		avroSchema.items = {};
 		handleRecursiveSchema(schemaItem, avroSchema.items, schema);
 	} else {
-		avroSchema.items = getFieldWithConvertedType({}, schemaItem, arrayItemType).type;
+		avroSchema.items = avroSchema.items || {};
+		handleType(schemaItem, avroSchema.items);
 	}
 
 	if (schemaItemName) {
@@ -414,6 +420,20 @@ const handleTargetProperties = (schema, avroSchema) => {
 			avroSchema[prop] = schema[prop];
 		});
 	}
+};
+
+const handleRequired = ({ avroSchema, parentSchema, name }) => {
+	if (!Array.isArray(parentSchema.required)) {
+		return avroSchema;
+	}
+
+	if (!parentSchema.required.includes(name)) {
+		return avroSchema;
+	}
+
+	avroSchema.required = true;
+
+	return avroSchema;
 };
 
 const getNumberType = (field) => {
