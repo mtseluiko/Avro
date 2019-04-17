@@ -86,11 +86,6 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, key) => {
 	avroSchema = reorderName(avroSchema);
 	handleEmptyNestedObjects(avroSchema);
 	handleTargetProperties(schema, avroSchema, parentSchema);
-	handleRequired({
-		name: avroSchema.name,
-		parentSchema,
-		avroSchema
-	});
 	return;
 };
 
@@ -420,20 +415,6 @@ const handleTargetProperties = (schema, avroSchema) => {
 			avroSchema[prop] = schema[prop];
 		});
 	}
-};
-
-const handleRequired = ({ avroSchema, parentSchema, name }) => {
-	if (!Array.isArray(parentSchema.required)) {
-		return avroSchema;
-	}
-
-	if (!parentSchema.required.includes(name)) {
-		return avroSchema;
-	}
-
-	avroSchema.required = true;
-
-	return avroSchema;
 };
 
 const getNumberType = (field) => {
