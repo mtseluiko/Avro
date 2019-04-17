@@ -139,6 +139,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				},
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -214,6 +218,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				},
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -308,6 +316,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				},
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -355,6 +367,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				},
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -389,6 +405,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				},
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -438,6 +458,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				},
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -445,12 +469,6 @@ making sure that you maintain a proper JSON format.
 			},
 			"minProperties",
 			"maxProperties",
-			{
-				"propertyName": "Additional Properties",
-				"propertyKeyword": "additionalProperties",
-				"propertyType": "checkbox",
-				"isTargetProperty": true
-			},
 			"comments"
 		],
 		"array": [
@@ -482,6 +500,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				},
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -490,12 +512,6 @@ making sure that you maintain a proper JSON format.
 			"minItems",
 			"maxItems",
 			"uniqueItems",
-			{
-				"propertyName": "Additional Items",
-				"propertyKeyword": "additionalItems",
-				"propertyType": "checkbox",
-				"isTargetProperty": true
-			},
 			"comments"
 		],
 		"map": [
@@ -540,6 +556,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				},
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -547,12 +567,6 @@ making sure that you maintain a proper JSON format.
 			},
 			"minProperties",
 			"maxProperties",
-			{
-				"propertyName": "Additional Properties",
-				"propertyKeyword": "additionalProperties",
-				"propertyType": "checkbox",
-				"isTargetProperty": true
-			},
 			"comments"
 		],
 		"enum": [
@@ -603,6 +617,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				},
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -702,6 +720,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				},
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -730,6 +752,18 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
 				"template": "textarea"
+			}
+		],
+		"multiple": [
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"dependency": {
+					"key": "required",
+					"value": false
+				}
 			}
 		]
 	}
