@@ -139,6 +139,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"hidden": true,
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -214,6 +215,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"hidden": true,
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -308,6 +310,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"hidden": true,
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -355,6 +358,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"hidden": true,				
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -389,6 +393,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"hidden": true,
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -438,6 +443,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"hidden": true,
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -445,7 +451,6 @@ making sure that you maintain a proper JSON format.
 			},
 			"minProperties",
 			"maxProperties",
-			"additionalProperties",
 			"comments"
 		],
 		"array": [
@@ -477,6 +482,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"hidden": true,
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -485,7 +491,6 @@ making sure that you maintain a proper JSON format.
 			"minItems",
 			"maxItems",
 			"uniqueItems",
-			"additionalItems",
 			"comments"
 		],
 		"map": [
@@ -530,6 +535,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"hidden": true,
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -537,7 +543,6 @@ making sure that you maintain a proper JSON format.
 			},
 			"minProperties",
 			"maxProperties",
-			"additionalProperties",
 			"comments"
 		],
 		"enum": [
@@ -588,6 +593,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"hidden": true,
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -687,6 +693,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
+				"hidden": true,
 				"disabledOnCondition": [{
 					"key": "required",
 					"value": true
@@ -716,6 +723,16 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "details",
 				"template": "textarea"
 			}
+		],
+		"multiple": [
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean",
+				"hidden": true
+			},
+			"dynamic"
 		]
 	}
 }

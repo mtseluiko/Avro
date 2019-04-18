@@ -85,7 +85,7 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, key) => {
 	handleSchemaName(avroSchema, parentSchema);
 	avroSchema = reorderName(avroSchema);
 	handleEmptyNestedObjects(avroSchema);
-	handleTargetProperties(schema, avroSchema);
+	handleTargetProperties(schema, avroSchema, parentSchema);
 	return;
 };
 
@@ -283,7 +283,8 @@ const handleItems = (schema, avroSchema) => {
 		avroSchema.items = {};
 		handleRecursiveSchema(schemaItem, avroSchema.items, schema);
 	} else {
-		avroSchema.items = getFieldWithConvertedType({}, schemaItem, arrayItemType).type;
+		avroSchema.items = avroSchema.items || {};
+		handleType(schemaItem, avroSchema.items);
 	}
 
 	if (schemaItemName) {
