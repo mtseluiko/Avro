@@ -15,7 +15,7 @@
         },
         "features": {
 			"enableForwardEngineering": true,
-			"disableReverseEngineering": false,
+			"enableReverseEngineering": true,
             "enableJsonType": false,
             "enableArrayItemName": true
         }

@@ -97,7 +97,7 @@ making sure that you maintain a proper JSON format.
 				"propertyValidate": false,
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
-				"template": "textarea"
+				"template": "textAreaJson"
 			},
 			{
 				"propertyName": "Namespace",
