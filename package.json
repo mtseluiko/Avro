@@ -1,7 +1,7 @@
 {
     "name": "Avro",
-    "version": "0.1.8",
-    "versionDate": "2019-04-03",
+    "version": "0.1.10",
+    "versionDate": "2019-05-16",
     "author": "hackolade",
     "engines": {
         "hackolade": "2.4.5",
@@ -15,7 +15,7 @@
         },
         "features": {
 			"enableForwardEngineering": true,
-			"disableReverseEngineering": false,
+			"enableReverseEngineering": true,
             "enableJsonType": false,
             "enableArrayItemName": true
         }
