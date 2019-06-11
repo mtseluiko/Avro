@@ -2,5 +2,5 @@
 	"extension": "avsc",
 	"filterName": "Avro schema",
 	"namePrefix": "Avro Schema",
-	"resolvedDefinitions": true
+	"resolvedDefinitions": false
 }
