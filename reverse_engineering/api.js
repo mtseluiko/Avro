@@ -148,9 +148,11 @@ const handleType = (data, schema, parentSchema, definitions) => {
 	} else if (typeof data.type === 'object') {
 		if (data.type.name) {		
 			schema.typeName = data.type.name;		
-		}		
-			
-		handleRecursiveSchema(data.type, schema, {}, definitions);
+		}	
+		
+		data.type = addDefinitions([data.type], definitions).pop();
+
+		handleRecursiveSchema(data, schema, {}, definitions);
 	} else {
 		schema = getType(schema, data, data.type);
 	}
@@ -159,6 +161,17 @@ const handleType = (data, schema, parentSchema, definitions) => {
 
 const handleMultipleTypes = (data, schema, parentSchema, definitions) => {
 	const hasComplexType = data.type.some(isComplexType);
+	const isNull = isNullAllowed(data);
+	data.type = data.type.filter(type => type !== 'null');
+
+	if (isNull) {
+		schema.nullAllowed = true;
+	}
+
+	if (data.type.length === 1) {
+		data.type = data.type[0];
+		return handleType(data, schema, parentSchema, definitions);
+	}
 
 	if (hasComplexType) {
 		data.type = addDefinitions(data.type, definitions);
@@ -185,6 +198,14 @@ const addDefinitions = (types, definitions) => {
 
 		return type.name;
 	});
+};
+
+const isNullAllowed = (data) => {
+	if (!Array.isArray(data.type)) {
+		return false;
+	}
+	
+	return data.type.some(type => type === 'null');
 };
 
 const isComplexType = (type) => {
