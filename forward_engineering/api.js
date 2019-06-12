@@ -203,9 +203,15 @@ const handleNull = (jsonSchema, avroSchema) => {
 	}
 
 	if (Array.isArray(avroSchema.type)) {
-		avroSchema.type.unshift('null');
-	} else {
+		if (!avroSchema.type.includes('null')) {
+			avroSchema.type.unshift('null');
+		}
+	} else if (avroSchema.type !== 'null') {
 		avroSchema.type = ['null', avroSchema.type];
+	}
+
+	if (avroSchema.default === 'null') {
+		avroSchema.default = null;
 	}
 
 	return avroSchema;

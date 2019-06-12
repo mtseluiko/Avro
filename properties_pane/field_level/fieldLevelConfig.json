@@ -439,6 +439,12 @@ making sure that you maintain a proper JSON format.
 					"value": true
 				}]
 			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox",
+				"enableForReference": true
+			},
 			"comments"
 		],
 		"___1": [],
@@ -801,12 +807,6 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"hidden": true
-			},
-			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
 			},
 			"dynamic"
 		]
