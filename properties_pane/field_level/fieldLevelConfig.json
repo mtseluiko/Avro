@@ -165,7 +165,8 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Null allowed",
 				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"primaryKey",
 			"foreignCollection",
@@ -246,7 +247,8 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Null allowed",
 				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"sample",
 			"comments"
@@ -346,7 +348,8 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Null allowed",
 				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"primaryKey",
 			"foreignCollection",
@@ -399,7 +402,8 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Null allowed",
 				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"sample",
 			"comments"
@@ -489,7 +493,8 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Null allowed",
 				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"minProperties",
 			"maxProperties",
@@ -533,7 +538,8 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Null allowed",
 				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"minItems",
 			"maxItems",
@@ -591,7 +597,8 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Null allowed",
 				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"minProperties",
 			"maxProperties",
@@ -654,7 +661,8 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Null allowed",
 				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"default",
 			"pattern",
@@ -759,7 +767,8 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Null allowed",
 				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"sample",
 			"comments"
@@ -797,7 +806,8 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Null allowed",
 				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox"
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"dynamic"
 		]
