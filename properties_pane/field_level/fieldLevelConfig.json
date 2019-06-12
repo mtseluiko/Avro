@@ -313,7 +313,6 @@ making sure that you maintain a proper JSON format.
 				},
 				"isTargetProperty": true
 			},
-			"default",
 			{
 				"propertyName": "Order",
 				"propertyKeyword": "order",
