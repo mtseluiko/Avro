@@ -293,7 +293,7 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 				typeName: field.typeName 
 			});
 		case 'number':
-			return Object.assign(schema, { type: getNumberType(field) });
+			return Object.assign(schema, getNumberType(field));
 		case 'map':
 			return Object.assign(schema, {
 				type,
@@ -494,6 +494,8 @@ const getNumberType = (field) => {
 			logicalType: field.logicalType
 		};
 	} else {
-		return type;
+		return {
+			type
+		};
 	}
 };
