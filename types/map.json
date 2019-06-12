@@ -11,7 +11,8 @@
 		"properties": [],
 		"minProperties": "",
 		"maxProperties": "",
-		"additionalProperties": false
+		"additionalProperties": false,
+		"nullAllowed": false
 	},
 	"subtypes": {
 		"map<string>": {

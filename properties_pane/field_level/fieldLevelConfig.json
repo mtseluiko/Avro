@@ -162,6 +162,11 @@ making sure that you maintain a proper JSON format.
 					"value": true
 				}]
 			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox"
+			},
 			"primaryKey",
 			"foreignCollection",
 			"foreignField",
@@ -237,6 +242,11 @@ making sure that you maintain a proper JSON format.
 					"key": "required",
 					"value": true
 				}]
+			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox"
 			},
 			"sample",
 			"comments"
@@ -333,6 +343,11 @@ making sure that you maintain a proper JSON format.
 					"value": true
 				}]
 			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox"
+			},
 			"primaryKey",
 			"foreignCollection",
 			"foreignField",
@@ -380,6 +395,11 @@ making sure that you maintain a proper JSON format.
 					"key": "required",
 					"value": true
 				}]
+			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox"
 			},
 			"sample",
 			"comments"
@@ -466,6 +486,11 @@ making sure that you maintain a proper JSON format.
 					"value": true
 				}]
 			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox"
+			},
 			"minProperties",
 			"maxProperties",
 			"comments"
@@ -504,6 +529,11 @@ making sure that you maintain a proper JSON format.
 					"key": "required",
 					"value": true
 				}]
+			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox"
 			},
 			"minItems",
 			"maxItems",
@@ -557,6 +587,11 @@ making sure that you maintain a proper JSON format.
 					"key": "required",
 					"value": true
 				}]
+			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox"
 			},
 			"minProperties",
 			"maxProperties",
@@ -615,6 +650,11 @@ making sure that you maintain a proper JSON format.
 					"key": "required",
 					"value": true
 				}]
+			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox"
 			},
 			"default",
 			"pattern",
@@ -716,6 +756,11 @@ making sure that you maintain a proper JSON format.
 					"value": true
 				}]
 			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox"
+			},
 			"sample",
 			"comments"
 		],
@@ -748,6 +793,11 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"hidden": true
+			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox"
 			},
 			"dynamic"
 		]
