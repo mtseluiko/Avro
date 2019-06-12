@@ -109,6 +109,7 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 	avroSchema = reorderName(avroSchema);
 	handleEmptyNestedObjects(avroSchema);
 	handleTargetProperties(schema, avroSchema, parentSchema);
+	handleNull(schema, avroSchema);
 	return;
 };
 
@@ -159,6 +160,7 @@ const handleChoice = (schema, choice, udt) => {
 	});
 
 	let multipleFieldsHash = {};
+
 	allSubSchemaFields.forEach(field => {
 		const fieldName = choiceMeta.name || field.name;
 		if (!multipleFieldsHash[fieldName]) {
@@ -175,6 +177,9 @@ const handleChoice = (schema, choice, udt) => {
 		let multipleField = multipleFieldsHash[fieldName];
 		const filedType = field.type || getTypeFromReference(field) || DEFAULT_TYPE;
 
+		multipleField.nullAllowed = multipleField.nullAllowed || field.nullAllowed;
+		field = Object.assign({}, field, { nullAllowed: false });
+
 		if (isComplexType(filedType)) {
 			let newField = {};
 			handleRecursiveSchema(field, newField, {}, udt);
@@ -190,6 +195,20 @@ const handleChoice = (schema, choice, udt) => {
 	});
 
 	schema.properties = Object.assign((schema.properties || {}), multipleFieldsHash);
+};
+
+const handleNull = (jsonSchema, avroSchema) => {
+	if (!jsonSchema.nullAllowed) {
+		return avroSchema;
+	}
+
+	if (Array.isArray(avroSchema.type)) {
+		avroSchema.type.unshift('null');
+	} else {
+		avroSchema.type = ['null', avroSchema.type];
+	}
+
+	return avroSchema;
 };
 
 const handleType = (schema, avroSchema, udt) => {
@@ -274,7 +293,7 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 				typeName: field.typeName 
 			});
 		case 'number':
-			return Object.assign(schema, { type: getNumberType(field) });
+			return Object.assign(schema, getNumberType(field));
 		case 'map':
 			return Object.assign(schema, {
 				type,
@@ -475,6 +494,8 @@ const getNumberType = (field) => {
 			logicalType: field.logicalType
 		};
 	} else {
-		return type;
+		return {
+			type
+		};
 	}
 };

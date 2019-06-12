@@ -17,6 +17,7 @@
 		"additionalItems": true,
 		"minItems": "",
 		"maxItems": "",
-		"uniqueItems": false
+		"uniqueItems": false,
+		"nullAllowed": false
 	}
 }
