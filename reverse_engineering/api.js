@@ -32,8 +32,8 @@ module.exports = {
 				return parseData(fileData);
 			})
 			.then(schema => {
-				const jsonSchema = convertToJsonSchema(schema);
 				try {
+					const jsonSchema = convertToJsonSchema(schema);
 					const namespace = jsonSchema.namespace;
 					jsonSchema.title = jsonSchema.name;
 					delete jsonSchema.namespace;
@@ -147,17 +147,42 @@ const handleType = (data, schema, parentSchema, definitions) => {
 		schema = handleMultipleTypes(data, schema, parentSchema, definitions);
 	} else if (typeof data.type === 'object') {
 		if (data.type.name) {		
-			schema.typeName = data.type.name;		
-		}	
-		
-		data.type = addDefinitions([data.type], definitions).pop();
+			data.type = addDefinitions([data.type], definitions).pop();
 
-		handleRecursiveSchema(data, schema, {}, definitions);
+			handleRecursiveSchema(data, schema, {}, definitions);
+		} else if (data.type.items) {
+			data.type.items = convertItemsToDefinitions(data.type.items, definitions);
+
+			handleRecursiveSchema(data.type, schema, {}, definitions);
+		} else {
+			handleRecursiveSchema(data.type, schema, {}, definitions);
+		}
 	} else {
 		schema = getType(schema, data, data.type);
 	}
 };
 
+const convertItemsToDefinitions = (items, definitions) => {
+	const itemToDefinition = (item, definitions) => {
+		if (!item.name) {
+			return item;
+		}
+
+		const type = addDefinitions([ item ], definitions).pop();
+		const newItem = {
+			name: item.name,
+			type
+		};
+
+		return newItem;
+	};
+
+	if (Array.isArray(items)) {
+		return items.map(item => itemToDefinition(item, definitions));
+	} else {
+		return itemToDefinition(items, definitions);
+	}
+};
 
 const handleMultipleTypes = (data, schema, parentSchema, definitions) => {
 	const hasComplexType = data.type.some(isComplexType);
