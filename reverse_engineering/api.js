@@ -8,7 +8,7 @@ const snappy = require('snappyjs');
 const DEFAULT_FIELD_NAME = 'New_field';
 let stateExtension = null;
 
-const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
 const DATA_TYPES = [
 	'string',
 	'bytes',
