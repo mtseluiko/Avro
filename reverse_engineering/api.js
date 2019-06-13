@@ -8,7 +8,22 @@ const snappy = require('snappyjs');
 const DEFAULT_FIELD_NAME = 'New_field';
 let stateExtension = null;
 
-const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
+const DATA_TYPES = [
+	'string',
+	'bytes',
+	'boolean',
+	'null',
+	'record',
+	'array',
+	'enum',
+	'fixed',
+	'int',
+	'long',
+	'float',
+	'double',
+	'map'
+]
 
 module.exports = {
 	reFromFile(data, logger, callback) {
@@ -17,8 +32,8 @@ module.exports = {
 				return parseData(fileData);
 			})
 			.then(schema => {
-				const jsonSchema = convertToJsonSchema(schema);
 				try {
+					const jsonSchema = convertToJsonSchema(schema);
 					const namespace = jsonSchema.namespace;
 					jsonSchema.title = jsonSchema.name;
 					delete jsonSchema.namespace;
@@ -99,23 +114,25 @@ const parseData = (fileData) => {
 
 const convertToJsonSchema = (data) => {
 	let jsonSchema = {};
-	handleRecursiveSchema(data, jsonSchema);
+	const definitions = {};
+	handleRecursiveSchema(data, jsonSchema, {}, definitions);
 	jsonSchema.type = 'object';
 	jsonSchema.$schema = 'http://json-schema.org/draft-04/schema#';
+	jsonSchema.definitions = definitions;
 	return jsonSchema;
 };
 
-const handleRecursiveSchema = (data, schema, parentSchema = {}) => {
+const handleRecursiveSchema = (data, schema, parentSchema = {}, definitions = {}) => {
 	for (let prop in data) {
 		switch(prop) {
 			case 'type':
-				handleType(data, schema, parentSchema);
+				handleType(data, schema, parentSchema, definitions);
 				break;
 			case 'fields':
-				handleFields(data, prop, schema);
+				handleFields(data, prop, schema, definitions);
 				break;
 			case 'items':
-				handleItems(data, prop, schema);
+				handleItems(data, prop, schema, definitions);
 				break;
 			default:
 				handleOtherProps(data, prop, schema);
@@ -125,25 +142,64 @@ const handleRecursiveSchema = (data, schema, parentSchema = {}) => {
 };
 
 
-const handleType = (data, schema, parentSchema) => {
+const handleType = (data, schema, parentSchema, definitions) => {
 	if (Array.isArray(data.type)) {
-		schema = handleMultipleTypes(data, schema, parentSchema);
+		schema = handleMultipleTypes(data, schema, parentSchema, definitions);
 	} else if (typeof data.type === 'object') {
 		if (data.type.name) {		
-			schema.typeName = data.type.name;		
-		}		
-			
-		handleRecursiveSchema(data.type, schema);
+			data.type = addDefinitions([data.type], definitions).pop();
+
+			handleRecursiveSchema(data, schema, {}, definitions);
+		} else if (data.type.items) {
+			data.type.items = convertItemsToDefinitions(data.type.items, definitions);
+
+			handleRecursiveSchema(data.type, schema, {}, definitions);
+		} else {
+			handleRecursiveSchema(data.type, schema, {}, definitions);
+		}
 	} else {
 		schema = getType(schema, data, data.type);
 	}
 };
 
+const convertItemsToDefinitions = (items, definitions) => {
+	const itemToDefinition = (item, definitions) => {
+		if (!item.name) {
+			return item;
+		}
 
-const handleMultipleTypes = (data, schema, parentSchema) => {
+		const type = addDefinitions([ item ], definitions).pop();
+		const newItem = {
+			name: item.name,
+			type
+		};
+
+		return newItem;
+	};
+
+	if (Array.isArray(items)) {
+		return items.map(item => itemToDefinition(item, definitions));
+	} else {
+		return itemToDefinition(items, definitions);
+	}
+};
+
+const handleMultipleTypes = (data, schema, parentSchema, definitions) => {
 	const hasComplexType = data.type.some(isComplexType);
+	const isNull = isNullAllowed(data);
+	data.type = data.type.filter(type => type !== 'null');
+
+	if (isNull) {
+		schema.nullAllowed = true;
+	}
+
+	if (data.type.length === 1) {
+		data.type = data.type[0];
+		return handleType(data, schema, parentSchema, definitions);
+	}
 
 	if (hasComplexType) {
+		data.type = addDefinitions(data.type, definitions);
 		parentSchema = getChoice(data, parentSchema);
 		parentSchema = removeChangedField(parentSchema, data.name);
 	} else {
@@ -153,9 +209,36 @@ const handleMultipleTypes = (data, schema, parentSchema) => {
 	}
 };
 
-const isComplexType = (type) => {
-	if (typeof type === 'string') {
+const addDefinitions = (types, definitions) => {
+	return types.map(type => {
+		if (Object(type) !== type) {
+			return type;
+		} else if (!type.name) {
+			return type;
+		}
+
+		let schema = {};
+		handleRecursiveSchema(type, schema, {}, definitions);
+		definitions[type.name] = schema;
+
+		return type.name;
+	});
+};
+
+const isNullAllowed = (data) => {
+	if (!Array.isArray(data.type)) {
 		return false;
+	}
+	
+	return data.type.some(type => type === 'null');
+};
+
+const isComplexType = (type) => {
+	if (DATA_TYPES.includes(type)) {
+		return false;
+	}
+	if (typeof type === 'string') {
+		return true;
 	}
 
 	const isNumber = [
@@ -210,7 +293,7 @@ const getType = (schema, field, type) => {
 				subtype: `map<${field.values}>`
 			});
 		default:
-			return Object.assign(schema, { type: 'string' });
+			return Object.assign(schema, { $ref: '#/definitions/' + type });
 	}
 };
 
@@ -291,21 +374,21 @@ const getSubField = (item) => {
 	return field;
 };
 
-const handleFields = (data, prop, schema) => {
+const handleFields = (data, prop, schema, definitions) => {
 	schema.properties = {};
 	data[prop].forEach(element => {
 		const name = element.name || DEFAULT_FIELD_NAME;
 		schema.properties[name] = {};
-		handleRecursiveSchema(element, schema.properties[name], schema);
+		handleRecursiveSchema(element, schema.properties[name], schema, definitions);
 	});
 };
 
-const handleItems = (data, prop, schema) => {
+const handleItems = (data, prop, schema, definitions) => {
 	const items = data[prop];
 
 	if (typeof items === 'object') {
 		schema.items = {};
-		handleRecursiveSchema(items, schema.items, schema);
+		handleRecursiveSchema(items, schema.items, schema, definitions);
 	} else {
 		schema.items = {
 			type: items

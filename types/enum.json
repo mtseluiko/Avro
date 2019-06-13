@@ -18,6 +18,7 @@
 		"foreignField": [],
 		"enum": [],
 		"sample": "",
-		"symbols": ["123"]
+		"symbols": ["123"],
+		"nullAllowed": false
 	}
 }

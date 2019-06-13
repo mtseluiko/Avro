@@ -12,6 +12,7 @@
 		"childRelationships": [],
 		"foreignEntity": "",
 		"foreignField": [],
-		"format": ""
+		"format": "",
+		"nullAllowed": false
 	}
 }
