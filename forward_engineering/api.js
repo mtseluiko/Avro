@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
 const DEFAULT_TYPE = 'string';
 const DEFAULT_NAME = 'New_field';
 const VALID_FULL_NAME_REGEX = /[^A-Za-z0-9_]/g;
@@ -268,7 +268,7 @@ const getMultipleComplexTypeProperties = (schema, type) => {
 		"record": ["fields"]
 	};
 
-	const currentTypeFields = commonComplexFields.concat(allowedComplexFields[type]);
+	const currentTypeFields = commonComplexFields.concat(allowedComplexFields[type] || []);
 
 	const fieldProperties = currentTypeFields.reduce((fieldProps, prop) => {
 		if (schema[prop]) {
@@ -355,6 +355,8 @@ const handleItems = (schema, avroSchema, udt) => {
 		handleRecursiveSchema(schemaItem, avroSchema.items, schema, udt);
 	} else {
 		avroSchema.items = avroSchema.items || {};
+		schemaItem.type = schemaItem.type || getTypeFromReference(schemaItem);
+
 		handleType(schemaItem, avroSchema.items, udt);
 	}
 
