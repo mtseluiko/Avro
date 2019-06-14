@@ -850,7 +850,8 @@ making sure that you maintain a proper JSON format.
 				"propertyValidate": false,
 				"propertyTooltip": "default",
 				"propertyType": "details",
-				"template": "textarea"
+				"template": "textarea",
+				"markdown": false
 			},
 			"comments"
 		],
