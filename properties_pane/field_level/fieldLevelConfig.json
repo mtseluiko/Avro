@@ -121,7 +121,6 @@ making sure that you maintain a proper JSON format.
 			"name",
 			"schemaId",
 			"description",
-			"type",
 			{
 				"propertyName": "Doc",
 				"propertyKeyword": "doc",
@@ -129,6 +128,13 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
 				"template": "textarea"
+			},
+			"type",
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			"default",
 			{
@@ -198,6 +204,12 @@ making sure that you maintain a proper JSON format.
 					"decimal"
 				],
 				"isTargetProperty": true
+			},
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox",
+				"enableForReference": true
 			},
 			{
 				"propertyName": "Precision",
@@ -326,6 +338,12 @@ making sure that you maintain a proper JSON format.
 				]
 			},
 			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox",
+				"enableForReference": true
+			},
+			{
 				"propertyName": "Aliases",
 				"propertyType": "text",
 				"propertyKeyword": "aliases",
@@ -378,6 +396,12 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox",
+				"enableForReference": true
+			},
 			"default",
 			{
 				"propertyName": "Aliases",
@@ -465,6 +489,12 @@ making sure that you maintain a proper JSON format.
 			},
 			"type",
 			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox",
+				"enableForReference": true
+			},
+			{
 				"propertyName": "Type name",
 				"propertyKeyword": "typeName",
 				"shouldValidate": false,
@@ -521,6 +551,12 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox",
+				"enableForReference": true
+			},
 			{
 				"propertyName": "Aliases",
 				"propertyType": "text",
@@ -581,6 +617,12 @@ making sure that you maintain a proper JSON format.
 				]
 			},
 			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox",
+				"enableForReference": true
+			},
+			{
 				"propertyName": "Aliases",
 				"propertyType": "text",
 				"propertyKeyword": "aliases",
@@ -625,6 +667,12 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox",
+				"enableForReference": true
+			},
 			{
 				"propertyName": "Type name",
 				"propertyKeyword": "typeName",
@@ -690,6 +738,12 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
+			{
+				"propertyName": "Null allowed",
+				"propertyKeyword": "nullAllowed",
+				"propertyType": "checkbox",
+				"enableForReference": true
+			},
 			{
 				"propertyName": "Type name",
 				"propertyKeyword": "typeName",
