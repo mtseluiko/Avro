@@ -2,6 +2,8 @@
 
 const fs = require('fs');
 const path = require('path');
+const validationHelper = require('./validationHelper');
+
 const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
 const DEFAULT_TYPE = 'string';
 const DEFAULT_NAME = 'New_field';
@@ -36,6 +38,15 @@ module.exports = {
 			nameIndex = 0;
 			logger.log('error', { message: err.message, stack: err.stack }, 'Avro Forward-Engineering Error');
 			cb({ message: err.message, stack: err.stack });
+		}
+	},
+	validate(data, logger, cb) {
+		try {
+			const messages = validationHelper.validate(data.script);
+			cb(null, messages);
+		} catch (e) {
+			logger.log('error', { error: e }, 'Avro Validation Error');
+			cb(e.message);
 		}
 	}
 };
