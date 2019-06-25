@@ -205,6 +205,7 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
+			"nullDefault",
 			{
 				"propertyName": "Precision",
 				"propertyKeyword": "precision",
@@ -331,6 +332,7 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
+			"default",
 			{
 				"propertyName": "Aliases",
 				"propertyType": "text",
@@ -354,7 +356,6 @@ making sure that you maintain a proper JSON format.
 			"foreignCollection",
 			"foreignField",
 			"relationshipType",
-			"default",
 			"unit",
 			"minimum",
 			"exclusiveMinimum",
@@ -384,7 +385,40 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
-			"default",
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"propertyType": "select",
+				"shouldValidate": true,
+				"options": [
+					"",
+					"true",
+					"false",
+					"null"
+				],
+				"dependency": [{
+					"key": "nullAllowed",
+					"value": true
+				}]
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"propertyType": "select",
+				"shouldValidate": true,
+				"options": [
+					"",
+					"true",
+					"false"
+				],
+				"dependency": [{
+					"key": "nullAllowed",
+					"value": false
+				}, {
+					"key": "nullAllowed",
+					"exist": false
+				}]
+			},
 			{
 				"propertyName": "Aliases",
 				"propertyType": "text",
@@ -470,6 +504,7 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
+			"nullDefault",
 			{
 				"propertyName": "Type name",
 				"propertyKeyword": "typeName",
@@ -527,6 +562,7 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
+			"nullDefault",
 			{
 				"propertyName": "Aliases",
 				"propertyType": "text",
@@ -586,6 +622,7 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
+			"nullDefault",
 			{
 				"propertyName": "Aliases",
 				"propertyType": "text",
@@ -631,6 +668,7 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
+			"default",
 			{
 				"propertyName": "Type name",
 				"propertyKeyword": "typeName",
@@ -669,7 +707,6 @@ making sure that you maintain a proper JSON format.
 					"value": true
 				}]
 			},
-			"default",
 			"pattern",
 			"sample",
 			"comments"
@@ -696,6 +733,7 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
+			"nullDefault",
 			{
 				"propertyName": "Type name",
 				"propertyKeyword": "typeName",
