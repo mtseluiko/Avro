@@ -39,13 +39,32 @@
 				"value": true
 			}
 		}],
-		"erd": [ "keys", "type", {
+		"erd": [ "keys", "type", [{
 			"value": "+",
 			"dependency": {
 				"key": "nullAllowed",
 				"value": true
 			},
 			"width": 20
-		}, "indexes" ]
+		}, {
+			"value": "*",
+			"dependency": {
+				"type": "and",
+				"values": [{
+					"key": "required",
+					"value": true
+				}, {
+					"type": "or",
+					"values": [{
+						"key": "nullAllowed",
+						"value": false
+					}, {
+						"key": "nullAllowed",
+						"exist": false
+					}]
+				}]
+			},
+			"width": 20
+		}], "indexes" ]
 	}
 }
