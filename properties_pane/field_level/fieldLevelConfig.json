@@ -136,7 +136,19 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
-			"default",
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "text",
+				"disabledOnCondition": [{
+					"key": "nullAllowed",
+					"value": true
+				}, {
+					"key": "required",
+					"value": true
+				}]
+			},
 			{
 				"propertyName": "Order",
 				"propertyKeyword": "order",
@@ -162,9 +174,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true,
 				"disabledOnCondition": [{
-					"key": "required",
+					"key": "nullAllowed",
 					"value": true
 				}]
 			},
@@ -205,7 +216,6 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
-			"nullDefault",
 			{
 				"propertyName": "Precision",
 				"propertyKeyword": "precision",
@@ -245,9 +255,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true,
 				"disabledOnCondition": [{
-					"key": "required",
+					"key": "nullAllowed",
 					"value": true
 				}]
 			},
@@ -332,7 +341,19 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
-			"default",
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "numeric",
+				"disabledOnCondition": [{
+					"key": "nullAllowed",
+					"value": true
+				}, {
+					"key": "required",
+					"value": true
+				}]
+			},
 			{
 				"propertyName": "Aliases",
 				"propertyType": "text",
@@ -346,9 +367,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true,
 				"disabledOnCondition": [{
-					"key": "required",
+					"key": "nullAllowed",
 					"value": true
 				}]
 			},
@@ -388,35 +408,19 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
-				"propertyType": "select",
 				"shouldValidate": true,
-				"options": [
-					"",
-					"true",
-					"false",
-					"null"
-				],
-				"dependency": [{
-					"key": "nullAllowed",
-					"value": true
-				}]
-			},
-			{
-				"propertyName": "Default",
-				"propertyKeyword": "default",
 				"propertyType": "select",
-				"shouldValidate": true,
 				"options": [
 					"",
 					"true",
 					"false"
 				],
-				"dependency": [{
+				"disabledOnCondition": [{
 					"key": "nullAllowed",
-					"value": false
+					"value": true
 				}, {
-					"key": "nullAllowed",
-					"exist": false
+					"key": "required",
+					"value": true
 				}]
 			},
 			{
@@ -432,9 +436,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true,				
 				"disabledOnCondition": [{
-					"key": "required",
+					"key": "nullAllowed",
 					"value": true
 				}]
 			},
@@ -467,9 +470,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true,
 				"disabledOnCondition": [{
-					"key": "required",
+					"key": "nullAllowed",
 					"value": true
 				}]
 			},
@@ -504,7 +506,6 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
-			"nullDefault",
 			{
 				"propertyName": "Type name",
 				"propertyKeyword": "typeName",
@@ -530,9 +531,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true,
 				"disabledOnCondition": [{
-					"key": "required",
+					"key": "nullAllowed",
 					"value": true
 				}]
 			},
@@ -562,7 +562,6 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
-			"nullDefault",
 			{
 				"propertyName": "Aliases",
 				"propertyType": "text",
@@ -576,9 +575,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true,
 				"disabledOnCondition": [{
-					"key": "required",
+					"key": "nullAllowed",
 					"value": true
 				}]
 			},
@@ -622,7 +620,6 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
-			"nullDefault",
 			{
 				"propertyName": "Aliases",
 				"propertyType": "text",
@@ -636,9 +633,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true,
 				"disabledOnCondition": [{
-					"key": "required",
+					"key": "nullAllowed",
 					"value": true
 				}]
 			},
@@ -668,7 +664,19 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
-			"default",
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "text",
+				"disabledOnCondition": [{
+					"key": "nullAllowed",
+					"value": true
+				}, {
+					"key": "required",
+					"value": true
+				}]
+			},
 			{
 				"propertyName": "Type name",
 				"propertyKeyword": "typeName",
@@ -701,9 +709,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true,
 				"disabledOnCondition": [{
-					"key": "required",
+					"key": "nullAllowed",
 					"value": true
 				}]
 			},
@@ -733,7 +740,6 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"enableForReference": true
 			},
-			"nullDefault",
 			{
 				"propertyName": "Type name",
 				"propertyKeyword": "typeName",
@@ -807,9 +813,8 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true,
 				"disabledOnCondition": [{
-					"key": "required",
+					"key": "nullAllowed",
 					"value": true
 				}]
 			},
@@ -845,7 +850,10 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
-				"hidden": true
+				"disabledOnCondition": [{
+					"key": "nullAllowed",
+					"value": true
+				}]
 			},
 			"dynamic"
 		]
