@@ -138,7 +138,7 @@ const handleRecursiveSchema = (data, schema, parentSchema = {}, definitions = {}
 				handleOtherProps(data, prop, schema);
 		}
 	}
-	if (isRequired(data)) {
+	if (isRequired(data, schema)) {
 		addRequired(parentSchema, data.name);
 	}
 	return;
@@ -418,8 +418,10 @@ const handleErrorObject = (error) => {
 	return plainObject;
 };
 
-const isRequired = (data) => {
+const isRequired = (data, schema) => {
 	if (!data) {
+		return false;
+	} else if (schema && schema.nullAllowed) {
 		return false;
 	} else if (isNullAllowed(data)) {
 		return false;
