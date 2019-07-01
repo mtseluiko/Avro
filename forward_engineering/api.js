@@ -383,12 +383,22 @@ const uniqBy = (arr, prop) => {
 };
 
 const handleOtherProps = (schema, prop, avroSchema) => {
-	if (ADDITIONAL_PROPS.includes(prop)) {
+	if (prop === 'default') {
+		avroSchema[prop] = getDefault(schema[prop]);
+	} else if (ADDITIONAL_PROPS.includes(prop)) {
 		avroSchema[prop] = schema[prop];
 
 		if (prop === 'size') {
 			avroSchema[prop] = Number(avroSchema[prop]);
 		}
+	}
+};
+
+const getDefault = (value) => {
+	if (value === 'null') {
+		return null;
+	} else {
+		return value;
 	}
 };
 
