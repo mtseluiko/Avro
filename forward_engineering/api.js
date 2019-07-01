@@ -336,7 +336,7 @@ const getTypeFromReference = (schema) => {
 		return;
 	}
 
-	const typeName = schema.$ref.split('/').pop();
+	const typeName = prepareName(schema.$ref.split('/').pop() || '');
 
 	return typeName;
 };
@@ -359,7 +359,7 @@ const handleItems = (schema, avroSchema, udt) => {
 	schema.items = !Array.isArray(schema.items) ? [schema.items] : schema.items;
 	const schemaItem = schema.items[0] || {};
 	const arrayItemType = schemaItem.type || DEFAULT_TYPE;
-	const schemaItemName = schemaItem.code || schemaItem.name;
+	const schemaItemName = schemaItem.arrayItemCode || schemaItem.arrayItemName || schemaItem.code || schemaItem.name;
 
 	if (isComplexType(arrayItemType)) {
 		avroSchema.items = {};
@@ -426,17 +426,19 @@ const handleSchemaName = (avroSchema, parentSchema) => {
 	}
 
 	if (avroSchema.name) {
-		avroSchema.name = avroSchema.name.replace(VALID_FULL_NAME_REGEX, '_')
-			.replace(VALID_FIRST_NAME_LETTER_REGEX, '_');
+		avroSchema.name = prepareName(avroSchema.name);
 	}
 
 	if(avroSchema.type && avroSchema.type.name) {
-		avroSchema.type.name = avroSchema.type.name.replace(VALID_FULL_NAME_REGEX, '_')
-			.replace(VALID_FIRST_NAME_LETTER_REGEX, '_');
+		avroSchema.type.name = prepareName(avroSchema.type.name);
 	}
 
 	delete avroSchema.arrayItemName;
 };
+
+const prepareName = (name) => name
+	.replace(VALID_FULL_NAME_REGEX, '_')
+	.replace(VALID_FIRST_NAME_LETTER_REGEX, '_');
 
 const getDefaultName = () => {
 	if (nameIndex) {
