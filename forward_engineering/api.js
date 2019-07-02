@@ -120,7 +120,13 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 	avroSchema = reorderName(avroSchema);
 	handleEmptyNestedObjects(avroSchema);
 	handleTargetProperties(schema, avroSchema, parentSchema);
-	handleNull(schema, avroSchema);
+
+	if (schema.nullAllowed) {
+		handleNull(schema, avroSchema);
+	} else {
+		handleRequired(parentSchema, avroSchema, schema);
+	}
+
 	return;
 };
 
@@ -209,10 +215,6 @@ const handleChoice = (schema, choice, udt) => {
 };
 
 const handleNull = (jsonSchema, avroSchema) => {
-	if (!jsonSchema.nullAllowed) {
-		return avroSchema;
-	}
-
 	if (Array.isArray(avroSchema.type)) {
 		if (!avroSchema.type.includes('null')) {
 			avroSchema.type.unshift('null');
@@ -221,11 +223,25 @@ const handleNull = (jsonSchema, avroSchema) => {
 		avroSchema.type = ['null', avroSchema.type];
 	}
 
-	if (avroSchema.default === 'null') {
+	if (jsonSchema.nullAllowed) {
 		avroSchema.default = null;
 	}
 
 	return avroSchema;
+};
+
+const isRequired = (parentSchema, name) => {
+	if (!Array.isArray(parentSchema.required)) {
+		return false;
+	} else {
+		return parentSchema.required.some(requiredName => prepareName(requiredName) === name);
+	}
+};
+
+const handleRequired = (parentSchema, avroSchema) => {
+	if (isRequired(parentSchema, avroSchema.name)) {
+		delete avroSchema.default;
+	}
 };
 
 const handleType = (schema, avroSchema, udt) => {
@@ -383,12 +399,22 @@ const uniqBy = (arr, prop) => {
 };
 
 const handleOtherProps = (schema, prop, avroSchema) => {
-	if (ADDITIONAL_PROPS.includes(prop)) {
+	if (prop === 'default') {
+		avroSchema[prop] = getDefault(schema[prop]);
+	} else if (ADDITIONAL_PROPS.includes(prop)) {
 		avroSchema[prop] = schema[prop];
 
 		if (prop === 'size') {
 			avroSchema[prop] = Number(avroSchema[prop]);
 		}
+	}
+};
+
+const getDefault = (value) => {
+	if (value === 'null') {
+		return null;
+	} else {
+		return value;
 	}
 };
 
