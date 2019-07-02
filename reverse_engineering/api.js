@@ -193,7 +193,6 @@ const handleMultipleTypes = (data, schema, parentSchema, definitions) => {
 
 	if (isNull) {
 		schema.nullAllowed = true;
-		schema.default = null;
 		data.type = data.type.filter(type => type !== 'null');
 	}
 
@@ -383,6 +382,7 @@ const getSubField = (item) => {
 
 const handleFields = (data, prop, schema, definitions) => {
 	schema.properties = {};
+	schema.required = [];
 	data[prop].forEach(element => {
 		const name = element.name || DEFAULT_FIELD_NAME;
 		schema.properties[name] = {};
@@ -404,7 +404,11 @@ const handleItems = (data, prop, schema, definitions) => {
 };
 
 const handleOtherProps = (data, prop, schema) => {
-	if (ADDITIONAL_PROPS.includes(prop)) {
+	const isNullDefault = prop === 'default' && (isNullAllowed(schema) || schema.nullAllowed);
+
+	if (isNullDefault) {
+		return;
+	} else if (ADDITIONAL_PROPS.includes(prop)) {
 		schema[prop] = data[prop];
 	}
 	return;
