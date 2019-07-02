@@ -223,7 +223,9 @@ const handleNull = (jsonSchema, avroSchema) => {
 		avroSchema.type = ['null', avroSchema.type];
 	}
 
-	avroSchema.default = null;
+	if (jsonSchema.nullAllowed) {
+		avroSchema.default = null;
+	}
 
 	return avroSchema;
 };
@@ -239,8 +241,6 @@ const isRequired = (parentSchema, name) => {
 const handleRequired = (parentSchema, avroSchema) => {
 	if (isRequired(parentSchema, avroSchema.name)) {
 		delete avroSchema.default;
-	} else if (!avroSchema.hasOwnProperty('default')) {
-		avroSchema.default = null;
 	}
 };
 
