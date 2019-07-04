@@ -932,20 +932,11 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "default",
 				"shouldValidate": true,
 				"propertyType": "text",
-				"validation": {
-					"required": true
-				},
 				"dependency": [[{
 					"key": "nullAllowed",
 					"value": false
 				}, {
 					"key": "nullAllowed",
-					"exist": false
-				}], [{
-					"key": "required",
-					"value": false
-				}, {
-					"key": "required",
 					"exist": false
 				}]]
 			},
