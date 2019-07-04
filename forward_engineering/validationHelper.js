@@ -12,7 +12,7 @@ const validate = (script) => {
     } catch(err) {
         return [{
             type: 'error',
-            label: err.name,
+            label: err.fieldName || err.name,
             title: err.message,
             context: ''
         }];
