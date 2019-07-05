@@ -215,7 +215,7 @@ Type.forSchema = function (schema, opts) {
     type = (function (typeName) {
       var Type = TYPES[typeName];
       if (Type === undefined) {
-        Type.addError(new Error(f('unknown type: %j', typeName)));
+        throw new Error(f('unknown type: %j', typeName));
       }
       return new Type(schema, opts);
     })(schema.type);
