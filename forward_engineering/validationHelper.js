@@ -1,4 +1,4 @@
-const avsc = require('avsc');
+const avsc = require('./modules/avsc');
 
 const validate = (script) => {
     try {
