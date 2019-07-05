@@ -25,12 +25,16 @@ const validate = (script) => {
             }];
         }
     } catch(err) {
-        return [{
+        const errors = avsc.errorsCollector.concat([{
             type: 'error',
             label: err.fieldName || err.name,
             title: err.message,
             context: ''
-        }];
+        }]);
+
+        avsc.errorsCollector = [];
+
+        return errors;
     }
 };
 

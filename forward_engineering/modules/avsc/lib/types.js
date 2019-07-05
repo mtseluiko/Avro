@@ -1369,6 +1369,7 @@ UnwrappedUnionType.prototype._copy = function (val, opts) {
     }
     if (index === undefined) {
       throwInvalidError(val, this);
+      return;
     }
   }
   var type = this.types[index];
