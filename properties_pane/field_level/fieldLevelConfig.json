@@ -872,6 +872,7 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"multiple": [
+			"nullAllowed",
 			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
