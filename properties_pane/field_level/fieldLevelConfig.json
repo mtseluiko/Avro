@@ -483,48 +483,6 @@ making sure that you maintain a proper JSON format.
 			"sample",
 			"comments"
 		],
-		"null": [
-			"name",
-			"schemaId",
-			"description",
-			{
-				"propertyName": "Doc",
-				"propertyKeyword": "doc",
-				"propertyValidate": false,
-				"propertyTooltip": "Popup for multi-line text entry",
-				"propertyType": "details",
-				"template": "textarea"
-			},
-			{
-				"propertyName": "Aliases",
-				"propertyType": "text",
-				"propertyKeyword": "aliases",
-				"multi": true,
-				"valueType": "array"
-			},
-			"type",
-			"dependencies",
-			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
-			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}]
-			},
-			"comments"
-		],
 		"___1": [],
 		"record": [
 			"arrayItemName",
@@ -914,6 +872,7 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"multiple": [
+			"nullAllowed",
 			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",

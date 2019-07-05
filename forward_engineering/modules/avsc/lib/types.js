@@ -99,17 +99,17 @@ function Type(schema, opts) {
       name = qualify(name, namespace);
       if (isPrimitive(name)) {
         // Avro doesn't allow redefining primitive names.
-        throw new Error(f('cannot rename primitive type: %j', name));
+        Type.addError(new Error(f('cannot rename primitive type: %j', name)));
       }
       var registry = opts && opts.registry;
       if (registry) {
         if (registry[name] !== undefined) {
-          throw new Error(f('duplicate type name: %s', name));
+          Type.addError(new Error(f('duplicate type name: %s', name)));
         }
         registry[name] = type;
       }
     } else if (opts && opts.noAnonymousTypes) {
-      throw new Error(f('missing name property in schema: %j', schema));
+      Type.addError(new Error(f('missing name property in schema: %j', schema)));
     }
     this.name = name;
     this.aliases = schema.aliases ?
@@ -140,13 +140,13 @@ Type.forSchema = function (schema, opts) {
       case 'auto':
         return undefined; // Determined dynamically later on.
       default:
-        throw new Error(f('invalid wrap unions option: %j', wrapUnions));
+        Type.addError(new Error(f('invalid wrap unions option: %j', wrapUnions)));
     }
   })(opts.wrapUnions);
 
   if (schema === null) {
     // Let's be helpful for this common error.
-    throw new Error('invalid type: null (did you mean "null"?)');
+    Type.addError(new Error('invalid type: null (did you mean "null"?)'));
   }
 
   if (Type.isType(schema)) {
@@ -156,7 +156,7 @@ Type.forSchema = function (schema, opts) {
   var type;
   if (opts.typeHook && (type = opts.typeHook(schema, opts))) {
     if (!Type.isType(type)) {
-      throw new Error(f('invalid typehook return value: %j', type));
+      Type.addError(new Error(f('invalid typehook return value: %j', type)));
     }
     return type;
   }
@@ -174,7 +174,7 @@ Type.forSchema = function (schema, opts) {
       // reference.
       return opts.registry[schema] = Type.forSchema({type: schema}, opts);
     }
-    throw new Error(f('undefined type name: %s', schema));
+    Type.addError(new Error(f('undefined type name: %s', schema)));
   }
 
   if (schema.logicalType && opts.logicalTypes && !LOGICAL_TYPE) {
@@ -215,7 +215,7 @@ Type.forSchema = function (schema, opts) {
     type = (function (typeName) {
       var Type = TYPES[typeName];
       if (Type === undefined) {
-        throw new Error(f('unknown type: %j', typeName));
+        Type.addError(new Error(f('unknown type: %j', typeName)));
       }
       return new Type(schema, opts);
     })(schema.type);
@@ -236,7 +236,7 @@ Type.forValue = function (val, opts) {
     var type = opts.valueHook(val, opts);
     if (type !== undefined) {
       if (!Type.isType(type)) {
-        throw new Error(f('invalid value hook return value: %j', type));
+        Type.addError(new Error(f('invalid value hook return value: %j', type)));
       }
       return type;
     }
@@ -289,13 +289,13 @@ Type.forValue = function (val, opts) {
         })
       }, opts);
     default:
-      throw new Error(f('cannot infer type from: %j', val));
+      Type.addError(new Error(f('cannot infer type from: %j', val)));
   }
 };
 
 Type.forTypes = function (types, opts) {
   if (!types.length) {
-    throw new Error('no types to combine');
+    Type.addError(new Error('no types to combine'));
   }
   if (types.length === 1) {
     return types[0]; // Nothing to do.
@@ -329,7 +329,7 @@ Type.forTypes = function (types, opts) {
       // It is only valid to combine wrapped unions when no other type is
       // present other than wrapped unions and nulls (otherwise the values of
       // others wouldn't be valid in the resulting union).
-      throw new Error('cannot combine wrapped union');
+      Type.addError(new Error('cannot combine wrapped union'));
     }
     var branchTypes = {};
     expanded.forEach(function (type) {
@@ -338,7 +338,7 @@ Type.forTypes = function (types, opts) {
       if (!branchType) {
         branchTypes[name] = type;
       } else if (!type.equals(branchType)) {
-        throw new Error('inconsistent branch type');
+        Type.addError(new Error('inconsistent branch type'));
       }
     });
     var wrapUnions = opts.wrapUnions;
@@ -492,7 +492,7 @@ Type.prototype.createResolver = function (type, opts) {
   if (!Type.isType(type)) {
     // More explicit error message than the "incompatible type" thrown
     // otherwise (especially because of the overridden `toJSON` method).
-    throw new Error(f('not a type: %j', type));
+    Type.addError(new Error(f('not a type: %j', type)));
   }
 
   if (!Type.isType(this, 'union', 'logical') && Type.isType(type, 'logical')) {
@@ -531,7 +531,7 @@ Type.prototype.createResolver = function (type, opts) {
       var index = tap.readLong();
       var resolver = resolvers[index];
       if (resolver === undefined) {
-        throw new Error(f('invalid union index: %s', index));
+        Type.addError(new Error(f('invalid union index: %s', index)));
       }
       return resolvers[index]._read(tap);
     };
@@ -540,7 +540,7 @@ Type.prototype.createResolver = function (type, opts) {
   }
 
   if (!resolver._read) {
-    throw new Error(f('cannot read %s as %s', type, this));
+    Type.addError(new Error(f('cannot read %s as %s', type, this)));
   }
   return Object.freeze(resolver);
 };
@@ -588,10 +588,10 @@ Type.prototype.fromBuffer = function (buf, resolver, noCheck) {
   var tap = new Tap(buf);
   var val = readValue(this, tap, resolver, noCheck);
   if (!tap.isValid()) {
-    throw new Error('truncated buffer');
+    Type.addError(new Error('truncated buffer'));
   }
   if (!noCheck && tap.pos < buf.length) {
-    throw new Error('trailing data');
+    Type.addError(new Error('trailing data'));
   }
   return val;
 };
@@ -903,7 +903,7 @@ LongType.prototype._check = function (val, flags, hook) {
 LongType.prototype._read = function (tap) {
   var n = tap.readLong();
   if (!isSafeLong(n)) {
-    throw new Error('potential precision loss');
+    Type.addError(new Error('potential precision loss'));
   }
   return n;
 };
@@ -952,7 +952,7 @@ LongType.__with = function (methods, noUnpack) {
   var type = new AbstractLongType(noUnpack);
   Object.keys(mapping).forEach(function (name) {
     if (methods[name] === undefined) {
-      throw new Error(f('missing method implementation: %s', name));
+      Type.addError(new Error(f('missing method implementation: %s', name)));
     }
     type[mapping[name]] = methods[name];
   });
@@ -1136,14 +1136,14 @@ BytesType.prototype._copy = function (obj, opts) {
       return obj.toString('binary');
     case 2: // Coerce strings to buffers.
       if (typeof obj != 'string') {
-        throw new Error(f('cannot coerce to buffer: %j', obj));
+        Type.addError(new Error(f('cannot coerce to buffer: %j', obj)));
       }
       buf = utils.bufferFrom(obj, 'binary');
       this._check(buf, undefined, throwInvalidError);
       return buf;
     case 1: // Coerce buffer JSON representation to buffers.
       if (!isJsonBuffer(obj)) {
-        throw new Error(f('cannot coerce to buffer: %j', obj));
+        Type.addError(new Error(f('cannot coerce to buffer: %j', obj)));
       }
       buf = utils.bufferFrom(obj.data);
       this._check(buf, undefined, throwInvalidError);
@@ -1167,10 +1167,10 @@ function UnionType(schema, opts) {
   Type.call(this);
 
   if (!Array.isArray(schema)) {
-    throw new Error(f('non-array union schema: %j', schema));
+    Type.addError(new Error(f('non-array union schema: %j', schema)));
   }
   if (!schema.length) {
-    throw new Error('empty union');
+    Type.addError(new Error('empty union'));
   }
   this.types = Object.freeze(schema.map(function (obj) {
     return Type.forSchema(obj, opts);
@@ -1179,11 +1179,11 @@ function UnionType(schema, opts) {
   this._branchIndices = {};
   this.types.forEach(function (type, i) {
     if (Type.isType(type, 'union')) {
-      throw new Error('unions cannot be directly nested');
+      Type.addError(new Error('unions cannot be directly nested'));
     }
     var branch = type.branchName;
     if (this._branchIndices[branch] !== undefined) {
-      throw new Error(f('duplicate union branch name: %j', branch));
+      Type.addError(new Error(f('duplicate union branch name: %j', branch)));
     }
     this._branchIndices[branch] = i;
   }, this);
@@ -1191,7 +1191,7 @@ function UnionType(schema, opts) {
 util.inherits(UnionType, Type);
 
 UnionType.prototype._branchConstructor = function () {
-  throw new Error('unions cannot be directly wrapped');
+  Type.addError(new Error('unions cannot be directly wrapped'));
 };
 
 UnionType.prototype._skip = function (tap) {
@@ -1247,7 +1247,7 @@ function UnwrappedUnionType(schema, opts) {
     } else {
       var bucket = getTypeBucket(type);
       if (this._bucketIndices[bucket] !== undefined) {
-        throw new Error(f('ambiguous unwrapped union: %j', this));
+        Type.addError(new Error(f('ambiguous unwrapped union: %j', this)));
       }
       this._bucketIndices[bucket] = index;
     }
@@ -1278,7 +1278,7 @@ UnwrappedUnionType.prototype._getBranchIndex = function (any, index) {
         // More than one branch matches the value so we aren't guaranteed to
         // infer the correct type. We throw rather than corrupt data. This can
         // be fixed by "tightening" the logical types.
-        throw new Error('ambiguous conversion');
+        Type.addError(new Error('ambiguous conversion'));
       }
     }
   }
@@ -1303,7 +1303,7 @@ UnwrappedUnionType.prototype._read = function (tap) {
   if (branchType) {
     return branchType._read(tap);
   } else {
-    throw new Error(f('invalid union index: %s', index));
+    Type.addError(new Error(f('invalid union index: %s', index)));
   }
 };
 
@@ -1468,7 +1468,7 @@ WrappedUnionType.prototype._check = function (val, flags, hook, path) {
 WrappedUnionType.prototype._read = function (tap) {
   var type = this.types[tap.readLong()];
   if (!type) {
-    throw new Error(f('invalid union index'));
+    Type.addError(new Error(f('invalid union index')));
   }
   var Branch = type._branchConstructor;
   if (Branch === null) {
@@ -1618,16 +1618,16 @@ WrappedUnionType.prototype.random = function () {
 function EnumType(schema, opts) {
   Type.call(this, schema, opts);
   if (!Array.isArray(schema.symbols) || !schema.symbols.length) {
-    throw new Error(f('invalid enum symbols: %j', schema.symbols));
+    Type.addError(new Error(f('invalid enum symbols: %j', schema.symbols)));
   }
   this.symbols = Object.freeze(schema.symbols.slice());
   this._indices = {};
   this.symbols.forEach(function (symbol, i) {
     if (!isValidName(symbol)) {
-      throw new Error(f('invalid %s symbol: %j', this, symbol));
+      Type.addError(new Error(f('invalid %s symbol: %j', this, symbol)));
     }
     if (this._indices[symbol] !== undefined) {
-      throw new Error(f('duplicate %s symbol: %j', this, symbol));
+      Type.addError(new Error(f('duplicate %s symbol: %j', this, symbol)));
     }
     this._indices[symbol] = i;
   }, this);
@@ -1648,7 +1648,7 @@ EnumType.prototype._read = function (tap) {
   var index = tap.readLong();
   var symbol = this.symbols[index];
   if (symbol === undefined) {
-    throw new Error(f('invalid %s enum index: %s', this.name, index));
+    Type.addError(new Error(f('invalid %s enum index: %s', this.name, index)));
   }
   return symbol;
 };
@@ -1704,7 +1704,7 @@ EnumType.prototype.random = function () {
 function FixedType(schema, opts) {
   Type.call(this, schema, opts);
   if (schema.size !== (schema.size | 0) || schema.size < 1) {
-    throw new Error(f('invalid %s size', this.branchName));
+    Type.addError(new Error(f('invalid %s size', this.branchName)));
   }
   this.size = schema.size | 0;
   this._branchConstructor = this._createBranchConstructor();
@@ -1768,7 +1768,7 @@ FixedType.prototype.random = function () {
 function MapType(schema, opts) {
   Type.call(this);
   if (!schema.values) {
-    throw new Error(f('missing map values: %j', schema));
+    Type.addError(new Error(f('missing map values: %j', schema)));
   }
   this.valuesType = Type.forSchema(schema.values, opts);
   this._branchConstructor = this._createBranchConstructor();
@@ -1858,7 +1858,7 @@ MapType.prototype._write = function (tap, val) {
 };
 
 MapType.prototype._match = function () {
-  throw new Error('maps cannot be compared');
+  Type.addError(new Error('maps cannot be compared'));
 };
 
 MapType.prototype._update = function (rsv, type, opts) {
@@ -1906,7 +1906,7 @@ MapType.prototype._deref = function (schema, opts) {
 function ArrayType(schema, opts) {
   Type.call(this);
   if (!schema.items) {
-    throw new Error(f('missing array items: %j', schema));
+    Type.addError(new Error(f('missing array items: %j', schema)));
   }
   this.itemsType = Type.forSchema(schema.items, opts);
   this._branchConstructor = this._createBranchConstructor();
@@ -2093,10 +2093,10 @@ function RecordType(schema, opts) {
   Type.call(this, schema, opts);
 
   if (!Array.isArray(schema.fields)) {
-    throw new Error(f('non-array record fields: %j', schema.fields));
+    Type.addError(new Error(f('non-array record fields: %j', schema.fields)));
   }
   if (utils.hasDuplicates(schema.fields, function (f) { return f.name; })) {
-    throw new Error(f('duplicate field name: %j', schema.fields));
+    Type.addError(new Error(f('duplicate field name: %j', schema.fields)));
   }
   this._fieldsByName = {};
   this.fields = Object.freeze(schema.fields.map(function (f) {
@@ -2315,7 +2315,7 @@ RecordType.prototype._createWriter = function () {
 RecordType.prototype._update = function (resolver, type, opts) {
   // jshint -W054
   if (type.name && !~getAliases(this).indexOf(type.name)) {
-    throw new Error(f('no alias found for %s', type.name));
+    Type.addError(new Error(f('no alias found for %s', type.name)));
   }
 
   var rFields = this.fields;
@@ -2336,13 +2336,13 @@ RecordType.prototype._update = function (resolver, type, opts) {
       }
     }
     if (matches.length > 1) {
-      throw new Error(
+      Type.addError(new Error)(
         f('ambiguous aliasing for %s.%s (%s)', type.name, field.name, matches)
       );
     }
     if (!matches.length) {
       if (field.defaultValue() === undefined) {
-        throw new Error(
+        Type.addError(new Error)(
           f('no matching field for default-less %s.%s', type.name, field.name)
         );
       }
@@ -2767,52 +2767,53 @@ AbstractLongType.prototype.compare = utils.abstractFunction;
 
 /** A record field. */
 function Field(schema, opts) {
-  try {
-    var name = schema.name;
-    if (typeof name != 'string' || !isValidName(name)) {
-      throw new Error(f('invalid field name: %s', name));
-    }
-
-    this.name = name;
-    this.type = Type.forSchema(schema.type, opts);
-    this.aliases = schema.aliases || [];
-    this.doc = schema.doc !== undefined ? '' + schema.doc : undefined;
-
-    this._order = (function (order) {
-      switch (order) {
-        case 'ascending':
-          return 1;
-        case 'descending':
-          return -1;
-        case 'ignore':
-          return 0;
-        default:
-          throw new Error(f('invalid order: %j', order));
-      }
-    })(schema.order === undefined ? 'ascending' : schema.order);
-
-    var value = schema['default'];
-    if (value !== undefined) {
-      // We need to convert defaults back to a valid format (unions are
-      // disallowed in default definitions, only the first type of each union is
-      // allowed instead).
-      // http://apache-avro.679487.n3.nabble.com/field-union-default-in-Java-td1175327.html
-      var type = this.type;
-      var val = type._copy(value, {coerce: 2, wrap: 2});
-      // The clone call above will throw an error if the default is invalid.
-      if (isPrimitive(type.typeName) && type.typeName !== 'bytes') {
-        // These are immutable.
-        this.defaultValue = function () { return val; };
-      } else {
-        this.defaultValue = function () { return type._copy(val); };
-      }
-    }
-
-    Object.freeze(this);
-  } catch (e) {
-    e.fieldName = e.fieldName ? schema.name + '.' + e.fieldName : schema.name;
-    throw e;
+  const saveAddError = Type.addError;
+  Type.addError = (err) => {
+    err.fieldName = err.fieldName ? schema.name + '.' + err.fieldName : schema.name;
+    saveAddError(err);
+  };
+  var name = schema.name;
+  if (typeof name != 'string' || !isValidName(name)) {
+    Type.addError(new Error(f('invalid field name: %s', name)));
   }
+
+  this.name = name;
+  this.type = Type.forSchema(schema.type, opts);
+  this.aliases = schema.aliases || [];
+  this.doc = schema.doc !== undefined ? '' + schema.doc : undefined;
+
+  this._order = (function (order) {
+    switch (order) {
+      case 'ascending':
+        return 1;
+      case 'descending':
+        return -1;
+      case 'ignore':
+        return 0;
+      default:
+        Type.addError(new Error(f('invalid order: %j', order)));
+    }
+  })(schema.order === undefined ? 'ascending' : schema.order);
+
+  var value = schema['default'];
+  if (value !== undefined) {
+    // We need to convert defaults back to a valid format (unions are
+    // disallowed in default definitions, only the first type of each union is
+    // allowed instead).
+    // http://apache-avro.679487.n3.nabble.com/field-union-default-in-Java-td1175327.html
+    var type = this.type;
+    var val = type._copy(value, {coerce: 2, wrap: 2});
+    // The clone call above will throw an error if the default is invalid.
+    if (isPrimitive(type.typeName) && type.typeName !== 'bytes') {
+      // These are immutable.
+      this.defaultValue = function () { return val; };
+    } else {
+      this.defaultValue = function () { return type._copy(val); };
+    }
+  }
+  Type.addError = saveAddError;
+
+  Object.freeze(this);
 }
 
 Field.prototype.defaultValue = function () {}; // Undefined default.
@@ -2869,7 +2870,7 @@ function Hash() {
 function readValue(type, tap, resolver, lazy) {
   if (resolver) {
     if (resolver._readerType !== type) {
-      throw new Error('invalid resolver');
+      Type.addError(new Error('invalid resolver'));
     }
     return resolver._read(tap, lazy);
   } else {
@@ -2902,7 +2903,7 @@ function qualify(name, namespace) {
   }
   name.split('.').forEach(function (part) {
     if (!isValidName(part)) {
-      throw new Error(f('invalid name: %j', name));
+      Type.addError(new Error(f('invalid name: %j', name)));
     }
   });
   var tail = unqualify(name);
@@ -3019,7 +3020,7 @@ function isValidName(str) { return NAME_PATTERN.test(str); }
  * with a hook since the path is not propagated (for efficiency reasons).
  */
 function throwInvalidError(val, type) {
-  throw new Error(f('invalid %j: %j', type.schema(), val));
+  Type.addError(new Error(f('invalid %j: %j', type.schema(), val)));
 }
 
 /**
@@ -3269,6 +3270,9 @@ function combineObjects(types, opts) {
   return Type.forSchema(schema, opts);
 }
 
+var errorsCollector = [];
+
+Type.addError = (err) => errorsCollector.push(err);
 
 module.exports = {
   Type: Type,
@@ -3290,5 +3294,6 @@ module.exports = {
       types[getClassName(typeName)] = TYPES[typeName];
     }
     return types;
-  })()
+  })(),
+  errorsCollector
 };

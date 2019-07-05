@@ -110,5 +110,6 @@ module.exports = {
   infer: util.deprecate(
     types.Type.forValue,
     'use `Type.forValue` instead'
-  )
+  ),
+  errorsCollector: types.errorsCollector
 };
