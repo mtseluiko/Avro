@@ -138,6 +138,9 @@ const handleRecursiveSchema = (data, schema, parentSchema = {}, definitions = {}
 				handleOtherProps(data, prop, schema);
 		}
 	}
+	if (isRequired(data, schema)) {
+		addRequired(parentSchema, data.name);
+	}
 	return;
 };
 
@@ -187,10 +190,10 @@ const convertItemsToDefinitions = (items, definitions) => {
 const handleMultipleTypes = (data, schema, parentSchema, definitions) => {
 	const hasComplexType = data.type.some(isComplexType);
 	const isNull = isNullAllowed(data);
-	data.type = data.type.filter(type => type !== 'null');
 
 	if (isNull) {
 		schema.nullAllowed = true;
+		data.type = data.type.filter(type => type !== 'null');
 	}
 
 	if (data.type.length === 1) {
@@ -230,7 +233,9 @@ const isNullAllowed = (data) => {
 		return false;
 	}
 	
-	return data.type.some(type => type === 'null');
+	const isTypeNull = data.type[0] === 'null';
+	
+	return isTypeNull;
 };
 
 const isComplexType = (type) => {
@@ -273,7 +278,6 @@ const getType = (schema, field, type) => {
 		case 'string':
 		case 'bytes':
 		case 'boolean':
-		case 'null':
 		case 'record':
 		case 'array':
 		case 'enum':
@@ -291,6 +295,11 @@ const getType = (schema, field, type) => {
 			return Object.assign(schema, {
 				type,
 				subtype: `map<${field.values}>`
+			});
+		case 'null':
+			return Object.assign(schema, {
+				type: 'string',
+				nullAllowed: true
 			});
 		default:
 			return Object.assign(schema, { $ref: '#/definitions/' + type });
@@ -376,6 +385,7 @@ const getSubField = (item) => {
 
 const handleFields = (data, prop, schema, definitions) => {
 	schema.properties = {};
+	schema.required = [];
 	data[prop].forEach(element => {
 		const name = element.name || DEFAULT_FIELD_NAME;
 		schema.properties[name] = {};
@@ -397,7 +407,11 @@ const handleItems = (data, prop, schema, definitions) => {
 };
 
 const handleOtherProps = (data, prop, schema) => {
-	if (ADDITIONAL_PROPS.includes(prop)) {
+	const isNullDefault = prop === 'default' && (isNullAllowed(schema) || schema.nullAllowed);
+
+	if (isNullDefault) {
+		return;
+	} else if (ADDITIONAL_PROPS.includes(prop)) {
 		schema[prop] = data[prop];
 	}
 	return;
@@ -409,4 +423,27 @@ const handleErrorObject = (error) => {
 		plainObject[key] = error[key];
 	});
 	return plainObject;
+};
+
+const isRequired = (data, schema) => {
+	if (!data) {
+		return false;
+	} else if (schema && schema.nullAllowed) {
+		return false;
+	} else if (isNullAllowed(data)) {
+		return false;
+	} else if (data.hasOwnProperty('default')) {
+		return false;
+	} else {
+		return true;
+	}
+};
+
+const addRequired = (parentSchema, name) => {
+	if (!Array.isArray(parentSchema.required)) {
+		parentSchema.required = [name];
+		return;
+	}
+
+	parentSchema.required.push(name);
 };

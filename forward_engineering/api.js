@@ -10,7 +10,7 @@ const DEFAULT_NAME = 'New_field';
 const VALID_FULL_NAME_REGEX = /[^A-Za-z0-9_]/g;
 const VALID_FIRST_NAME_LETTER_REGEX = /^[0-9]/;
 const readConfig = (pathToConfig) => {
-	return JSON.parse(fs.readFileSync(path.join(__dirname, pathToConfig)).toString().replace(/\/\*[.\s\S]*?\*\//ig, ""));
+	return JSON.parse(fs.readFileSync(path.join(__dirname, pathToConfig)).toString().replace(/(\/\*[.\s\S]*?\*\/|\/\/.*)/ig, ""));
 };
 const fieldLevelConfig = readConfig('../properties_pane/field_level/fieldLevelConfig.json');
 let nameIndex = 0;
@@ -120,7 +120,13 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 	avroSchema = reorderName(avroSchema);
 	handleEmptyNestedObjects(avroSchema);
 	handleTargetProperties(schema, avroSchema, parentSchema);
-	handleNull(schema, avroSchema);
+
+	if (schema.nullAllowed) {
+		handleNull(schema, avroSchema);
+	} else {
+		handleRequired(parentSchema, avroSchema, schema);
+	}
+
 	return;
 };
 
@@ -209,10 +215,6 @@ const handleChoice = (schema, choice, udt) => {
 };
 
 const handleNull = (jsonSchema, avroSchema) => {
-	if (!jsonSchema.nullAllowed) {
-		return avroSchema;
-	}
-
 	if (Array.isArray(avroSchema.type)) {
 		if (!avroSchema.type.includes('null')) {
 			avroSchema.type.unshift('null');
@@ -221,11 +223,25 @@ const handleNull = (jsonSchema, avroSchema) => {
 		avroSchema.type = ['null', avroSchema.type];
 	}
 
-	if (avroSchema.default === 'null') {
+	if (jsonSchema.nullAllowed) {
 		avroSchema.default = null;
 	}
 
 	return avroSchema;
+};
+
+const isRequired = (parentSchema, name) => {
+	if (!Array.isArray(parentSchema.required)) {
+		return false;
+	} else {
+		return parentSchema.required.some(requiredName => prepareName(requiredName) === name);
+	}
+};
+
+const handleRequired = (parentSchema, avroSchema) => {
+	if (isRequired(parentSchema, avroSchema.name) && !Array.isArray(avroSchema.type)) {
+		delete avroSchema.default;
+	}
 };
 
 const handleType = (schema, avroSchema, udt) => {
@@ -336,7 +352,7 @@ const getTypeFromReference = (schema) => {
 		return;
 	}
 
-	const typeName = schema.$ref.split('/').pop();
+	const typeName = prepareName(schema.$ref.split('/').pop() || '');
 
 	return typeName;
 };
@@ -359,7 +375,7 @@ const handleItems = (schema, avroSchema, udt) => {
 	schema.items = !Array.isArray(schema.items) ? [schema.items] : schema.items;
 	const schemaItem = schema.items[0] || {};
 	const arrayItemType = schemaItem.type || DEFAULT_TYPE;
-	const schemaItemName = schemaItem.code || schemaItem.name;
+	const schemaItemName = schemaItem.arrayItemCode || schemaItem.arrayItemName || schemaItem.code || schemaItem.name;
 
 	if (isComplexType(arrayItemType)) {
 		avroSchema.items = {};
@@ -369,6 +385,10 @@ const handleItems = (schema, avroSchema, udt) => {
 		schemaItem.type = schemaItem.type || getTypeFromReference(schemaItem);
 
 		handleType(schemaItem, avroSchema.items, udt);
+
+		if (avroSchema.items.type && typeof avroSchema.items.type === 'object') {
+			avroSchema.items = avroSchema.items.type;
+		}
 	}
 
 	if (schemaItemName) {
@@ -383,12 +403,22 @@ const uniqBy = (arr, prop) => {
 };
 
 const handleOtherProps = (schema, prop, avroSchema) => {
-	if (ADDITIONAL_PROPS.includes(prop)) {
+	if (prop === 'default') {
+		avroSchema[prop] = getDefault(schema[prop]);
+	} else if (ADDITIONAL_PROPS.includes(prop)) {
 		avroSchema[prop] = schema[prop];
 
 		if (prop === 'size') {
 			avroSchema[prop] = Number(avroSchema[prop]);
 		}
+	}
+};
+
+const getDefault = (value) => {
+	if (value === 'null') {
+		return null;
+	} else {
+		return value;
 	}
 };
 
@@ -426,17 +456,19 @@ const handleSchemaName = (avroSchema, parentSchema) => {
 	}
 
 	if (avroSchema.name) {
-		avroSchema.name = avroSchema.name.replace(VALID_FULL_NAME_REGEX, '_')
-			.replace(VALID_FIRST_NAME_LETTER_REGEX, '_');
+		avroSchema.name = prepareName(avroSchema.name);
 	}
 
 	if(avroSchema.type && avroSchema.type.name) {
-		avroSchema.type.name = avroSchema.type.name.replace(VALID_FULL_NAME_REGEX, '_')
-			.replace(VALID_FIRST_NAME_LETTER_REGEX, '_');
+		avroSchema.type.name = prepareName(avroSchema.type.name);
 	}
 
 	delete avroSchema.arrayItemName;
 };
+
+const prepareName = (name) => name
+	.replace(VALID_FULL_NAME_REGEX, '_')
+	.replace(VALID_FIRST_NAME_LETTER_REGEX, '_');
 
 const getDefaultName = () => {
 	if (nameIndex) {

@@ -5,6 +5,5 @@
   "author": "Hackolade",
   "installed": true,
   "dependencies": {
-    "avsc": "^5.4.11"
   }
 }
