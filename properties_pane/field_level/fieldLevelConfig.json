@@ -512,11 +512,8 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"dependency": [{
-					"key": "nullAllowed",
+					"key": "required",
 					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
 				}]
 			},
 			{
@@ -571,11 +568,8 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"dependency": [{
-					"key": "nullAllowed",
+					"key": "required",
 					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
 				}]
 			},
 			{
@@ -632,11 +626,8 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"dependency": [{
-					"key": "nullAllowed",
+					"key": "required",
 					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
 				}]
 			},
 			{
@@ -695,7 +686,8 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": true,
 				"propertyType": "text",
 				"validation": {
-					"required": true
+					"required": true,
+					"in": "symbols"
 				},
 				"dependency": [[{
 					"key": "nullAllowed",
@@ -735,7 +727,10 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyKeyword": "symbols",
 				"multi": true,
-				"valueType": "array"
+				"valueType": "array",
+				"validation": {
+					"regex": "^[A-Za-z_][A-Za-z0-9_]*$"
+				}
 			},
 			"dependencies",
 			"pattern",
@@ -891,11 +886,20 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "default",
 				"shouldValidate": true,
 				"propertyType": "text",
+				"validation": {
+					"required": true
+				},
 				"dependency": [[{
 					"key": "nullAllowed",
 					"value": false
 				}, {
 					"key": "nullAllowed",
+					"exist": false
+				}], [{
+					"key": "required",
+					"value": false
+				}, {
+					"key": "required",
 					"exist": false
 				}]]
 			},
