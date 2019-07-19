@@ -686,7 +686,8 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": true,
 				"propertyType": "text",
 				"validation": {
-					"required": true
+					"required": true,
+					"in": "symbols"
 				},
 				"dependency": [[{
 					"key": "nullAllowed",
@@ -726,7 +727,10 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyKeyword": "symbols",
 				"multi": true,
-				"valueType": "array"
+				"valueType": "array",
+				"validation": {
+					"regex": "^[A-Za-z_][A-Za-z0-9_]*$"
+				}
 			},
 			"dependencies",
 			"pattern",
