@@ -512,11 +512,8 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"dependency": [{
-					"key": "nullAllowed",
+					"key": "required",
 					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
 				}]
 			},
 			{
@@ -571,11 +568,8 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"dependency": [{
-					"key": "nullAllowed",
+					"key": "required",
 					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
 				}]
 			},
 			{
@@ -632,11 +626,8 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"dependency": [{
-					"key": "nullAllowed",
+					"key": "required",
 					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
 				}]
 			},
 			{
