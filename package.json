@@ -17,7 +17,8 @@
 			"enableForwardEngineering": true,
 			"enableReverseEngineering": true,
             "enableJsonType": false,
-            "enableArrayItemName": true
+            "enableArrayItemName": true,
+            "validateMultipleDefaultByFirstType": true
         }
     },
     "description": "Hackolade plugin for Apache Avro Schema",
