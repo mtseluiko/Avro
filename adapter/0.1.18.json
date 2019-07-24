@@ -67,6 +67,14 @@
 				"to": {
 					"required": true
 				}
+			},
+			{
+				"from": {
+					"type": "enum"
+				},
+				"to": {
+					"pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+				}
 			}
 		]
 	},

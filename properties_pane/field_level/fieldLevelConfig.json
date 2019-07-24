@@ -733,7 +733,12 @@ making sure that you maintain a proper JSON format.
 				}
 			},
 			"dependencies",
-			"pattern",
+			{
+				"propertyName": "Pattern",
+				"propertyType": "text",
+				"propertyKeyword": "pattern",
+				"disabled": true
+			},
 			"sample",
 			"comments"
 		],
