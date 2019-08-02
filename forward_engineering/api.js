@@ -239,7 +239,7 @@ const isRequired = (parentSchema, name) => {
 };
 
 const handleRequired = (parentSchema, avroSchema) => {
-	if (isRequired(parentSchema, avroSchema.name)) {
+	if (isRequired(parentSchema, avroSchema.name) && !Array.isArray(avroSchema.type)) {
 		delete avroSchema.default;
 	}
 };
@@ -385,6 +385,10 @@ const handleItems = (schema, avroSchema, udt) => {
 		schemaItem.type = schemaItem.type || getTypeFromReference(schemaItem);
 
 		handleType(schemaItem, avroSchema.items, udt);
+
+		if (avroSchema.items.type && typeof avroSchema.items.type === 'object') {
+			avroSchema.items = avroSchema.items.type;
+		}
 	}
 
 	if (schemaItemName) {

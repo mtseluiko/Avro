@@ -234,9 +234,8 @@ const isNullAllowed = (data) => {
 	}
 	
 	const isTypeNull = data.type[0] === 'null';
-	const defaultNull = data.default === null;
 	
-	return isTypeNull && defaultNull;
+	return isTypeNull;
 };
 
 const isComplexType = (type) => {
@@ -279,7 +278,6 @@ const getType = (schema, field, type) => {
 		case 'string':
 		case 'bytes':
 		case 'boolean':
-		case 'null':
 		case 'record':
 		case 'array':
 		case 'enum':
@@ -297,6 +295,11 @@ const getType = (schema, field, type) => {
 			return Object.assign(schema, {
 				type,
 				subtype: `map<${field.values}>`
+			});
+		case 'null':
+			return Object.assign(schema, {
+				type: 'string',
+				nullAllowed: true
 			});
 		default:
 			return Object.assign(schema, { $ref: '#/definitions/' + type });

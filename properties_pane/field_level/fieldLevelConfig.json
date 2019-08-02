@@ -483,48 +483,6 @@ making sure that you maintain a proper JSON format.
 			"sample",
 			"comments"
 		],
-		"null": [
-			"name",
-			"schemaId",
-			"description",
-			{
-				"propertyName": "Doc",
-				"propertyKeyword": "doc",
-				"propertyValidate": false,
-				"propertyTooltip": "Popup for multi-line text entry",
-				"propertyType": "details",
-				"template": "textarea"
-			},
-			{
-				"propertyName": "Aliases",
-				"propertyType": "text",
-				"propertyKeyword": "aliases",
-				"multi": true,
-				"valueType": "array"
-			},
-			"type",
-			"dependencies",
-			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
-			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}]
-			},
-			"comments"
-		],
 		"___1": [],
 		"record": [
 			"arrayItemName",
@@ -554,11 +512,8 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"dependency": [{
-					"key": "nullAllowed",
+					"key": "required",
 					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
 				}]
 			},
 			{
@@ -613,11 +568,8 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"dependency": [{
-					"key": "nullAllowed",
+					"key": "required",
 					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
 				}]
 			},
 			{
@@ -674,11 +626,8 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"dependency": [{
-					"key": "nullAllowed",
+					"key": "required",
 					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
 				}]
 			},
 			{
@@ -737,7 +686,8 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": true,
 				"propertyType": "text",
 				"validation": {
-					"required": true
+					"required": true,
+					"in": "symbols"
 				},
 				"dependency": [[{
 					"key": "nullAllowed",
@@ -777,10 +727,18 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "text",
 				"propertyKeyword": "symbols",
 				"multi": true,
-				"valueType": "array"
+				"valueType": "array",
+				"validation": {
+					"regex": "^[A-Za-z_][A-Za-z0-9_]*$"
+				}
 			},
 			"dependencies",
-			"pattern",
+			{
+				"propertyName": "Pattern",
+				"propertyType": "text",
+				"propertyKeyword": "pattern",
+				"disabled": true
+			},
 			"sample",
 			"comments"
 		],
@@ -914,6 +872,7 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"multiple": [
+			"nullAllowed",
 			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
