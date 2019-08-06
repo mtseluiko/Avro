@@ -97,7 +97,6 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 	if (schema.allOf) {
 		handleChoice(schema, 'allOf', udt);
 	}
-	
 	schema.type = schema.type || getTypeFromReference(schema);
 
 	for (let prop in schema) {
@@ -333,7 +332,7 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 				values: getValues(type, field.subtype)
 			});
 		default:
-			return Object.assign(schema, { type: getTypeFromUdt(type, udt, schema, field) || DEFAULT_TYPE });
+			return Object.assign(schema, { type: getTypeFromUdt(type, udt) || DEFAULT_TYPE });
 	}
 };
 
