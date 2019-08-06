@@ -189,12 +189,6 @@ const convertItemsToDefinitions = (items, definitions) => {
 
 const handleMultipleTypes = (data, schema, parentSchema, definitions) => {
 	const hasComplexType = data.type.some(isComplexType);
-	const isNull = isNullAllowed(data);
-
-	if (isNull) {
-		schema.nullAllowed = true;
-		data.type = data.type.filter(type => type !== 'null');
-	}
 
 	if (data.type.length === 1) {
 		data.type = data.type[0];
@@ -226,16 +220,6 @@ const addDefinitions = (types, definitions) => {
 
 		return type.name;
 	});
-};
-
-const isNullAllowed = (data) => {
-	if (!Array.isArray(data.type)) {
-		return false;
-	}
-	
-	const isTypeNull = data.type[0] === 'null';
-	
-	return isTypeNull;
 };
 
 const isComplexType = (type) => {
@@ -282,6 +266,7 @@ const getType = (schema, field, type) => {
 		case 'array':
 		case 'enum':
 		case 'fixed':
+		case 'null':
 			return Object.assign(schema, { type });
 		case 'int':
 		case 'long':
@@ -295,11 +280,6 @@ const getType = (schema, field, type) => {
 			return Object.assign(schema, {
 				type,
 				subtype: `map<${field.values}>`
-			});
-		case 'null':
-			return Object.assign(schema, {
-				type: 'string',
-				nullAllowed: true
 			});
 		default:
 			return Object.assign(schema, { $ref: '#/definitions/' + type });
@@ -407,11 +387,7 @@ const handleItems = (data, prop, schema, definitions) => {
 };
 
 const handleOtherProps = (data, prop, schema) => {
-	const isNullDefault = prop === 'default' && (isNullAllowed(schema) || schema.nullAllowed);
-
-	if (isNullDefault) {
-		return;
-	} else if (ADDITIONAL_PROPS.includes(prop)) {
+	if (ADDITIONAL_PROPS.includes(prop)) {
 		schema[prop] = data[prop];
 	}
 	return;
@@ -427,10 +403,6 @@ const handleErrorObject = (error) => {
 
 const isRequired = (data, schema) => {
 	if (!data) {
-		return false;
-	} else if (schema && schema.nullAllowed) {
-		return false;
-	} else if (isNullAllowed(data)) {
 		return false;
 	} else if (data.hasOwnProperty('default')) {
 		return false;
