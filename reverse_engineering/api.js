@@ -407,12 +407,16 @@ const handleItems = (data, prop, schema, definitions) => {
 };
 
 const handleOtherProps = (data, prop, schema) => {
-	const isNullDefault = prop === 'default' && (isNullAllowed(schema) || schema.nullAllowed);
+	const isNullDefault = prop === 'default' && (isNullAllowed(schUГema) || schema.nullAllowed);
 
 	if (isNullDefault) {
 		return;
 	} else if (ADDITIONAL_PROPS.includes(prop)) {
-		schema[prop] = data[prop];
+		if (prop === 'default' && typeof data[prop] === 'boolean') {
+			schema[prop] = data[prop].toString();	
+		} else {
+			schema[prop] = data[prop];
+		}
 	}
 	return;
 };
