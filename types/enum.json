@@ -8,7 +8,7 @@
 		"required": true,
 		"minLength": "",
 		"maxLength": "",
-		"pattern": "[A-Za-z0-9_]",
+		"pattern": "^[A-Za-z_][A-Za-z0-9_]*$",
 		"default": "",
 		"primaryKey": false,
 		"relationshipType": "",

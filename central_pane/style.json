@@ -1,0 +1,70 @@
+/**
+ * This config changes a visual appearance of entities in the application.
+{
+	"field": {
+		"dtd": [{
+			// supported css styles
+			"value": {
+				"border-style": "dashed",
+				"background": "#fff",
+				"color": "#333",
+				"font-style": "normal",
+				"font-weight": "normal",
+				"border-color": "#777",
+				"border-width": "1px"
+			},
+			"dependency": <condition that shows when to apply styles>
+		}],
+		// this property adds new columns or changes an order of current columns in the ERD box
+		"erd": [
+			"keys", "type", "indexes", {
+				"value": <constant| { "key": <fieldKeyword of property> }>,
+				"dependency": <condition for showing column>,
+				"width": <number in pixels, default: 50>
+			}
+		]
+	}
+}
+ */
+
+{
+	"field": {
+		"dtd": [{
+			"value": {
+				"border-style": "dotted",
+				"background": "#fff5e4"
+			},
+			"dependency": {
+				"key": "nullAllowed",
+				"value": true
+			}
+		}],
+		"erd": [ "keys", "type", [{
+			"value": "+",
+			"dependency": {
+				"key": "nullAllowed",
+				"value": true
+			},
+			"width": 20
+		}, {
+			"value": "*",
+			"dependency": {
+				"type": "and",
+				"values": [{
+					"key": "required",
+					"value": true
+				}, {
+					"type": "or",
+					"values": [{
+						"key": "nullAllowed",
+						"value": false
+					}, {
+						"key": "nullAllowed",
+						"exist": false
+					}]
+				}]
+			},
+			"width": 20
+		}], "indexes" ]
+	}
+}

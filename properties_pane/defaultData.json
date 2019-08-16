@@ -5,7 +5,7 @@
 		"dbVendor": "Avro"
 	},
 	"container": {
-		"name": "New namespace",
+		"name": "New_namespace",
 		"indexes": []
 	},
 	"collection": {
