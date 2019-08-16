@@ -8,7 +8,7 @@ const snappy = require('snappyjs');
 const DEFAULT_FIELD_NAME = 'New_field';
 let stateExtension = null;
 
-const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
+const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern', 'choice'];
 const DATA_TYPES = [
 	'string',
 	'bytes',
@@ -198,7 +198,6 @@ const handleMultipleTypes = (data, schema, parentSchema, definitions) => {
 	if (hasComplexType) {
 		data.type = addDefinitions(data.type, definitions);
 		parentSchema = getChoice(data, parentSchema);
-		parentSchema = removeChangedField(parentSchema, data.name);
 	} else {
 		const typeObjects = data.type.map(type => getType({}, data, type));
 		schema = Object.assign(schema, ...typeObjects);
@@ -267,6 +266,7 @@ const getType = (schema, field, type) => {
 		case 'enum':
 		case 'fixed':
 		case 'null':
+		case 'choice':
 			return Object.assign(schema, { type });
 		case 'int':
 		case 'long':
@@ -288,29 +288,14 @@ const getType = (schema, field, type) => {
 
 const getChoice = (data, parentSchema) => {
 	const oneOfItem = getOneOf(data);
-	
-	if (parentSchema.oneOf) {
-		const allOfItem = parentSchema.allOf || [];
-
-		parentSchema.additionalProperties = true;
-		parentSchema.allOf = addOneOfToAllOf(allOfItem, parentSchema);
-		parentSchema.allOf = addOneOfToAllOf(parentSchema.allOf, oneOfItem);
-
-		delete parentSchema.oneOf;
-		delete parentSchema.oneOf_meta;
-	} else if (parentSchema.allOf) {
-		parentSchema.allOf = addOneOfToAllOf(parentSchema.allOf, oneOfItem);
-	} else {
-		parentSchema.oneOf_meta = oneOfItem.oneOf_meta;
-		parentSchema.oneOf = oneOfItem.oneOf;
-	}
+	parentSchema.properties = Object.assign({} ,parentSchema.properties, oneOfItem);
 
 	return parentSchema;
 };
 
 const getOneOf = (data) => {
-	const oneOf = data.type.map(item => {
-		let name = data.name || DEFAULT_FIELD_NAME;
+	const name = data.name || DEFAULT_FIELD_NAME;
+	const oneOfProperties = data.type.map(item => {
 
 		const subField = getSubField(item);
 		const subFieldSchema = {};
@@ -318,24 +303,10 @@ const getOneOf = (data) => {
 		
 		return getCommonSubSchema(subFieldSchema, name, item.name);
 	});
-	
-	let oneOf_meta = Object.assign({}, data);
-	delete oneOf_meta.type;
 
-	return {
-		oneOf,
-		oneOf_meta
-	};
+	return { [name]: {name, type: 'choice', choice: 'oneOf', items: oneOfProperties}};
 };
 
-const addOneOfToAllOf = (allOf, { oneOf, oneOf_meta }) => {
-	const subSchema = getOneOfSubSchema(oneOf, { oneOf_meta });
-	
-	return [
-		...allOf,
-		subSchema
-	];
-};
 
 const getSubSchema = (data) => {
 	return Object.assign({
@@ -343,15 +314,11 @@ const getSubSchema = (data) => {
 	}, data);
 }
 
-const getOneOfSubSchema = (subSchemas, subSchemasMeta) => {
-	const subSchemaProperties = subSchemasMeta ? Object.assign({ oneOf: subSchemas }, subSchemasMeta) : { oneOf: subSchemas };
-	return getSubSchema(subSchemaProperties);
-}
-
 const getCommonSubSchema = (properties, fieldName, itemName) => {
 	const name = itemName ? itemName : fieldName;
 
 	return getSubSchema({
+		type: 'subschema',
 		properties: {
 			[name]: properties
 		}
