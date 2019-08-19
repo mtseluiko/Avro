@@ -8,7 +8,7 @@ const snappy = require('snappyjs');
 const DEFAULT_FIELD_NAME = 'New_field';
 let stateExtension = null;
 
-const ADDITIONAL_PROPS = ['name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern', 'choice'];
+const ADDITIONAL_PROPS = ['logicalType', 'scale', 'precision', 'name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern', 'choice'];
 const DATA_TYPES = [
 	'string',
 	'bytes',
@@ -362,10 +362,14 @@ const handleItems = (data, prop, schema, definitions) => {
 };
 
 const handleOtherProps = (data, prop, schema) => {
-	if (ADDITIONAL_PROPS.includes(prop)) {
-		schema[prop] = data[prop];
+	if (!ADDITIONAL_PROPS.includes(prop)) {
+		return;
 	}
-	return;
+	if (data.type === 'boolean') {
+		schema[prop] = String(data[prop]);
+		return;
+	}
+	schema[prop] = data[prop];
 };
 
 const handleErrorObject = (error) => {
