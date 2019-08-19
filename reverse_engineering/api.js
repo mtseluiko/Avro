@@ -304,7 +304,15 @@ const getOneOf = (data) => {
 		return getCommonSubSchema(subFieldSchema, name, item.name);
 	});
 
-	return { [name]: {name, type: 'choice', choice: 'oneOf', items: oneOfProperties}};
+	return {
+		[name]: {
+				name,
+				oneOf_meta: data,
+				type: 'choice',
+				choice: 'oneOf',
+				items: oneOfProperties
+		}
+	};
 };
 
 
