@@ -66,7 +66,10 @@ const convertSchemaToUserDefinedTypes = (jsonSchema, udt) => {
 
 	return (avroSchema.fields || []).reduce((result, field) => {
 		return Object.assign({}, result, {
-			[field.name]: field.type
+			name: field.name,
+			[field.name]: Object.assign({name: field.name}, field.type, {
+				name: field.name
+			})
 		});
 	}, udt);
 };
