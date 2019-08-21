@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const _ = require('lodash');
 const validationHelper = require('./validationHelper');
 
 const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
@@ -200,6 +201,10 @@ const handleChoice = (schema, choice, udt) => {
 		multipleField.nullAllowed = multipleField.nullAllowed || field.nullAllowed;
 		field = Object.assign({}, field, { nullAllowed: false });
 
+		if (!_.isArray(multipleField.type)) {
+			multipleField.type = [multipleField.type];
+		}
+
 		if (isComplexType(filedType)) {
 			let newField = {};
 			handleRecursiveSchema(field, newField, {}, udt);
@@ -211,6 +216,9 @@ const handleChoice = (schema, choice, udt) => {
 			multipleField.type = multipleField.type.concat(filedType);
 		} else {
 			multipleField.type = multipleField.type.concat([filedType]);
+		}
+		if (_.uniq(multipleField.type).length === 1) {
+			multipleField.type = _.first(multipleField.type);
 		}
 	});
 
