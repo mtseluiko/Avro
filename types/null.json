@@ -1,20 +1,18 @@
+
 {
-	"name": "boolean",
-	"erdAbbreviation": "<bool>",
-	"dtdAbbreviation": "{0/1}",
-	"parentType": "boolean",
-	"sample": true,
-	"useSample": true,
+	"name": "null",
+	"erdAbbreviation": "<null>",
+	"dtdAbbreviation": "{null}",
+	"useSample": false,
 	"defaultValues": {
 		"required": true,
-		"default": "",
-		"enum": [],
+		"type": "null",
 		"primaryKey": false,
 		"relationshipType": "",
 		"parentRelationship": "",
 		"childRelationships": [],
 		"foreignEntity": "",
 		"foreignField": [],
-		"sample": ""
+		"format": ""
 	}
 }
