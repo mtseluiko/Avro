@@ -364,12 +364,12 @@ const handleItems = (data, prop, schema, definitions) => {
 const handleOtherProps = (data, prop, schema) => {
 	if (!ADDITIONAL_PROPS.includes(prop)) {
 		return;
+  }
+  if (prop === 'default' && typeof data[prop] === 'boolean') {
+		schema[prop] = data[prop].toString();	
+	} else {
+		schema[prop] = data[prop];
 	}
-	if (data.type === 'boolean') {
-		schema[prop] = String(data[prop]);
-		return;
-	}
-	schema[prop] = data[prop];
 };
 
 const handleErrorObject = (error) => {

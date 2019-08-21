@@ -127,7 +127,7 @@
 	"TOOLTIPS___BACKWARDS": "Backwards",
 	"TOOLTIPS___NORMALIZATION": "Normalization",
 	"NEW___MODEL_NAME": "New model",
-	"NEW___BUCKET_NAME": "New namespace",
+	"NEW___BUCKET_NAME": "New_namespace",
 	"NEW___COLLECTION_NAME": "New record",
 	"NEW___FIELD_NAME": "New field",
 	"NEW___PATTERN_FIELD_NAME": "^New Pattern Field$",

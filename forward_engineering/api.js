@@ -100,7 +100,6 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 	if (schema.allOf) {
 		handleChoice(schema, 'allOf', udt);
 	}
-
 	schema.type = schema.type || getTypeFromReference(schema);
 
 	for (let prop in schema) {
@@ -324,11 +323,72 @@ const getTypeFromUdt = (type, udt) => {
 	if (!udt[type]) {
 		return type;
 	}
-	const udtType = udt[type];
-	delete udt[type];
+	const udtItem = cloneUdtItem(udt[type]);
+	if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
+		delete udt[type];
+		if (Array.isArray(udtItem)) {
+			return udtItem.map(udtItemType => prepareDefinitionBeforeInsert(udtItemType, udt));
+		}
+		return prepareDefinitionBeforeInsert(udtItem, udt);
+	}
 
-	return udtType;
+	return udtItem;
 };
+
+const isDefinitionTypeValidForAvroDefinition = (definition) => {
+	const validTypes = ['record', 'enum', 'fixed', 'array'];
+	if (typeof definition === 'string') {
+		return validTypes.includes(definition);
+	} else if (Array.isArray(definition)) {
+		return definition.some(isDefinitionTypeValidForAvroDefinition);
+	} else {
+		return validTypes.includes(definition.type);
+	}
+}
+
+const prepareDefinitionBeforeInsert = (definition, udt) => {
+	switch(definition.type) {
+		case 'record':
+			const fields = definition.fields.reduce((acc, field) => {
+				if (udt[field.type]) {
+					const udtItem = cloneUdtItem(udt[field.type]);
+					const fieldWithRef = Object.assign({}, field);
+
+					if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
+						delete udt[field.type];
+					}
+
+					fieldWithRef.type = prepareDefinitionBeforeInsert(udtItem, udt);
+					return [...acc, fieldWithRef];
+				}
+				return [...acc, field];
+			}, []);
+			return Object.assign({}, definition, { fields });
+		case 'array':
+			if (udt[definition.items.type]) {
+				const udtItem = cloneUdtItem(udt[definition.items.type]);
+
+				if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
+					delete udt[definition.items.type];
+				}
+
+				return Object.assign({}, definition, { items: { type: udtItem }});
+			}
+			return Object.assign({}, definition, { items: prepareDefinitionBeforeInsert(definition.items, udt) }); 
+		default:
+			return definition;
+	}
+}
+
+const cloneUdtItem = (udt) => {
+	if (typeof udt === 'string') {
+		return udt;
+	} else if (Array.isArray(udt)) {
+		return [...udt];
+	} else {
+		return Object.assign({}, udt);
+	}
+}
 
 const getTypeFromReference = (schema) => {
 	if (!schema.$ref) {
