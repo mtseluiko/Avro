@@ -65,6 +65,11 @@ const convertSchemaToUserDefinedTypes = (jsonSchema, udt) => {
 	handleRecursiveSchema(jsonSchema, avroSchema, {}, udt);
 
 	return (avroSchema.fields || []).reduce((result, field) => {
+		if (typeof field.type !== 'object') {
+			return Object.assign({}, result, {
+				[field.name]: field.type
+			});
+		}
 		return Object.assign({}, result, {
 			name: field.name,
 			[field.name]: Object.assign({name: field.name}, field.type, {
