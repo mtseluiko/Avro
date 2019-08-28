@@ -221,7 +221,7 @@ const isRequired = (parentSchema, name) => {
 };
 
 const handleRequired = (parentSchema, avroSchema) => {
-	if (isRequired(parentSchema, avroSchema.name)) {
+	if (!_.isObject(avroSchema.type) && isRequired(parentSchema, avroSchema.name)) {
 		delete avroSchema.default;
 	}
 };
