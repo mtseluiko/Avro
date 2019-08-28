@@ -47,7 +47,12 @@ module.exports = {
 			cb(null, messages);
 		} catch (e) {
 			logger.log('error', { error: e }, 'Avro Validation Error');
-			cb(e.message);
+			cb(null, [{
+				type: 'error',
+				label: e.fieldName || e.name,
+				title: e.message,
+				context: ''
+			}]);
 		}
 	}
 };
