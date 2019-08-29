@@ -16,7 +16,7 @@
  *				"<type>": [<names of new property>]
  *			}
  * 		},
- * 		"remove": {
+ * 		"delete": {
  * 			"entity": [<names of new property>],
  * 			"container": [<names of new property>],
  * 			"model": [<names of new property>],

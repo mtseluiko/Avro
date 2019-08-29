@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const _ = require('lodash');
 const validationHelper = require('./validationHelper');
 
 const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
@@ -46,7 +47,12 @@ module.exports = {
 			cb(null, messages);
 		} catch (e) {
 			logger.log('error', { error: e }, 'Avro Validation Error');
-			cb(e.message);
+			cb(null, [{
+				type: 'error',
+				label: e.fieldName || e.name,
+				title: e.message,
+				context: ''
+			}]);
 		}
 	}
 };
@@ -65,6 +71,11 @@ const convertSchemaToUserDefinedTypes = (jsonSchema, udt) => {
 	handleRecursiveSchema(jsonSchema, avroSchema, {}, udt);
 
 	return (avroSchema.fields || []).reduce((result, field) => {
+		if (typeof field.type !== 'object') {
+			return Object.assign({}, result, {
+				[field.name]: field.type
+			});
+		}
 		return Object.assign({}, result, {
 			name: field.name,
 			[field.name]: Object.assign({name: field.name}, field.type, {
@@ -192,8 +203,9 @@ const handleChoice = (schema, choice, udt) => {
 		let multipleField = multipleFieldsHash[fieldName];
 		const filedType = field.type || getTypeFromReference(field) || DEFAULT_TYPE;
 
-		multipleField.nullAllowed = multipleField.nullAllowed || field.nullAllowed;
-		field = Object.assign({}, field, { nullAllowed: false });
+		if (!_.isArray(multipleField.type)) {
+			multipleField.type = [multipleField.type];
+		}
 
 		if (isComplexType(filedType)) {
 			let newField = {};
@@ -206,6 +218,14 @@ const handleChoice = (schema, choice, udt) => {
 			multipleField.type = multipleField.type.concat(filedType);
 		} else {
 			multipleField.type = multipleField.type.concat([filedType]);
+		}
+
+		if (_.first(multipleField.type) === 'null' && _.isUndefined(multipleField.default)) {
+			multipleField.default = null;
+		}
+
+		if (_.uniq(multipleField.type).length === 1) {
+			multipleField.type = _.first(multipleField.type);
 		}
 	});
 
