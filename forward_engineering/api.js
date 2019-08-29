@@ -207,6 +207,10 @@ const handleChoice = (schema, choice, udt) => {
 			multipleField.type = [multipleField.type];
 		}
 
+		if (!_.isArray(multipleField.type)) {
+			multipleField.type = [multipleField.type];
+		}
+
 		if (isComplexType(filedType)) {
 			let newField = {};
 			handleRecursiveSchema(field, newField, {}, udt);
