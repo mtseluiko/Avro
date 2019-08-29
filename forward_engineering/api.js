@@ -245,7 +245,7 @@ const isRequired = (parentSchema, name) => {
 };
 
 const handleRequired = (parentSchema, avroSchema) => {
-	const isReference = !_.isObject(avroSchema.type);
+	const isReference = _.isObject(avroSchema.type);
 	if (isReference && avroSchema.default) {
 		return;
 	}
