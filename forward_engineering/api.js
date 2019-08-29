@@ -203,8 +203,9 @@ const handleChoice = (schema, choice, udt) => {
 		let multipleField = multipleFieldsHash[fieldName];
 		const filedType = field.type || getTypeFromReference(field) || DEFAULT_TYPE;
 
-		multipleField.nullAllowed = multipleField.nullAllowed || field.nullAllowed;
-		field = Object.assign({}, field, { nullAllowed: false });
+		if (!_.isArray(multipleField.type)) {
+			multipleField.type = [multipleField.type];
+		}
 
 		if (!_.isArray(multipleField.type)) {
 			multipleField.type = [multipleField.type];
@@ -222,6 +223,11 @@ const handleChoice = (schema, choice, udt) => {
 		} else {
 			multipleField.type = multipleField.type.concat([filedType]);
 		}
+
+		if (_.first(multipleField.type) === 'null' && _.isUndefined(multipleField.default)) {
+			multipleField.default = null;
+		}
+
 		if (_.uniq(multipleField.type).length === 1) {
 			multipleField.type = _.first(multipleField.type);
 		}
@@ -239,6 +245,11 @@ const isRequired = (parentSchema, name) => {
 };
 
 const handleRequired = (parentSchema, avroSchema) => {
+	const isReference = _.isObject(avroSchema.type);
+	if (isReference && avroSchema.default) {
+		return;
+	}
+
 	if (isRequired(parentSchema, avroSchema.name)) {
 		delete avroSchema.default;
 	}

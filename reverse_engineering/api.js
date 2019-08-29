@@ -243,15 +243,6 @@ const isComplexType = (type) => {
 	}
 };
 
-const removeChangedField = (parentSchema, name) => {
-	if (parentSchema.properties) {
-		delete parentSchema.properties[name];
-	} else if (parentSchema.items) {
-		// delete multiple array item
-	}
-	return parentSchema;
-};
-
 const getType = (schema, field, type) => {
 	if (Object(type) === type) {
 		return Object.assign({}, schema, type, getType(schema, field, type.type));
@@ -305,13 +296,12 @@ const getOneOf = (data) => {
 	});
 
 	return {
-		[name]: {
-				name,
-				oneOf_meta: data,
-				type: 'choice',
-				choice: 'oneOf',
-				items: oneOfProperties
-		}
+		[name]: Object.assign({}, data, {
+			name,
+			type: 'choice',
+			choice: 'oneOf',
+			items: oneOfProperties
+		})
 	};
 };
 
