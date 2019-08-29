@@ -241,7 +241,12 @@ const isRequired = (parentSchema, name) => {
 };
 
 const handleRequired = (parentSchema, avroSchema) => {
-	if (!_.isObject(avroSchema.type) && isRequired(parentSchema, avroSchema.name)) {
+	const isReference = !_.isObject(avroSchema.type);
+	if (isReference && avroSchema.default) {
+		return;
+	}
+
+	if (isRequired(parentSchema, avroSchema.name)) {
 		delete avroSchema.default;
 	}
 };
