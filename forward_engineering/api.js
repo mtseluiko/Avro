@@ -418,7 +418,8 @@ const isDefinitionTypeValidForAvroDefinition = (definition) => {
 const prepareDefinitionBeforeInsert = (definition, udt) => {
 	switch(definition.type) {
 		case 'record':
-			const fields = definition.fields.reduce((acc, field) => {
+			const definitionFields = _.get(definition, 'fields', []);
+			const fields = definitionFields.reduce((acc, field) => {
 				if (udt[field.type]) {
 					const udtItem = cloneUdtItem(udt[field.type]);
 					const fieldWithRef = Object.assign({}, field);
