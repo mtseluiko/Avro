@@ -18,7 +18,6 @@
 		"foreignField": [],
 		"enum": [],
 		"sample": "",
-		"size": 0,
-		"nullAllowed": false
+		"size": 0
 	}
 }

@@ -131,23 +131,10 @@ making sure that you maintain a proper JSON format.
 			},
 			"type",
 			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
-			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Default",
@@ -157,19 +144,13 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"required": true
 				},
-				"dependency": [[{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}], [{
+				"dependency": [{
 					"key": "required",
 					"value": false
 				}, {
 					"key": "required",
 					"exist": false
-				}]]
+				}]
 			},
 			{
 				"propertyName": "Order",
@@ -223,23 +204,10 @@ making sure that you maintain a proper JSON format.
 				"isTargetProperty": true
 			},
 			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
-			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Precision",
@@ -351,23 +319,10 @@ making sure that you maintain a proper JSON format.
 				]
 			},
 			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
-			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Default",
@@ -377,19 +332,13 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"required": true
 				},
-				"dependency": [[{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}], [{
+				"dependency": [{
 					"key": "required",
 					"value": false
 				}, {
 					"key": "required",
 					"exist": false
-				}]]
+				}]
 			},
 			{
 				"propertyName": "Aliases",
@@ -427,23 +376,10 @@ making sure that you maintain a proper JSON format.
 			},
 			"type",
 			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
-			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Default",
@@ -458,19 +394,13 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"required": true
 				},
-				"dependency": [[{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}], [{
+				"dependency": [{
 					"key": "required",
 					"value": false
 				}, {
 					"key": "required",
 					"exist": false
-				}]]
+				}]
 			},
 			{
 				"propertyName": "Aliases",
@@ -500,12 +430,6 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
-			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
 			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
@@ -556,12 +480,6 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
-			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
 			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
@@ -615,12 +533,6 @@ making sure that you maintain a proper JSON format.
 				]
 			},
 			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
-			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
@@ -659,26 +571,13 @@ making sure that you maintain a proper JSON format.
 			},
 			"type",
 			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
-			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
 				"template": "boolean",
 				"validation": {
 					"required": true
-				},
-				"dependency": [{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}]
+				}
 			},
 			{
 				"propertyName": "Default",
@@ -689,19 +588,13 @@ making sure that you maintain a proper JSON format.
 					"required": true,
 					"in": "symbols"
 				},
-				"dependency": [[{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}], [{
+				"dependency": [{
 					"key": "required",
 					"value": false
 				}, {
 					"key": "required",
 					"exist": false
-				}]]
+				}]
 			},
 			{
 				"propertyName": "Type name",
@@ -759,23 +652,10 @@ making sure that you maintain a proper JSON format.
 			},
 			"type",
 			{
-				"propertyName": "Null allowed",
-				"propertyKeyword": "nullAllowed",
-				"propertyType": "checkbox",
-				"enableForReference": true
-			},
-			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Type name",
@@ -872,19 +752,11 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"multiple": [
-			"nullAllowed",
 			{
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Default",
@@ -894,19 +766,13 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"required": true
 				},
-				"dependency": [[{
-					"key": "nullAllowed",
-					"value": false
-				}, {
-					"key": "nullAllowed",
-					"exist": false
-				}], [{
+				"dependency": [{
 					"key": "required",
 					"value": false
 				}, {
 					"key": "required",
 					"exist": false
-				}]]
+				}]
 			},
 			"dynamic"
 		]
