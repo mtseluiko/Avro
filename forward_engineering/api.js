@@ -6,6 +6,7 @@ const _ = require('lodash');
 const validationHelper = require('./validationHelper');
 
 const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
+const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
 const DEFAULT_TYPE = 'string';
 const DEFAULT_NAME = 'New_field';
 const VALID_FULL_NAME_REGEX = /[^A-Za-z0-9_]/g;
@@ -158,7 +159,7 @@ const handleChoice = (schema, choice, udt) => {
 	
 	if (choiceRawMeta) {
 		choiceMeta = Object.keys(choiceRawMeta).reduce((choiceMeta, prop) => {
-			if (ADDITIONAL_PROPS.includes(prop) && typeof choiceRawMeta[prop] !== "undefined") {
+			if (ADDITIONAL_CHOICE_META_PROPS.includes(prop) && typeof choiceRawMeta[prop] !== "undefined") {
 				return Object.assign({}, choiceMeta, {
 					[prop]: choiceRawMeta[prop]
 				});
@@ -233,7 +234,46 @@ const handleChoice = (schema, choice, udt) => {
 		}
 	});
 
-	schema.properties = Object.assign((schema.properties || {}), multipleFieldsHash);
+	schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
+};
+
+const getChoiceIndex = choice => _.get(choice, 'index', 0);
+
+const addPropertiesFromChoices = (properties, choiceProperties) => {
+	if (_.isEmpty(choiceProperties)) {
+		return properties;
+	}
+
+	const sortedKeys = Object.keys(choiceProperties).sort((a, b) => {
+		getChoiceIndex(a) - getChoiceIndex(b)
+	});
+
+	return sortedKeys.reduce((sortedProperties, choicePropertyKey) => {
+		const choiceProperty = choiceProperties[choicePropertyKey];
+		const choicePropertyIndex = getChoiceIndex(choiceProperty);
+		if (_.isEmpty(sortedProperties)) {
+			return { [choicePropertyKey]: choiceProperty };
+		}
+
+		if (Object.keys(sortedProperties).length <= choicePropertyIndex) {
+			return Object.assign({}, sortedProperties, {
+				[choicePropertyKey]: choiceProperty
+			});
+		}
+
+		return Object.keys(sortedProperties).reduce((result, propertyKey, index) => {
+			if (index !== choicePropertyIndex || result[choicePropertyKey]) {
+				return Object.assign({}, result, {
+					[propertyKey] : sortedProperties[propertyKey]
+				});
+			}
+
+			return Object.assign({}, result, {
+				[choicePropertyKey]: choiceProperty,
+				[propertyKey] : sortedProperties[propertyKey]
+			});
+		}, {})
+	}, properties || {});
 };
 
 const isRequired = (parentSchema, name) => {
@@ -246,7 +286,7 @@ const isRequired = (parentSchema, name) => {
 
 const handleRequired = (parentSchema, avroSchema) => {
 	const isReference = _.isObject(avroSchema.type);
-	if (isReference && avroSchema.default) {
+	if (isReference && !_.isUndefined(avroSchema.default)) {
 		return;
 	}
 
