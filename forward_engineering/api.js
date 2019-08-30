@@ -2,9 +2,11 @@
 
 const fs = require('fs');
 const path = require('path');
+const _ = require('lodash');
 const validationHelper = require('./validationHelper');
 
 const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
+const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
 const DEFAULT_TYPE = 'string';
 const DEFAULT_NAME = 'New_field';
 const VALID_FULL_NAME_REGEX = /[^A-Za-z0-9_]/g;
@@ -46,7 +48,12 @@ module.exports = {
 			cb(null, messages);
 		} catch (e) {
 			logger.log('error', { error: e }, 'Avro Validation Error');
-			cb(e.message);
+			cb(null, [{
+				type: 'error',
+				label: e.fieldName || e.name,
+				title: e.message,
+				context: ''
+			}]);
 		}
 	}
 };
@@ -65,6 +72,11 @@ const convertSchemaToUserDefinedTypes = (jsonSchema, udt) => {
 	handleRecursiveSchema(jsonSchema, avroSchema, {}, udt);
 
 	return (avroSchema.fields || []).reduce((result, field) => {
+		if (typeof field.type !== 'object') {
+			return Object.assign({}, result, {
+				[field.name]: field.type
+			});
+		}
 		return Object.assign({}, result, {
 			name: field.name,
 			[field.name]: Object.assign({name: field.name}, field.type, {
@@ -147,7 +159,7 @@ const handleChoice = (schema, choice, udt) => {
 	
 	if (choiceRawMeta) {
 		choiceMeta = Object.keys(choiceRawMeta).reduce((choiceMeta, prop) => {
-			if (ADDITIONAL_PROPS.includes(prop) && typeof choiceRawMeta[prop] !== "undefined") {
+			if (ADDITIONAL_CHOICE_META_PROPS.includes(prop) && typeof choiceRawMeta[prop] !== "undefined") {
 				return Object.assign({}, choiceMeta, {
 					[prop]: choiceRawMeta[prop]
 				});
@@ -192,8 +204,13 @@ const handleChoice = (schema, choice, udt) => {
 		let multipleField = multipleFieldsHash[fieldName];
 		const filedType = field.type || getTypeFromReference(field) || DEFAULT_TYPE;
 
-		multipleField.nullAllowed = multipleField.nullAllowed || field.nullAllowed;
-		field = Object.assign({}, field, { nullAllowed: false });
+		if (!_.isArray(multipleField.type)) {
+			multipleField.type = [multipleField.type];
+		}
+
+		if (!_.isArray(multipleField.type)) {
+			multipleField.type = [multipleField.type];
+		}
 
 		if (isComplexType(filedType)) {
 			let newField = {};
@@ -207,9 +224,56 @@ const handleChoice = (schema, choice, udt) => {
 		} else {
 			multipleField.type = multipleField.type.concat([filedType]);
 		}
+
+		if (_.first(multipleField.type) === 'null' && _.isUndefined(multipleField.default)) {
+			multipleField.default = null;
+		}
+
+		if (_.uniq(multipleField.type).length === 1) {
+			multipleField.type = _.first(multipleField.type);
+		}
 	});
 
-	schema.properties = Object.assign((schema.properties || {}), multipleFieldsHash);
+	schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
+};
+
+const getChoiceIndex = choice => _.get(choice, 'index', 0);
+
+const addPropertiesFromChoices = (properties, choiceProperties) => {
+	if (_.isEmpty(choiceProperties)) {
+		return properties;
+	}
+
+	const sortedKeys = Object.keys(choiceProperties).sort((a, b) => {
+		getChoiceIndex(a) - getChoiceIndex(b)
+	});
+
+	return sortedKeys.reduce((sortedProperties, choicePropertyKey) => {
+		const choiceProperty = choiceProperties[choicePropertyKey];
+		const choicePropertyIndex = getChoiceIndex(choiceProperty);
+		if (_.isEmpty(sortedProperties)) {
+			return { [choicePropertyKey]: choiceProperty };
+		}
+
+		if (Object.keys(sortedProperties).length <= choicePropertyIndex) {
+			return Object.assign({}, sortedProperties, {
+				[choicePropertyKey]: choiceProperty
+			});
+		}
+
+		return Object.keys(sortedProperties).reduce((result, propertyKey, index) => {
+			if (index !== choicePropertyIndex || result[choicePropertyKey]) {
+				return Object.assign({}, result, {
+					[propertyKey] : sortedProperties[propertyKey]
+				});
+			}
+
+			return Object.assign({}, result, {
+				[choicePropertyKey]: choiceProperty,
+				[propertyKey] : sortedProperties[propertyKey]
+			});
+		}, {})
+	}, properties || {});
 };
 
 const isRequired = (parentSchema, name) => {
@@ -221,6 +285,11 @@ const isRequired = (parentSchema, name) => {
 };
 
 const handleRequired = (parentSchema, avroSchema) => {
+	const isReference = _.isObject(avroSchema.type);
+	if (isReference && !_.isUndefined(avroSchema.default)) {
+		return;
+	}
+
 	if (isRequired(parentSchema, avroSchema.name)) {
 		delete avroSchema.default;
 	}

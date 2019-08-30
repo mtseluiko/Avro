@@ -25,20 +25,12 @@ const validate = (script) => {
             }];
         }
     } catch(err) {
-        if (err instanceof TypeError) {
-            return avsc.errorsCollector || [];
-        }
-
-        const errors = avsc.errorsCollector.concat([{
-            type: 'error',
-            label: err.fieldName || err.name,
-            title: err.message,
-            context: ''
-        }]);
+        const errors = (err instanceof TypeError) ? avsc.errorsCollector : avsc.errorsCollector.concat(err);
+		const errorMessages = errors.map(toMessage);
 
         avsc.errorsCollector = [];
 
-        return errors;
+        return errorMessages;
     }
 };
 
