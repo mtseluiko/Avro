@@ -413,6 +413,19 @@ making sure that you maintain a proper JSON format.
 			"sample",
 			"comments"
 		],
+		"null": [
+			"name",
+			"schemaId",
+			"description",
+			"type",
+			"dependencies",
+			"primaryKey",
+			"foreignCollection",
+			"foreignField",
+			"relationshipType",
+			"sample",
+			"comments"
+		],
 		"___1": [],
 		"record": [
 			"arrayItemName",
