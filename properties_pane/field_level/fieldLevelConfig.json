@@ -413,6 +413,36 @@ making sure that you maintain a proper JSON format.
 			"sample",
 			"comments"
 		],
+		"null": [
+			"name",
+			"schemaId",
+			"description",
+			"type",
+			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean"
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "text",
+				"validation": {
+					"required": true
+				},
+				"dependency": [{
+					"key": "required",
+					"value": false
+				}, {
+					"key": "required",
+					"exist": false
+				}]
+			},
+			"dependencies",
+			"comments"
+		],
 		"___1": [],
 		"record": [
 			"arrayItemName",
