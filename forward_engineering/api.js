@@ -252,8 +252,8 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 		}
 
 		if (
-			Object.keys(sortedProperties).length <= choicePropertyIndex || 
-			_.isUndefined(choicePropertyIndex)
+			_.isUndefined(choicePropertyIndex) ||
+			Object.keys(sortedProperties).length <= choicePropertyIndex
 		) {
 			return Object.assign({}, sortedProperties, {
 				[choicePropertyKey]: choiceProperty
