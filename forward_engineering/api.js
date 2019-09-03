@@ -225,10 +225,6 @@ const handleChoice = (schema, choice, udt) => {
 			multipleField.type = multipleField.type.concat([filedType]);
 		}
 
-		if (_.first(multipleField.type) === 'null' && _.isUndefined(multipleField.default)) {
-			multipleField.default = null;
-		}
-
 		if (_.uniq(multipleField.type).length === 1) {
 			multipleField.type = _.first(multipleField.type);
 		}
@@ -237,7 +233,7 @@ const handleChoice = (schema, choice, udt) => {
 	schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
 };
 
-const getChoiceIndex = choice => _.get(choice, 'index', 0);
+const getChoiceIndex = choice => _.get(choice, 'choiceMeta.index', choice.index);
 
 const addPropertiesFromChoices = (properties, choiceProperties) => {
 	if (_.isEmpty(choiceProperties)) {
@@ -255,7 +251,10 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 			return { [choicePropertyKey]: choiceProperty };
 		}
 
-		if (Object.keys(sortedProperties).length <= choicePropertyIndex) {
+		if (
+			_.isUndefined(choicePropertyIndex) ||
+			Object.keys(sortedProperties).length <= choicePropertyIndex
+		) {
 			return Object.assign({}, sortedProperties, {
 				[choicePropertyKey]: choiceProperty
 			});
