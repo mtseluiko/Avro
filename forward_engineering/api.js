@@ -237,7 +237,7 @@ const handleChoice = (schema, choice, udt) => {
 	schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
 };
 
-const getChoiceIndex = choice => _.get(choice, 'index', 0);
+const getChoiceIndex = choice => _.get(choice, 'choiceMeta.index', choice.index);
 
 const addPropertiesFromChoices = (properties, choiceProperties) => {
 	if (_.isEmpty(choiceProperties)) {
@@ -255,7 +255,10 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 			return { [choicePropertyKey]: choiceProperty };
 		}
 
-		if (Object.keys(sortedProperties).length <= choicePropertyIndex) {
+		if (
+			_.isUndefined(choicePropertyIndex) ||
+			Object.keys(sortedProperties).length <= choicePropertyIndex
+		) {
 			return Object.assign({}, sortedProperties, {
 				[choicePropertyKey]: choiceProperty
 			});
