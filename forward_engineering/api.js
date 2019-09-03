@@ -225,10 +225,6 @@ const handleChoice = (schema, choice, udt) => {
 			multipleField.type = multipleField.type.concat([filedType]);
 		}
 
-		if (_.first(multipleField.type) === 'null' && _.isUndefined(multipleField.default)) {
-			multipleField.default = null;
-		}
-
 		if (_.uniq(multipleField.type).length === 1) {
 			multipleField.type = _.first(multipleField.type);
 		}
