@@ -430,7 +430,8 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": true,
 				"propertyType": "text",
 				"validation": {
-					"required": true
+					"required": true,
+					"enum": ["null"]
 				},
 				"dependency": [{
 					"key": "required",
