@@ -516,7 +516,7 @@ const uniqBy = (arr, prop) => {
 
 const handleOtherProps = (schema, prop, avroSchema) => {
 	if (prop === 'default') {
-		avroSchema[prop] = getDefault(schema[prop]);
+		avroSchema[prop] = getDefault(schema.type, schema[prop]);
 	} else if (ADDITIONAL_PROPS.includes(prop)) {
 		avroSchema[prop] = schema[prop];
 
@@ -526,12 +526,17 @@ const handleOtherProps = (schema, prop, avroSchema) => {
 	}
 };
 
-const getDefault = (value) => {
-	if (value === 'null') {
-		return null;
-	} else {
+const getDefault = (type, value) => {
+	const defaultType = _.isArray(type) ? _.first(type) : type;
+	if (!_.isString(defaultType)) {
 		return value;
 	}
+
+	if (defaultType === 'null' && value === 'null') {
+		return null;
+	}
+
+	return value;
 };
 
 const handleComplexTypeStructure = (avroSchema, parentSchema) => {
