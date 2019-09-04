@@ -46,7 +46,8 @@
 	"modify": {
 		"field": [
 			"removeNullAllowedInChoices",
-			"removeNullAllowed"
+			"removeNullAllowed",
+			"addNullDefaultProperty"
 		]
 	},
 	"delete": {
