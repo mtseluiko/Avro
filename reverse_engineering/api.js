@@ -5,6 +5,7 @@ const path = require('path');
 const _ = require('lodash');
 const avro = require('avsc');
 const snappy = require('snappyjs');
+const adaptJsonSchema = require('./helpers/adaptJsonSchema');
 const DEFAULT_FIELD_NAME = 'New_field';
 let stateExtension = null;
 
@@ -49,6 +50,32 @@ module.exports = {
 				logger.log('error', { message: err.message, stack: err.stack }, 'Avro Reverse-Engineering Error');
 				callback(err)
 			});
+	},
+
+	adaptJsonSchema(data, logger, callback) {
+		const formatError = error => {
+			return Object.assign({ title: 'Adapt JSON Schema' }, Object.getOwnPropertyNames(error).reduce((accumulator, key) => {
+				return Object.assign(accumulator, {
+					[key]: error[key]
+				});
+			}, {}));
+		};
+
+		logger.log('info', 'Adaptation of JSON Schema started...', 'Adapt JSON Schema');
+		try {
+			const jsonSchema = JSON.parse(data.jsonSchema);
+
+			const adaptedJsonSchema = adaptJsonSchema(jsonSchema);
+
+			logger.log('info', 'Adaptation of JSON Schema finished.', 'Adapt JSON Schema');
+
+			callback(null, {
+				jsonSchema: JSON.stringify(adaptedJsonSchema)
+			});
+		} catch(error) {
+			const formattedError = formatError(error);
+			callback(formattedError);
+		}
 	}
 };
 

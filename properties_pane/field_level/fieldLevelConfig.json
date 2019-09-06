@@ -171,6 +171,7 @@ making sure that you maintain a proper JSON format.
 				"multi": true,
 				"valueType": "array"
 			},
+			"pattern",
 			"dependencies",
 			"primaryKey",
 			"foreignCollection",
@@ -430,8 +431,7 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": true,
 				"propertyType": "text",
 				"validation": {
-					"required": true,
-					"enum": ["null"]
+					"enum": ["null", ""]
 				},
 				"dependency": [{
 					"key": "required",
