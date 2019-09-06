@@ -53,6 +53,14 @@ module.exports = {
 	},
 
 	adaptJsonSchema(data, logger, callback) {
+		const formatError = error => {
+			return Object.assign({ title: 'Adapt JSON Schema' }, Object.getOwnPropertyNames(error).reduce((accumulator, key) => {
+				return Object.assign(accumulator, {
+					[key]: error[key]
+				});
+			}, {}));
+		};
+
 		logger.log('info', 'Adaptation of JSON Schema started...', 'Adapt JSON Schema');
 		try {
 			const jsonSchema = JSON.parse(data.jsonSchema);
@@ -64,8 +72,9 @@ module.exports = {
 			callback(null, {
 				jsonSchema: JSON.stringify(adaptedJsonSchema)
 			});
-		} catch(e) {
-			callback(commonHelper.handleErrorObject(e, 'Adapt JSON Schema'), data);
+		} catch(error) {
+			const formattedError = formatError(error);
+			callback(formattedError);
 		}
 	}
 };
