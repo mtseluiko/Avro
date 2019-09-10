@@ -452,11 +452,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "required",
-					"value": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Type name",
@@ -502,11 +498,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "required",
-					"value": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Aliases",
@@ -554,11 +546,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "required",
-					"value": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Aliases",
