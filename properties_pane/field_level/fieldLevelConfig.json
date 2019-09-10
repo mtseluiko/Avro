@@ -419,14 +419,27 @@ making sure that you maintain a proper JSON format.
 			"description",
 			"type",
 			{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean"
+			},
+			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
 				"shouldValidate": true,
-				"propertyType": "text",
 				"nullable": true,
+				"propertyType": "text",
 				"validation": {
-					"enum": [null, ""]
-				}
+					"enum": [null, "null", ""]
+				},
+				"dependency": [{
+					"key": "required",
+					"value": false
+				}, {
+					"key": "required",
+					"exist": false
+				}]
 			},
 			"dependencies",
 			"comments"
@@ -745,6 +758,11 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
 				"template": "textarea"
+			},{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Default",
@@ -754,7 +772,14 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "details",
 				"template": "textarea",
 				"markdown": false,
-				"nullable": true
+				"nullable": true,
+				"dependency": [{
+					"key": "required",
+					"value": false
+				}, {
+					"key": "required",
+					"exist": false
+				}]
 			},
 			"comments"
 		],
