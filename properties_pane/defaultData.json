@@ -25,7 +25,9 @@
 	},
 	"subschema": {},
 	"arrayItem": {},
-	"choice": {},
+	"choice": {
+		"required": true
+	},
 	"relationship": {},
 	"user": {},
 	"view": {

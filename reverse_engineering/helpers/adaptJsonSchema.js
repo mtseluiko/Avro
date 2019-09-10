@@ -76,6 +76,58 @@ const adaptMultiple = field => {
 	return Object.assign({}, fieldData, {type: types});
 };
 
+const handleEmptyDefault = field => {
+	const typesWithoutDefault = ['bytes', 'fixed', 'record', 'array', 'map', 'null'];
+	const hasDefault = !_.isUndefined(field.default) && field.default !== '';
+	const isMultiple = _.isArray(field.types);
+	if (isMultiple && field.types.every(type => typesWithoutDefault.includes(type))) {
+		return field;
+	}
+
+	if (hasDefault || typesWithoutDefault.includes(field.type)) {
+		return field;
+	}
+
+	return Object.assign({}, field, {
+		error: {
+			"default": true
+		}
+	});
+};
+
+const handleEmptyDefaultInProperties = field => {
+	let required = _.get(field, 'required', []);
+
+	if (!_.isPlainObject(field.properties)) {
+		return field;
+	}
+
+	const updatedProperties = Object.keys(field.properties).reduce((properties, key) => {
+		const property = field.properties[key];
+
+		if (required.includes(key)) {
+			return Object.assign({}, properties, {
+				[key]: property
+			});
+		}
+
+		const updatedProperty = handleEmptyDefault(property);
+		if (property !== updatedProperty) {
+			required = required.filter(name => name !== key);
+		}
+
+		return Object.assign({}, properties, {
+			[key]: updatedProperty
+		});
+	
+	}, {});
+
+	return Object.assign({}, field, {
+		properties: updatedProperties,
+		required
+	});
+};
+
 const adaptType = field => {
 	const type = field.type;
 
@@ -100,7 +152,9 @@ const adaptType = field => {
 
 const adaptJsonSchema = jsonSchema => {
 	return mapJsonSchema(jsonSchema, jsonSchemaItem => {
-		return adaptType(jsonSchemaItem);
+		const handledTypesField = adaptType(jsonSchemaItem);
+
+		return handleEmptyDefaultInProperties(handledTypesField);
 	});
 };
 
