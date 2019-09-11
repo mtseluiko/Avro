@@ -150,11 +150,24 @@ const adaptType = field => {
 	return field;
 };
 
+const populateDefaultNullValuesForMultiple = field => {
+	if (!_.isArray(field.type))	{
+		return field;
+	}
+	if (_.first(field.type) !== 'null') {
+		return field;
+	}
+
+	return Object.assign({}, field, { default: null });
+};
+
 const adaptJsonSchema = jsonSchema => {
 	return mapJsonSchema(jsonSchema, jsonSchemaItem => {
-		const handledTypesField = adaptType(jsonSchemaItem);
-
-		return handleEmptyDefaultInProperties(handledTypesField);
+		return _.flow([
+			adaptType,
+			populateDefaultNullValuesForMultiple,
+			handleEmptyDefaultInProperties
+		])(jsonSchemaItem);
 	});
 };
 
