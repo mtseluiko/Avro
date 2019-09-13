@@ -29,7 +29,8 @@
 									"value": "decimal"
 								},
 								"value": "number"
-							}]
+							}],
+							"defaultValue": "string"
 						},
 						"number": {
 							"dependencies": [
@@ -78,14 +79,9 @@
 										"type": "string",
 										"format": "date-time"
 									}
-								},{
-									"dependency": {
-										"key": "mode",
-										"value": "int"
-									},
-									"value": "integer"
 								}
-							]
+							],
+							"defaultValue": "integer"
 						}
 					}
 				}
