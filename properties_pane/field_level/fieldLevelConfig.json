@@ -171,6 +171,7 @@ making sure that you maintain a proper JSON format.
 				"multi": true,
 				"valueType": "array"
 			},
+			"pattern",
 			"dependencies",
 			"primaryKey",
 			"foreignCollection",
