@@ -429,7 +429,6 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Default",
 				"propertyKeyword": "default",
 				"shouldValidate": true,
-				"nullable": true,
 				"propertyType": "text",
 				"validation": {
 					"enum": [null, "null", ""]
@@ -773,7 +772,6 @@ making sure that you maintain a proper JSON format.
 				"propertyType": "details",
 				"template": "textarea",
 				"markdown": false,
-				"nullable": true,
 				"dependency": [{
 					"key": "required",
 					"value": false

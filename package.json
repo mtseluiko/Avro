@@ -1,7 +1,7 @@
 {
     "name": "Avro",
-    "version": "0.1.25",
-    "versionDate": "2019-09-10",
+    "version": "0.1.26",
+    "versionDate": "2019-09-16",
     "author": "hackolade",
     "engines": {
         "hackolade": "3.3.2",
@@ -18,7 +18,74 @@
 			"enableReverseEngineering": true,
             "enableJsonType": false,
             "enableArrayItemName": true,
-            "validateMultipleDefaultByFirstType": true
+            "validateMultipleDefaultByFirstType": true,
+			"forwardEngineering": {
+				"jsonSchema": {
+					"keepParentType": {
+						"bytes": {
+							"dependencies": [{
+								"dependency": {
+									"key": "logicalType",
+									"value": "decimal"
+								},
+								"value": "number"
+							}],
+							"defaultValue": "string"
+						},
+						"number": {
+							"dependencies": [
+								{
+									"dependency": {
+										"type": "and",
+										"values": [{
+											"key": "mode",
+											"value": "int"
+										}, {
+											"key": "logicalType",
+											"value": "date"
+										}]
+									},
+									"value": {
+										"type": "string",
+										"format": "date"
+									}
+								},{
+									"dependency": {
+										"type": "and",
+										"values": [{
+											"key": "mode",
+											"value": "int"
+											},{
+											"key": "logicalType",
+											"value": "time-millis"
+										}]
+									},
+									"value": {
+										"type": "string",
+										"format": "time"
+									}
+								},{
+									"dependency": {
+										"type": "and",
+										"values":[{
+											"key": "mode",
+											"value": "long"
+										},{
+											"key": "logicalType",
+											"value": "timestamp-millis"
+										}]
+									},
+									"value": {
+										"type": "string",
+										"format": "date-time"
+									}
+								}
+							],
+							"defaultValue": "integer"
+						}
+					}
+				}
+			}
         }
     },
     "description": "Hackolade plugin for Apache Avro Schema",
