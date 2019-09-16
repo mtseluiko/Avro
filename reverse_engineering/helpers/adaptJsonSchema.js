@@ -53,27 +53,23 @@ const handleStringFormat = field => {
 };
 
 const adaptMultiple = field => {
-	const { fieldData, types } = field.type.reduce(({ fieldData, types }, type) => {
+	const { fieldData, types } = field.type.reduce(({ fieldData, types }, type, index) => {
 		const typeField = Object.assign({}, fieldData, { type });
 		const updatedData = adaptType(typeField);
-		const updatedTypes = types.map(initialType => {
-			if (initialType === type) {
-				return updatedData.type;
-			}
-			return initialType;
-		});
+		types[index] = type;
 
 		return {
 			fieldData: updatedData,
-			types: _.uniq(updatedTypes)
+			types
 		};
 	}, { fieldData: field, types: field.type });
 
-	if (types.length === 1) {
+	const uniqTypes =  _.uniq(types);
+	if (uniqTypes.length === 1) {
 		return fieldData;
 	}
 
-	return Object.assign({}, fieldData, {type: types});
+	return Object.assign({}, fieldData, {type: uniqTypes});
 };
 
 const handleEmptyDefault = field => {
