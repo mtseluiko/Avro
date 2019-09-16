@@ -56,7 +56,7 @@ const adaptMultiple = field => {
 	const { fieldData, types } = field.type.reduce(({ fieldData, types }, type, index) => {
 		const typeField = Object.assign({}, fieldData, { type });
 		const updatedData = adaptType(typeField);
-		types[index] = type;
+		types[index] = updatedData.type;
 
 		return {
 			fieldData: updatedData,
