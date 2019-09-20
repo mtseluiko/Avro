@@ -73,7 +73,7 @@ const adaptMultiple = field => {
 };
 
 const handleEmptyDefault = field => {
-	const typesWithoutDefault = ['bytes', 'fixed', 'record', 'array', 'map', 'null'];
+	const typesWithoutDefault = ['bytes', 'fixed', 'object', 'record', 'array', 'map', 'null'];
 	const hasDefault = !_.isUndefined(field.default) && field.default !== '';
 	const isMultiple = _.isArray(field.types);
 	if (isMultiple && field.types.every(type => typesWithoutDefault.includes(type))) {
@@ -157,14 +157,97 @@ const populateDefaultNullValuesForMultiple = field => {
 	return Object.assign({}, field, { default: null });
 };
 
-const adaptJsonSchema = jsonSchema => {
-	return mapJsonSchema(jsonSchema, jsonSchemaItem => {
-		return _.flow([
-			adaptType,
-			populateDefaultNullValuesForMultiple,
-			handleEmptyDefaultInProperties
-		])(jsonSchemaItem);
+const adaptTitle = jsonSchema => {
+	if (!jsonSchema.title) {
+		return jsonSchema;
+	}
+
+	return Object.assign({}, jsonSchema, {
+		title: convertToValidAvroName(jsonSchema.title)
 	});
 };
 
-module.exports = adaptJsonSchema;
+const adaptRequiredNames = jsonSchema => {
+	if (!_.isArray(jsonSchema.required)) {
+		return jsonSchema;
+	}
+
+	return Object.assign({}, jsonSchema, {
+		required: jsonSchema.required.map(convertToValidAvroName)
+	});
+};
+
+const adaptPropertiesNames = jsonSchema => {
+	if (!_.isPlainObject(jsonSchema)) {
+		return jsonSchema;
+	}
+
+	const propertiesKeys = [ 'properties', 'definitions', 'patternProperties' ];
+	
+	const adaptedSchema = adaptRequiredNames(jsonSchema);
+
+	return propertiesKeys.reduce((schema, propertyKey) => {
+		const properties = schema[propertyKey];
+		if (_.isEmpty(properties)) {
+			return schema;
+		}
+
+		const adaptedProperties = Object.keys(properties).reduce((adaptedProperties, key) => {
+			if (key === '$ref') {
+				return Object.assign({}, adaptedProperties, {
+					[key]: convertReferenceName(properties[key])
+				})
+			}
+
+			const updatedKey = convertToValidAvroName(key);
+			const adaptedProperty = adaptPropertiesNames(properties[key]);
+
+			return Object.assign({}, adaptedProperties, {
+				[updatedKey]: adaptedProperty
+			});
+		}, {});
+
+		return Object.assign({}, schema, {
+			[propertyKey]: adaptedProperties
+		});
+	}, adaptedSchema);
+};
+
+const adaptNames = _.flow([
+	adaptTitle,
+	adaptPropertiesNames
+]);
+
+const convertReferenceName = ref => {
+	if (!_.isString(ref)) {
+		return ref;
+	}
+
+	const refNames = ref.split('/');
+	const referenceName = _.last(refNames);
+	const adaptedReferenceName = convertToValidAvroName(referenceName);
+
+	return refNames.slice(0, -1).concat(adaptedReferenceName).join('/');
+};
+
+const convertToValidAvroName = name => {
+	if (!_.isString(name)) {
+		return name;
+	}
+
+	return name.replace(/[^A-Za-z0-9_]/g, '_');
+};
+
+const adaptJsonSchema = jsonSchema => {
+	const adaptedJsonSchema = adaptNames(jsonSchema);
+
+	return mapJsonSchema(adaptedJsonSchema, _.flow([
+		adaptType,
+		populateDefaultNullValuesForMultiple,
+		handleEmptyDefaultInProperties
+	]));
+};
+
+const adaptJsonSchemaName = convertToValidAvroName;
+
+module.exports = { adaptJsonSchema, adaptJsonSchemaName };
