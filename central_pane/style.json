@@ -27,44 +27,4 @@
 }
  */
 
-{
-	"field": {
-		"dtd": [{
-			"value": {
-				"border-style": "dotted",
-				"background": "#fff5e4"
-			},
-			"dependency": {
-				"key": "nullAllowed",
-				"value": true
-			}
-		}],
-		"erd": [ "keys", "type", [{
-			"value": "+",
-			"dependency": {
-				"key": "nullAllowed",
-				"value": true
-			},
-			"width": 20
-		}, {
-			"value": "*",
-			"dependency": {
-				"type": "and",
-				"values": [{
-					"key": "required",
-					"value": true
-				}, {
-					"type": "or",
-					"values": [{
-						"key": "nullAllowed",
-						"value": false
-					}, {
-						"key": "nullAllowed",
-						"exist": false
-					}]
-				}]
-			},
-			"width": 20
-		}], "indexes" ]
-	}
-}
+{}
