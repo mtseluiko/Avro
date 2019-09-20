@@ -3,7 +3,7 @@
 	"name": "null",
 	"erdAbbreviation": "<null>",
 	"dtdAbbreviation": "{null}",
-	"useSample": false,
+	"useSample": true,
 	"defaultValues": {
 		"default": null,
 		"type": "null",
