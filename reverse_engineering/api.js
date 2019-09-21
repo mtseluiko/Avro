@@ -5,7 +5,7 @@ const path = require('path');
 const _ = require('lodash');
 const avro = require('avsc');
 const snappy = require('snappyjs');
-const adaptJsonSchema = require('./helpers/adaptJsonSchema');
+const jsonSchemaAdapter = require('./helpers/adaptJsonSchema');
 const DEFAULT_FIELD_NAME = 'New_field';
 let stateExtension = null;
 
@@ -64,13 +64,14 @@ module.exports = {
 		logger.log('info', 'Adaptation of JSON Schema started...', 'Adapt JSON Schema');
 		try {
 			const jsonSchema = JSON.parse(data.jsonSchema);
-
-			const adaptedJsonSchema = adaptJsonSchema(jsonSchema);
+			const adaptedJsonSchema = jsonSchemaAdapter.adaptJsonSchema(jsonSchema);
+			const jsonSchemaName = jsonSchemaAdapter.adaptJsonSchemaName(data.jsonSchemaName);
 
 			logger.log('info', 'Adaptation of JSON Schema finished.', 'Adapt JSON Schema');
 
 			callback(null, {
-				jsonSchema: JSON.stringify(adaptedJsonSchema)
+				jsonSchema: JSON.stringify(adaptedJsonSchema),
+				jsonSchemaName
 			});
 		} catch(error) {
 			const formattedError = formatError(error);
