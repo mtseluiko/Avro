@@ -19,6 +19,20 @@ const readConfig = (pathToConfig) => {
 const fieldLevelConfig = readConfig('../properties_pane/field_level/fieldLevelConfig.json');
 let nameIndex = 0;
 
+const LOGICAL_TYPES_MAP = {
+	bytes: ['decimal'],
+	int: [
+		'date',
+		'time-millis'
+	],
+	long: [
+		'time-micros',
+		'timestamp-millis',
+		'timestamp-micros'
+	],
+	fixed: ['decimal', 'duration']
+};
+
 module.exports = {
 	generateScript(data, logger, cb) {
 		logger.clear();
@@ -358,10 +372,10 @@ const handleMultiple = (avroSchema, schema, prop, udt) => {
 					delete schema[prop];
 				});
 
-				return Object.assign({}, fieldProperties, {
+				return Object.assign({
 					name: fieldName,
 					type
-				})
+				}, fieldProperties)
 			}
 
 			const fieldAttributesKeys = PRIMITIVE_FIELD_ATTRIBUTES.filter(attribute => field[attribute]);
@@ -392,7 +406,8 @@ const getMultipleComplexTypeProperties = (schema, type) => {
 		],
 		"fixed": [
 			"size",
-			"namespace"
+			"namespace",
+			"logicalType"
 		],
 		"array": ["items"],
 		"map": ["values"],
@@ -418,18 +433,16 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 	switch(type) {
 		case 'string':
 		case 'boolean':
+		case 'bytes':
 		case 'null':
 		case 'array':
-			return Object.assign(schema, { type });
+			return Object.assign(schema, getTypeWithLogicalType(field, type));
 		case 'record':
 		case 'enum':
 		case 'fixed':
-			return Object.assign(schema, { 
-				type,
+			return Object.assign(schema, getTypeWithLogicalType(field, type), {
 				typeName: field.typeName 
 			});
-		case 'bytes':
-			return Object.assign(schema, getTypeWithLogicalType(field, type));
 		case 'number':
 			return Object.assign(schema, getNumberType(field));
 		case 'map':
@@ -722,7 +735,9 @@ const getNumberType = field => {
 
 const getTypeWithLogicalType = (field, type) => {
 	const logicalType = field.logicalType;
-	if (!logicalType) {
+	const correctLogicalTypes = _.get(LOGICAL_TYPES_MAP, type, []);
+	const logicalTypeIsCorrect = correctLogicalTypes.includes(logicalType);
+	if (!logicalTypeIsCorrect) {
 		return {
 			type
 		};
