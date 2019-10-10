@@ -4,8 +4,9 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const validationHelper = require('./validationHelper');
+const mapJsonSchema = require('../reverse_engineering/helpers/mapJsonSchema');
 
-const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
 const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
 const PRIMITIVE_FIELD_ATTRIBUTES = ['order', 'logicalType', 'precision', 'scale', 'aliases'];
 const DEFAULT_TYPE = 'string';
@@ -59,6 +60,28 @@ module.exports = {
 	}
 };
 
+const resolveDefinitions = definitionsSchema => {
+	const definitions = _.get(definitionsSchema, 'properties', {});
+
+	return Object.keys(definitions).reduce(resolvedDefinitions => {
+		return mapJsonSchema(resolvedDefinitions, replaceReferenceByDefinitions(resolvedDefinitions))
+	}, definitionsSchema);
+};
+
+const replaceReferenceByDefinitions = definitionsSchema => field => {
+	if (!field.$ref) {
+		return field;
+	}
+	const definitionName = getTypeFromReference(field);
+	const definition = _.get(definitionsSchema, ['properties', definitionName]);
+
+	if (!definition) {
+		return field;
+	}
+
+	return _.cloneDeep(definition);
+};
+
 const getUserDefinedTypes = ({ internalDefinitions, externalDefinitions, modelDefinitions }) => {
 	let udt = convertSchemaToUserDefinedTypes(JSON.parse(externalDefinitions), {});
 	 udt = convertSchemaToUserDefinedTypes(JSON.parse(modelDefinitions), udt);
@@ -67,8 +90,9 @@ const getUserDefinedTypes = ({ internalDefinitions, externalDefinitions, modelDe
 	return udt;
 };
 
-const convertSchemaToUserDefinedTypes = (jsonSchema, udt) => {
+const convertSchemaToUserDefinedTypes = (definitionsSchema, udt) => {
 	const avroSchema = {};
+	const jsonSchema = resolveDefinitions(definitionsSchema);
 
 	handleRecursiveSchema(jsonSchema, avroSchema, {}, udt);
 
@@ -78,14 +102,30 @@ const convertSchemaToUserDefinedTypes = (jsonSchema, udt) => {
 				[field.name]: field.type
 			});
 		}
+		if (_.isArray(field.type)) {
+			return Object.assign({}, result, {
+				[field.name]: Object.assign({}, filterProperties(field), {
+					name: field.name,
+					type: field.type,
+				})
+			});
+		}
+
 		return Object.assign({}, result, {
-			name: field.name,
-			[field.name]: Object.assign({name: field.name}, field.type, {
+			[field.name]: Object.assign({}, filterProperties(field), field.type, {
 				name: field.name
 			})
 		});
 	}, udt);
 };
+
+const filterProperties = field => {
+	const redundantFieldProperties = getRedundantProperties(field);
+
+	return _.omit(field, redundantFieldProperties);
+};
+
+const getRedundantProperties = field => Object.keys(field).filter(key => !ADDITIONAL_PROPS.includes(key));
 
 const getRecordName = (data) => {
 	return (
@@ -226,7 +266,8 @@ const handleChoice = (schema, choice, udt) => {
 			multipleField.type = multipleField.type.concat([filedType]);
 		}
 
-		if (_.uniq(multipleField.type).length === 1) {
+		multipleField.type = _.uniq(multipleField.type);
+		if (multipleField.type.length === 1) {
 			multipleField.type = _.first(multipleField.type);
 		}
 	});
@@ -397,7 +438,13 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 				values: getValues(type, field.subtype)
 			});
 		default:
-			return Object.assign(schema, { type: getTypeFromUdt(type, udt) || DEFAULT_TYPE });
+			const typeFromUdt = getTypeFromUdt(type, udt);
+			if (_.isArray(_.get(typeFromUdt, 'type'))) {
+				return Object.assign(schema, typeFromUdt, {
+					name: schema.name
+				} );
+			}
+			return Object.assign(schema, { type: typeFromUdt || DEFAULT_TYPE });
 	}
 };
 
