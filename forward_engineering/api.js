@@ -375,9 +375,9 @@ const handleMultiple = (avroSchema, schema, prop, udt) => {
 				});
 			}, {});
 
-			return Object.assign({}, attributes, {
+			return Object.assign({
 				type: field.type
-			});
+			}, attributes);
 		}
 	});
 	return avroSchema;
@@ -417,11 +417,10 @@ const getMultipleComplexTypeProperties = (schema, type) => {
 const getFieldWithConvertedType = (schema, field, type, udt) => {
 	switch(type) {
 		case 'string':
-		case 'bytes':
 		case 'boolean':
 		case 'null':
 		case 'array':
-			return Object.assign(schema, { type, });
+			return Object.assign(schema, { type });
 		case 'record':
 		case 'enum':
 		case 'fixed':
@@ -429,6 +428,8 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 				type,
 				typeName: field.typeName 
 			});
+		case 'bytes':
+			return Object.assign(schema, getTypeWithLogicalType(field, type));
 		case 'number':
 			return Object.assign(schema, getNumberType(field));
 		case 'map':
@@ -713,17 +714,22 @@ const handleTargetProperties = (schema, avroSchema) => {
 	}
 };
 
-const getNumberType = (field) => {
+const getNumberType = field => {
 	const type = field.mode || 'int';
 
-	if (field.logicalType) {
-		return {
-			type: type,
-			logicalType: field.logicalType
-		};
-	} else {
+	return getTypeWithLogicalType(field, type);
+};
+
+const getTypeWithLogicalType = (field, type) => {
+	const logicalType = field.logicalType;
+	if (!logicalType) {
 		return {
 			type
 		};
 	}
+
+	return {
+		type,
+		logicalType
+	};
 };
