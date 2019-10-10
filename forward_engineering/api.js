@@ -388,7 +388,6 @@ const getMultipleComplexTypeProperties = (schema, type) => {
 	const allowedComplexFields = {
 		"enum": [
 			"symbols",
-			"pattern",
 			"namespace"
 		],
 		"fixed": [
