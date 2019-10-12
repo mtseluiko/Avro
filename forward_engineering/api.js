@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const validationHelper = require('./validationHelper');
+const mapJsonSchema = require('../reverse_engineering/helpers/mapJsonSchema');
 
 const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
 const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
@@ -17,6 +18,20 @@ const readConfig = (pathToConfig) => {
 };
 const fieldLevelConfig = readConfig('../properties_pane/field_level/fieldLevelConfig.json');
 let nameIndex = 0;
+
+const LOGICAL_TYPES_MAP = {
+	bytes: ['decimal'],
+	int: [
+		'date',
+		'time-millis'
+	],
+	long: [
+		'time-micros',
+		'timestamp-millis',
+		'timestamp-micros'
+	],
+	fixed: ['decimal', 'duration']
+};
 
 module.exports = {
 	generateScript(data, logger, cb) {
@@ -59,6 +74,28 @@ module.exports = {
 	}
 };
 
+const resolveDefinitions = definitionsSchema => {
+	const definitions = _.get(definitionsSchema, 'properties', {});
+
+	return Object.keys(definitions).reduce(resolvedDefinitions => {
+		return mapJsonSchema(resolvedDefinitions, replaceReferenceByDefinitions(resolvedDefinitions))
+	}, definitionsSchema);
+};
+
+const replaceReferenceByDefinitions = definitionsSchema => field => {
+	if (!field.$ref) {
+		return field;
+	}
+	const definitionName = getTypeFromReference(field);
+	const definition = _.get(definitionsSchema, ['properties', definitionName]);
+
+	if (!definition) {
+		return field;
+	}
+
+	return _.cloneDeep(definition);
+};
+
 const getUserDefinedTypes = ({ internalDefinitions, externalDefinitions, modelDefinitions }) => {
 	let udt = convertSchemaToUserDefinedTypes(JSON.parse(externalDefinitions), {});
 	 udt = convertSchemaToUserDefinedTypes(JSON.parse(modelDefinitions), udt);
@@ -67,8 +104,9 @@ const getUserDefinedTypes = ({ internalDefinitions, externalDefinitions, modelDe
 	return udt;
 };
 
-const convertSchemaToUserDefinedTypes = (jsonSchema, udt) => {
+const convertSchemaToUserDefinedTypes = (definitionsSchema, udt) => {
 	const avroSchema = {};
+	const jsonSchema = resolveDefinitions(definitionsSchema);
 
 	handleRecursiveSchema(jsonSchema, avroSchema, {}, udt);
 
@@ -78,14 +116,30 @@ const convertSchemaToUserDefinedTypes = (jsonSchema, udt) => {
 				[field.name]: field.type
 			});
 		}
+		if (_.isArray(field.type)) {
+			return Object.assign({}, result, {
+				[field.name]: Object.assign({}, filterProperties(field), {
+					name: field.name,
+					type: field.type,
+				})
+			});
+		}
+
 		return Object.assign({}, result, {
-			name: field.name,
-			[field.name]: Object.assign({name: field.name}, field.type, {
+			[field.name]: Object.assign({}, filterProperties(field), field.type, {
 				name: field.name
 			})
 		});
 	}, udt);
 };
+
+const filterProperties = field => {
+	const redundantFieldProperties = getRedundantProperties(field);
+
+	return _.omit(field, redundantFieldProperties);
+};
+
+const getRedundantProperties = field => Object.keys(field).filter(key => !ADDITIONAL_PROPS.includes(key));
 
 const getRecordName = (data) => {
 	return (
@@ -226,7 +280,8 @@ const handleChoice = (schema, choice, udt) => {
 			multipleField.type = multipleField.type.concat([filedType]);
 		}
 
-		if (_.uniq(multipleField.type).length === 1) {
+		multipleField.type = _.uniq(multipleField.type);
+		if (multipleField.type.length === 1) {
 			multipleField.type = _.first(multipleField.type);
 		}
 	});
@@ -317,10 +372,10 @@ const handleMultiple = (avroSchema, schema, prop, udt) => {
 					delete schema[prop];
 				});
 
-				return Object.assign({}, fieldProperties, {
+				return Object.assign({
 					name: fieldName,
 					type
-				})
+				}, fieldProperties)
 			}
 
 			const fieldAttributesKeys = PRIMITIVE_FIELD_ATTRIBUTES.filter(attribute => field[attribute]);
@@ -334,9 +389,9 @@ const handleMultiple = (avroSchema, schema, prop, udt) => {
 				});
 			}, {});
 
-			return Object.assign({}, attributes, {
+			return Object.assign({
 				type: field.type
-			});
+			}, attributes);
 		}
 	});
 	return avroSchema;
@@ -347,12 +402,12 @@ const getMultipleComplexTypeProperties = (schema, type) => {
 	const allowedComplexFields = {
 		"enum": [
 			"symbols",
-			"pattern",
 			"namespace"
 		],
 		"fixed": [
 			"size",
-			"namespace"
+			"namespace",
+			"logicalType"
 		],
 		"array": ["items"],
 		"map": ["values"],
@@ -377,16 +432,15 @@ const getMultipleComplexTypeProperties = (schema, type) => {
 const getFieldWithConvertedType = (schema, field, type, udt) => {
 	switch(type) {
 		case 'string':
-		case 'bytes':
 		case 'boolean':
+		case 'bytes':
 		case 'null':
 		case 'array':
-			return Object.assign(schema, { type, });
+			return Object.assign(schema, getTypeWithLogicalType(field, type));
 		case 'record':
 		case 'enum':
 		case 'fixed':
-			return Object.assign(schema, { 
-				type,
+			return Object.assign(schema, getTypeWithLogicalType(field, type), {
 				typeName: field.typeName 
 			});
 		case 'number':
@@ -397,7 +451,13 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 				values: getValues(type, field.subtype)
 			});
 		default:
-			return Object.assign(schema, { type: getTypeFromUdt(type, udt) || DEFAULT_TYPE });
+			const typeFromUdt = getTypeFromUdt(type, udt);
+			if (_.isArray(_.get(typeFromUdt, 'type'))) {
+				return Object.assign(schema, typeFromUdt, {
+					name: schema.name
+				} );
+			}
+			return Object.assign(schema, { type: typeFromUdt || DEFAULT_TYPE });
 	}
 };
 
@@ -667,17 +727,24 @@ const handleTargetProperties = (schema, avroSchema) => {
 	}
 };
 
-const getNumberType = (field) => {
+const getNumberType = field => {
 	const type = field.mode || 'int';
 
-	if (field.logicalType) {
-		return {
-			type: type,
-			logicalType: field.logicalType
-		};
-	} else {
+	return getTypeWithLogicalType(field, type);
+};
+
+const getTypeWithLogicalType = (field, type) => {
+	const logicalType = field.logicalType;
+	const correctLogicalTypes = _.get(LOGICAL_TYPES_MAP, type, []);
+	const logicalTypeIsCorrect = correctLogicalTypes.includes(logicalType);
+	if (!logicalTypeIsCorrect) {
 		return {
 			type
 		};
 	}
+
+	return {
+		type,
+		logicalType
+	};
 };
