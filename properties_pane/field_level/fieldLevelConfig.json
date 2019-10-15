@@ -418,6 +418,14 @@ making sure that you maintain a proper JSON format.
 			"name",
 			"schemaId",
 			"description",
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "doc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
 			"type",
 			{
 				"propertyName": "Required",
