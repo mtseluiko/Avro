@@ -592,6 +592,10 @@ const handleOtherProps = (schema, prop, avroSchema) => {
 	if (prop === 'default') {
 		avroSchema[prop] = getDefault(schema.type, schema[prop]);
 	} else if (ADDITIONAL_PROPS.includes(prop)) {
+		const allowedProperties = getTargetFieldLevelPropertyNames(schema.type, schema);
+		if (!allowedProperties.includes(prop)) {
+			return;
+		}
 		avroSchema[prop] = schema[prop];
 
 		if (prop === 'size') {
