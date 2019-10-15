@@ -6,7 +6,7 @@ const _ = require('lodash');
 const validationHelper = require('./validationHelper');
 const mapJsonSchema = require('../reverse_engineering/helpers/mapJsonSchema');
 
-const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'durationSize', 'default'];
 const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
 const PRIMITIVE_FIELD_ATTRIBUTES = ['order', 'logicalType', 'precision', 'scale', 'aliases'];
 const DEFAULT_TYPE = 'string';
@@ -593,12 +593,12 @@ const handleOtherProps = (schema, prop, avroSchema) => {
 		avroSchema[prop] = getDefault(schema.type, schema[prop]);
 	} else if (ADDITIONAL_PROPS.includes(prop)) {
 		const allowedProperties = getTargetFieldLevelPropertyNames(schema.type, schema);
-		if (!allowedProperties.includes(prop)) {
+		if (!allowedProperties.includes(prop) && prop !== 'durationSize') {
 			return;
 		}
 		avroSchema[prop] = schema[prop];
 
-		if (prop === 'size') {
+		if (prop === 'size' || prop === 'durationSize') {
 			avroSchema[prop] = Number(avroSchema[prop]);
 		}
 	}
@@ -620,7 +620,7 @@ const getDefault = (type, value) => {
 const handleComplexTypeStructure = (avroSchema, parentSchema) => {
 	const rootComplexProps = ['doc', 'default'];
 	const isParentArray = parentSchema && parentSchema.type && parentSchema.type === 'array';
-	avroSchema = setDefaultDurationSize(avroSchema);
+	avroSchema = setDurationSize(avroSchema);
 
 	if (!isParentArray && isComplexType(avroSchema.type)) {
 		const name = avroSchema.name;
@@ -738,15 +738,15 @@ const getNumberField = field => {
 	return getField(field, type);
 };
 
-const setDefaultDurationSize = field => {
-	const DEFAULT_DURATION_SIZE = 12;
-	if (field.type !== 'fixed' || field.logicalType !== 'duration' || field.size) {
-		return field;
+const setDurationSize = field => {
+	if (field.type !== 'fixed' || field.logicalType !== 'duration' || !field.durationSize) {
+		return _.omit(field, 'durationSize');
 	}
 
-	return Object.assign(field, {
-		size: DEFAULT_DURATION_SIZE
-	});
+	const size = field.durationSize;
+	delete field.durationSize;
+
+	return Object.assign(field, { size });
 };
 
 const getField = (field, type) => {

@@ -733,14 +733,32 @@ making sure that you maintain a proper JSON format.
 				"multi": true,
 				"valueType": "array"
 			},
-			"schemaId",
 			{
 				"propertyName": "Size",
 				"propertyKeyword": "size",
 				"propertyValidate": true,
 				"propertyType": "numeric",
 				"valueType": "number",
-				"allowNegative": false
+				"allowNegative": false,
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "logicalType",
+						"value": "duration"
+					}
+				}
+			},
+			{
+				"propertyName": "Size",
+				"propertyKeyword": "durationSize",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"dependency": {
+					"key": "logicalType",
+					"value": "duration"
+				}
 			},
 			"dependencies",
 			"sample",
