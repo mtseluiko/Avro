@@ -616,6 +616,7 @@ const getDefault = (type, value) => {
 const handleComplexTypeStructure = (avroSchema, parentSchema) => {
 	const rootComplexProps = ['doc', 'default'];
 	const isParentArray = parentSchema && parentSchema.type && parentSchema.type === 'array';
+	avroSchema = setDefaultDurationSize(avroSchema);
 
 	if (!isParentArray && isComplexType(avroSchema.type)) {
 		const name = avroSchema.name;
@@ -731,6 +732,17 @@ const getNumberField = field => {
 	const type = field.mode || 'int';
 
 	return getField(field, type);
+};
+
+const setDefaultDurationSize = field => {
+	const DEFAULT_DURATION_SIZE = 12;
+	if (field.type !== 'fixed' || field.logicalType !== 'duration' || field.size) {
+		return field;
+	}
+
+	return Object.assign(field, {
+		size: DEFAULT_DURATION_SIZE
+	});
 };
 
 const getField = (field, type) => {
