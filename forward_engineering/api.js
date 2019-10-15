@@ -592,8 +592,8 @@ const handleOtherProps = (schema, prop, avroSchema) => {
 	if (prop === 'default') {
 		avroSchema[prop] = getDefault(schema.type, schema[prop]);
 	} else if (ADDITIONAL_PROPS.includes(prop)) {
-		const allowedProperties = getTargetFieldLevelPropertyNames(schema.type, schema);
-		if (!allowedProperties.includes(prop) && prop !== 'durationSize') {
+		const allowedProperties = getAllowedPropertyNames(schema.type, schema);
+		if (!allowedProperties.includes(prop)) {
 			return;
 		}
 		avroSchema[prop] = schema[prop];
@@ -723,6 +723,23 @@ const getTargetFieldLevelPropertyNames = (type, data) => {
 	}).map(property => property.propertyKeyword);
 };
 
+const getAllowedPropertyNames = (type, data) => {
+	if (!fieldLevelConfig.structure[type]) {
+		return [];
+	}
+
+	return fieldLevelConfig.structure[type].filter(property => {
+		if (typeof property !== 'object') {
+			return true;
+		}
+		if (!property.dependency) {
+			return true;
+		}
+
+		return (data[property.dependency.key] === property.dependency.value);
+	}).map(property => _.isString(property) ? property : property.propertyKeyword);
+};
+
 const handleTargetProperties = (schema, avroSchema) => {
 	if (schema.type) {
 		const targetProperties = getTargetFieldLevelPropertyNames(schema.type, schema);
@@ -739,12 +756,12 @@ const getNumberField = field => {
 };
 
 const setDurationSize = field => {
-	if (field.type !== 'fixed' || field.logicalType !== 'duration' || !field.durationSize) {
-		return _.omit(field, 'durationSize');
-	}
-
 	const size = field.durationSize;
 	delete field.durationSize;
+
+	if (field.type !== 'fixed' || field.logicalType !== 'duration' || !size) {
+		return field;
+	}
 
 	return Object.assign(field, { size });
 };
