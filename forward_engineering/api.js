@@ -436,15 +436,15 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 		case 'bytes':
 		case 'null':
 		case 'array':
-			return Object.assign(schema, getTypeWithLogicalType(field, type));
+			return Object.assign(schema, getField(field, type));
 		case 'record':
 		case 'enum':
 		case 'fixed':
-			return Object.assign(schema, getTypeWithLogicalType(field, type), {
+			return Object.assign(schema, getField(field, type), {
 				typeName: field.typeName 
 			});
 		case 'number':
-			return Object.assign(schema, getNumberType(field));
+			return Object.assign(schema, getNumberField(field));
 		case 'map':
 			return Object.assign(schema, {
 				type,
@@ -727,24 +727,25 @@ const handleTargetProperties = (schema, avroSchema) => {
 	}
 };
 
-const getNumberType = field => {
+const getNumberField = field => {
 	const type = field.mode || 'int';
 
-	return getTypeWithLogicalType(field, type);
+	return getField(field, type);
 };
 
-const getTypeWithLogicalType = (field, type) => {
+const getField = (field, type) => {
 	const logicalType = field.logicalType;
 	const correctLogicalTypes = _.get(LOGICAL_TYPES_MAP, type, []);
 	const logicalTypeIsCorrect = correctLogicalTypes.includes(logicalType);
+	const fieldWithType = Object.assign({}, field, { type });
+	let filteredField = {};
+	handleTargetProperties(fieldWithType, filteredField);
+
 	if (!logicalTypeIsCorrect) {
-		return {
-			type
-		};
+		return Object.assign({ type }, filteredField);
 	}
 
-	return {
-		type,
+	return Object.assign({ type }, filteredField, {
 		logicalType
-	};
+	});
 };
