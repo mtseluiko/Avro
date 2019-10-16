@@ -418,6 +418,14 @@ making sure that you maintain a proper JSON format.
 			"name",
 			"schemaId",
 			"description",
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "doc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
 			"type",
 			{
 				"propertyName": "Required",
@@ -733,15 +741,32 @@ making sure that you maintain a proper JSON format.
 				"multi": true,
 				"valueType": "array"
 			},
-			"schemaId",
-			"type",
 			{
 				"propertyName": "Size",
 				"propertyKeyword": "size",
 				"propertyValidate": true,
 				"propertyType": "numeric",
 				"valueType": "number",
-				"allowNegative": false
+				"allowNegative": false,
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "logicalType",
+						"value": "duration"
+					}
+				}
+			},
+			{
+				"propertyName": "Size",
+				"propertyKeyword": "durationSize",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"dependency": {
+					"key": "logicalType",
+					"value": "duration"
+				}
 			},
 			"dependencies",
 			"sample",
