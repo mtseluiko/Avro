@@ -188,7 +188,6 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 	handleSchemaName(avroSchema, parentSchema);
 	avroSchema = reorderName(avroSchema);
 	handleEmptyNestedObjects(avroSchema);
-	handleTargetProperties(schema, avroSchema, parentSchema);
 
 	handleRequired(parentSchema, avroSchema, schema);
 
@@ -407,7 +406,9 @@ const getMultipleComplexTypeProperties = (schema, type) => {
 		"fixed": [
 			"size",
 			"namespace",
-			"logicalType"
+			"logicalType",
+			"precision",
+			"scale"
 		],
 		"array": ["items"],
 		"map": ["values"],
