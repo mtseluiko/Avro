@@ -6,7 +6,7 @@ const _ = require('lodash');
 const validationHelper = require('./validationHelper');
 const mapJsonSchema = require('../reverse_engineering/helpers/mapJsonSchema');
 
-const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'durationSize', 'default'];
 const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
 const PRIMITIVE_FIELD_ATTRIBUTES = ['order', 'logicalType', 'precision', 'scale', 'aliases'];
 const DEFAULT_TYPE = 'string';
@@ -188,7 +188,6 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 	handleSchemaName(avroSchema, parentSchema);
 	avroSchema = reorderName(avroSchema);
 	handleEmptyNestedObjects(avroSchema);
-	handleTargetProperties(schema, avroSchema, parentSchema);
 
 	handleRequired(parentSchema, avroSchema, schema);
 
@@ -407,7 +406,9 @@ const getMultipleComplexTypeProperties = (schema, type) => {
 		"fixed": [
 			"size",
 			"namespace",
-			"logicalType"
+			"logicalType",
+			"precision",
+			"scale"
 		],
 		"array": ["items"],
 		"map": ["values"],
@@ -436,15 +437,15 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 		case 'bytes':
 		case 'null':
 		case 'array':
-			return Object.assign(schema, getTypeWithLogicalType(field, type));
+			return Object.assign(schema, getField(field, type));
 		case 'record':
 		case 'enum':
 		case 'fixed':
-			return Object.assign(schema, getTypeWithLogicalType(field, type), {
+			return Object.assign(schema, getField(field, type), {
 				typeName: field.typeName 
 			});
 		case 'number':
-			return Object.assign(schema, getNumberType(field));
+			return Object.assign(schema, getNumberField(field));
 		case 'map':
 			return Object.assign(schema, {
 				type,
@@ -592,9 +593,13 @@ const handleOtherProps = (schema, prop, avroSchema) => {
 	if (prop === 'default') {
 		avroSchema[prop] = getDefault(schema.type, schema[prop]);
 	} else if (ADDITIONAL_PROPS.includes(prop)) {
+		const allowedProperties = getAllowedPropertyNames(schema.type, schema);
+		if (!allowedProperties.includes(prop)) {
+			return;
+		}
 		avroSchema[prop] = schema[prop];
 
-		if (prop === 'size') {
+		if (prop === 'size' || prop === 'durationSize') {
 			avroSchema[prop] = Number(avroSchema[prop]);
 		}
 	}
@@ -616,6 +621,7 @@ const getDefault = (type, value) => {
 const handleComplexTypeStructure = (avroSchema, parentSchema) => {
 	const rootComplexProps = ['doc', 'default'];
 	const isParentArray = parentSchema && parentSchema.type && parentSchema.type === 'array';
+	avroSchema = setDurationSize(avroSchema);
 
 	if (!isParentArray && isComplexType(avroSchema.type)) {
 		const name = avroSchema.name;
@@ -718,6 +724,23 @@ const getTargetFieldLevelPropertyNames = (type, data) => {
 	}).map(property => property.propertyKeyword);
 };
 
+const getAllowedPropertyNames = (type, data) => {
+	if (!fieldLevelConfig.structure[type]) {
+		return [];
+	}
+
+	return fieldLevelConfig.structure[type].filter(property => {
+		if (typeof property !== 'object') {
+			return true;
+		}
+		if (!property.dependency) {
+			return true;
+		}
+
+		return (data[property.dependency.key] === property.dependency.value);
+	}).map(property => _.isString(property) ? property : property.propertyKeyword);
+};
+
 const handleTargetProperties = (schema, avroSchema) => {
 	if (schema.type) {
 		const targetProperties = getTargetFieldLevelPropertyNames(schema.type, schema);
@@ -727,24 +750,36 @@ const handleTargetProperties = (schema, avroSchema) => {
 	}
 };
 
-const getNumberType = field => {
+const getNumberField = field => {
 	const type = field.mode || 'int';
 
-	return getTypeWithLogicalType(field, type);
+	return getField(field, type);
 };
 
-const getTypeWithLogicalType = (field, type) => {
+const setDurationSize = field => {
+	const size = field.durationSize;
+	delete field.durationSize;
+
+	if (field.type !== 'fixed' || field.logicalType !== 'duration' || !size) {
+		return field;
+	}
+
+	return Object.assign(field, { size });
+};
+
+const getField = (field, type) => {
 	const logicalType = field.logicalType;
 	const correctLogicalTypes = _.get(LOGICAL_TYPES_MAP, type, []);
 	const logicalTypeIsCorrect = correctLogicalTypes.includes(logicalType);
+	const fieldWithType = Object.assign({}, field, { type });
+	let filteredField = {};
+	handleTargetProperties(fieldWithType, filteredField);
+
 	if (!logicalTypeIsCorrect) {
-		return {
-			type
-		};
+		return Object.assign({ type }, filteredField);
 	}
 
-	return {
-		type,
+	return Object.assign({ type }, filteredField, {
 		logicalType
-	};
+	});
 };
