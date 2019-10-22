@@ -195,6 +195,45 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 	return;
 };
 
+const handleMergedChoice = (schema, udt) => {
+	const meta = schema.allOf_meta;
+	const separateChoices = meta.reduce((choices, meta) => {
+		const items = schema.allOf.filter(item => {
+			const ids = _.get(meta, 'ids', []);
+
+			return ids.includes(item.GUID);
+		});
+		const type = _.get(meta, 'choice');
+		if (!type || type === 'allOf') {
+			return choices.concat({ items, type: 'allOf', meta });
+		}
+
+		const choiceItems = _.first(items)[type];
+
+		return choices.concat({ items: choiceItems, type, meta });
+		
+
+	}, []);
+	
+	const newSchema = separateChoices.reduce((updatedSchema, choiceData) => {
+		const choiceType = choiceData.type;
+		const schemaWithChoice = Object.assign({}, removeChoices(updatedSchema), {
+			[choiceType]: choiceData.items,
+			[`${choiceType}_meta`]: choiceData.meta
+		});
+
+		handleChoice(schemaWithChoice, choiceType, udt);
+
+		return schemaWithChoice;
+	}, schema);
+
+	return Object.assign(schema, newSchema);
+};
+
+const removeChoices = schema => _.omit(schema, [
+	'oneOf', 'oneOf_meta', 'allOf', 'allOf_meta', 'anyOf', 'anyOf_meta', 'not', 'not_meta'
+]);
+
 const handleChoice = (schema, choice, udt) => {
 	const convertDefaultMetaFieldType = (type, value) => {
 		if (type === 'null' && value === 'null') {
@@ -208,6 +247,9 @@ const handleChoice = (schema, choice, udt) => {
 	};
 	
 	const choiceRawMeta = schema[`${choice}_meta`];
+	if (_.isArray(choiceRawMeta)) {
+		return handleMergedChoice(schema, udt);
+	}
 
 	let choiceMeta = {};
 	let allSubSchemaFields = [];
@@ -246,11 +288,15 @@ const handleChoice = (schema, choice, udt) => {
 	allSubSchemaFields.forEach(field => {
 		const fieldName = choiceMeta.name || field.name;
 		if (!multipleFieldsHash[fieldName]) {
-			if (choiceMeta.default) {
+			if (!_.isUndefined(choiceMeta.default)) {
 				choiceMeta.default = convertDefaultMetaFieldType(field.type, choiceMeta.default);
 			}
 			
-			multipleFieldsHash[fieldName] = Object.assign({}, field.choiceMeta, {
+			if (choiceMeta.default === '') {
+				delete choiceMeta.default;
+			}
+
+			multipleFieldsHash[fieldName] = Object.assign({}, choiceMeta, {
 				name: fieldName,
 				type: [],
 				choiceMeta
@@ -289,7 +335,7 @@ const handleChoice = (schema, choice, udt) => {
 	schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
 };
 
-const getChoiceIndex = choice => _.get(choice, 'choiceMeta.index', choice.index);
+const getChoiceIndex = choice => _.get(choice, 'choiceMeta.index');
 
 const addPropertiesFromChoices = (properties, choiceProperties) => {
 	if (_.isEmpty(choiceProperties)) {
@@ -297,7 +343,7 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 	}
 
 	const sortedKeys = Object.keys(choiceProperties).sort((a, b) => {
-		getChoiceIndex(a) - getChoiceIndex(b)
+		return getChoiceIndex(a) - getChoiceIndex(b)
 	});
 
 	return sortedKeys.reduce((sortedProperties, choicePropertyKey) => {
@@ -316,8 +362,16 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 			});
 		}
 
-		return Object.keys(sortedProperties).reduce((result, propertyKey, index) => {
-			if (index !== choicePropertyIndex || result[choicePropertyKey]) {
+		return Object.keys(sortedProperties).reduce((result, propertyKey, index, keys) => {
+			const currentIndex = getChoiceIndex(sortedProperties[propertyKey]);
+			const hasSameChoiceIndex = !_.isUndefined(currentIndex) && currentIndex <= choicePropertyIndex;
+			if (index < choicePropertyIndex || result[choicePropertyKey] || hasSameChoiceIndex) {
+				if (!result[choicePropertyKey] && keys.length === index + 1) {
+					return Object.assign({}, result, {
+						[propertyKey] : sortedProperties[propertyKey],
+						[choicePropertyKey]: choiceProperty,
+					});
+				}
 				return Object.assign({}, result, {
 					[propertyKey] : sortedProperties[propertyKey]
 				});
@@ -327,7 +381,7 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 				[choicePropertyKey]: choiceProperty,
 				[propertyKey] : sortedProperties[propertyKey]
 			});
-		}, {})
+		}, {});
 	}, properties || {});
 };
 
