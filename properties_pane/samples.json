@@ -1,0 +1,89 @@
+[
+	{
+		"validateAs": "number",
+		"constraints": {
+			"min": 0
+		},
+		"constraintsFromField": {
+			"maxPrecision": "precision",
+			"maxScale": "scale"
+		},
+		"dependency": {
+			"key": "logicalType",
+			"value": "decimal"
+		}
+	},
+	{
+		"validateAs": "number",
+		"value": "2048",
+		"constraints": {
+			"min": 0,
+			"max": 4095,
+			"maxScale": 0
+		},
+		"dependency": {
+			"key": "logicalType",
+			"value": "duration"
+		}
+	},
+	{
+		"validateAs": "number",
+		"value": 18192,
+		"constraints": {
+			"min": 0,
+			"maxScale": 0
+		},
+		"dependency": {
+			"key": "logicalType",
+			"value": "date"
+		}
+	},
+	{
+		"validateAs": "number",
+		"constraints": {
+			"min": 0,
+			"max": 86400000,
+			"maxScale": 0
+		},
+		"dependency": {
+			"key": "logicalType",
+			"value": "time-millis"
+		}
+	},
+	{
+		"validateAs": "number",
+		"constraints": {
+			"min": 0,
+			"max": 86400000000,
+			"maxScale": 0
+		},
+		"dependency": {
+			"key": "logicalType",
+			"value": "time-micros"
+		}
+	},
+	{
+		"validateAs": "number",
+		"value": 1571842688578,
+		"constraints": {
+			"min": 0,
+			"maxScale": 0
+		},
+		"dependency": {
+			"key": "logicalType",
+			"value": "timestamp-millis"
+		}
+	},
+	{
+		"validateAs": "number",
+		"value": 1571842688578144,
+		"constraints": {
+			"min": 0,
+			"maxScale": 0
+		},
+		"dependency": {
+			"key": "logicalType",
+			"value": "timestamp-micros"
+		}
+	}
+]
