@@ -20,5 +20,13 @@
 		"enum": [],
 		"sample": "",
 		"size": 0
+	},
+	"subtypes": {
+		"decimal": {
+			"parentType": "number"
+		},
+		"duration": {
+			"parentType": "string"
+		}
 	}
 }
