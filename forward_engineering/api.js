@@ -168,6 +168,10 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 		handleChoice(schema, 'allOf', udt);
 	}
 	schema.type = schema.type || getTypeFromReference(schema);
+	if (schema.subtype) {
+		schema.logicalType = schema.subtype;
+		delete schema.subtype;
+	}
 
 	for (let prop in schema) {
 		switch (prop) {
@@ -635,12 +639,6 @@ const handleItems = (schema, avroSchema, udt) => {
 	if (schemaItemName) {
 		avroSchema.items.name = schemaItemName;
 	}
-};
-
-const uniqBy = (arr, prop) => {
-	return arr.map(function(e) { return e[prop]; }).filter(function(e,i,a){
-		return i === a.indexOf(e);
-	});
 };
 
 const handleOtherProps = (schema, prop, avroSchema) => {
