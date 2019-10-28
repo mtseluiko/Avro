@@ -168,7 +168,7 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 		handleChoice(schema, 'allOf', udt);
 	}
 	schema.type = schema.type || getTypeFromReference(schema);
-	if (schema.subtype) {
+	if (schema.subtype && schema.type !== 'map') {
 		schema.logicalType = schema.subtype;
 		delete schema.subtype;
 	}
