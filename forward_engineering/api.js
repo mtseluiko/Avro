@@ -6,7 +6,7 @@ const _ = require('lodash');
 const validationHelper = require('./validationHelper');
 const mapJsonSchema = require('../reverse_engineering/helpers/mapJsonSchema');
 
-const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'durationSize', 'default'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'durationSize', 'default', 'precision', 'scale'];
 const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
 const PRIMITIVE_FIELD_ATTRIBUTES = ['order', 'logicalType', 'precision', 'scale', 'aliases'];
 const DEFAULT_TYPE = 'string';
@@ -766,14 +766,15 @@ const getTargetFieldLevelPropertyNames = (type, data) => {
 	return fieldLevelConfig.structure[type].filter(property => {
 		if (typeof property === 'object' && property.isTargetProperty) {
 			if (property.dependency) {
-				return (data[property.dependency.key] == property.dependency.value);
+				const dependencyKey = resolveKey(type, property.dependency.key);
+				return (data[dependencyKey] == property.dependency.value);
 			} else {
 				return true;
 			}
 		}
 
 		return false;
-	}).map(property => property.propertyKeyword);
+	}).map(property => resolveKey(type, property));
 };
 
 const getAllowedPropertyNames = (type, data) => {
@@ -789,9 +790,14 @@ const getAllowedPropertyNames = (type, data) => {
 			return true;
 		}
 
-		return (data[property.dependency.key] === property.dependency.value);
-	}).map(property => _.isString(property) ? property : property.propertyKeyword);
+		const dependencyKey = resolveKey(type, property.dependency.key);
+
+		return (data[dependencyKey] === property.dependency.value);
+	}).map(property => _.isString(property) ? property : property.propertyKeyword)
+	.map(name => resolveKey(type, name));
 };
+
+const resolveKey = (type, key) => (key === 'subtype' && type !== 'map') ? 'logicalType' : key;
 
 const handleTargetProperties = (schema, avroSchema) => {
 	if (schema.type) {
