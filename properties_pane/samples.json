@@ -32,7 +32,7 @@
 			"maxScale": 0
 		},
 		"dependency": {
-			"key": "subtype",
+			"key": "logicalType",
 			"value": "date"
 		}
 	},
@@ -44,7 +44,7 @@
 			"maxScale": 0
 		},
 		"dependency": {
-			"key": "subtype",
+			"key": "logicalType",
 			"value": "time-millis"
 		}
 	},
@@ -56,7 +56,7 @@
 			"maxScale": 0
 		},
 		"dependency": {
-			"key": "subtype",
+			"key": "logicalType",
 			"value": "time-micros"
 		}
 	},
@@ -68,7 +68,7 @@
 			"maxScale": 0
 		},
 		"dependency": {
-			"key": "subtype",
+			"key": "logicalType",
 			"value": "timestamp-millis"
 		}
 	},
@@ -80,7 +80,7 @@
 			"maxScale": 0
 		},
 		"dependency": {
-			"key": "subtype",
+			"key": "logicalType",
 			"value": "timestamp-micros"
 		}
 	}
