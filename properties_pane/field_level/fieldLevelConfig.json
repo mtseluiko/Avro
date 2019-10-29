@@ -195,7 +195,7 @@ making sure that you maintain a proper JSON format.
 			"type",
 			{
 				"propertyName": "Logical type",
-				"propertyKeyword": "logicalType",
+				"propertyKeyword": "subtype",
 				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
@@ -218,7 +218,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
-					"key": "logicalType",
+					"key": "subtype",
 					"value": "decimal"
 				},
 				"isTargetProperty": true
@@ -231,7 +231,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
-					"key": "logicalType",
+					"key": "subtype",
 					"value": "decimal"
 				},
 				"isTargetProperty": true
@@ -272,7 +272,17 @@ making sure that you maintain a proper JSON format.
 					"double"
 				],
 				"data": "options",
-				"valueType": "string"
+				"valueType": "string",
+				"dependency": {
+					"type": "not",
+					"values": [{
+						"key": "childType",
+						"value": "bytes"
+					},{
+						"key": "childType",
+						"value": "fixed"
+					}]
+				}
 			},
 			{
 				"propertyName": "Logical type",
@@ -552,7 +562,7 @@ making sure that you maintain a proper JSON format.
 			"type",
 			{
 				"propertyName": "Values",
-				"propertyKeyword": "subtype",
+				"propertyKeyword": "logicalType",
 				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
@@ -692,7 +702,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Logical type",
-				"propertyKeyword": "logicalType",
+				"propertyKeyword": "subtype",
 				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
@@ -710,7 +720,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
-					"key": "logicalType",
+					"key": "subtype",
 					"value": "decimal"
 				},
 				"isTargetProperty": true
@@ -723,7 +733,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
-					"key": "logicalType",
+					"key": "subtype",
 					"value": "decimal"
 				},
 				"isTargetProperty": true
@@ -751,7 +761,7 @@ making sure that you maintain a proper JSON format.
 				"dependency": {
 					"type": "not",
 					"values": {
-						"key": "logicalType",
+						"key": "subtype",
 						"value": "duration"
 					}
 				}
@@ -764,7 +774,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
-					"key": "logicalType",
+					"key": "subtype",
 					"value": "duration"
 				}
 			},

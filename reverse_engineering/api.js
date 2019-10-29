@@ -382,7 +382,10 @@ const handleItems = (data, prop, schema, definitions) => {
 const handleOtherProps = (data, prop, schema) => {
 	if (!ADDITIONAL_PROPS.includes(prop)) {
 		return;
-  	}
+	}
+	if (prop === 'logicalType' && (data.type === 'bytes' || data.type === 'fixed')) {
+		schema['subtype'] = data.prop;
+	}
   	if (prop === 'default' && typeof data[prop] === 'boolean') {
 		schema[prop] = data[prop].toString();	
 	} else {

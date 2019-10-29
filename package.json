@@ -1,7 +1,7 @@
 {
     "name": "Avro",
-    "version": "0.1.30",
-    "versionDate": "2019-10-12",
+    "version": "0.1.32",
+    "versionDate": "2019-10-17",
     "author": "hackolade",
     "engines": {
         "hackolade": "3.3.2",
@@ -25,7 +25,17 @@
 						"bytes": {
 							"dependencies": [{
 								"dependency": {
-									"key": "logicalType",
+									"key": "subtype",
+									"value": "decimal"
+								},
+								"value": "number"
+							}],
+							"defaultValue": "string"
+						},
+						"fixed": {
+							"dependencies": [{
+								"dependency": {
+									"key": "subtype",
 									"value": "decimal"
 								},
 								"value": "number"
