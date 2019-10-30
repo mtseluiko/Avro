@@ -15,9 +15,7 @@
 	},
 	"field": {
 		"name": "New_field",
-		"required": true,
-		"size": 1,
-		"durationSize": 1
+		"required": true
 	},
 	"patternField": {
 		"name": "^[a-zA-Z0-9_.-]{20}$"

@@ -6,7 +6,7 @@ const _ = require('lodash');
 const validationHelper = require('./validationHelper');
 const mapJsonSchema = require('../reverse_engineering/helpers/mapJsonSchema');
 
-const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'durationSize', 'default'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'durationSize', 'default', 'precision', 'scale'];
 const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
 const PRIMITIVE_FIELD_ATTRIBUTES = ['order', 'logicalType', 'precision', 'scale', 'aliases'];
 const DEFAULT_TYPE = 'string';
@@ -168,6 +168,10 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 		handleChoice(schema, 'allOf', udt);
 	}
 	schema.type = schema.type || getTypeFromReference(schema);
+	if (schema.subtype && schema.type !== 'map') {
+		schema.logicalType = schema.subtype;
+		delete schema.subtype;
+	}
 
 	for (let prop in schema) {
 		switch (prop) {
@@ -194,6 +198,45 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 	return;
 };
 
+const handleMergedChoice = (schema, udt) => {
+	const meta = schema.allOf_meta;
+	const separateChoices = meta.reduce((choices, meta) => {
+		const items = schema.allOf.filter(item => {
+			const ids = _.get(meta, 'ids', []);
+
+			return ids.includes(item.GUID);
+		});
+		const type = _.get(meta, 'choice');
+		if (!type || type === 'allOf') {
+			return choices.concat({ items, type: 'allOf', meta });
+		}
+
+		const choiceItems = _.first(items)[type];
+
+		return choices.concat({ items: choiceItems, type, meta });
+		
+
+	}, []);
+	
+	const newSchema = separateChoices.reduce((updatedSchema, choiceData) => {
+		const choiceType = choiceData.type;
+		const schemaWithChoice = Object.assign({}, removeChoices(updatedSchema), {
+			[choiceType]: choiceData.items,
+			[`${choiceType}_meta`]: choiceData.meta
+		});
+
+		handleChoice(schemaWithChoice, choiceType, udt);
+
+		return schemaWithChoice;
+	}, schema);
+
+	return Object.assign(schema, newSchema);
+};
+
+const removeChoices = schema => _.omit(schema, [
+	'oneOf', 'oneOf_meta', 'allOf', 'allOf_meta', 'anyOf', 'anyOf_meta', 'not', 'not_meta'
+]);
+
 const handleChoice = (schema, choice, udt) => {
 	const convertDefaultMetaFieldType = (type, value) => {
 		if (type === 'null' && value === 'null') {
@@ -207,6 +250,9 @@ const handleChoice = (schema, choice, udt) => {
 	};
 	
 	const choiceRawMeta = schema[`${choice}_meta`];
+	if (_.isArray(choiceRawMeta)) {
+		return handleMergedChoice(schema, udt);
+	}
 
 	let choiceMeta = {};
 	let allSubSchemaFields = [];
@@ -245,11 +291,15 @@ const handleChoice = (schema, choice, udt) => {
 	allSubSchemaFields.forEach(field => {
 		const fieldName = choiceMeta.name || field.name;
 		if (!multipleFieldsHash[fieldName]) {
-			if (choiceMeta.default) {
+			if (!_.isUndefined(choiceMeta.default)) {
 				choiceMeta.default = convertDefaultMetaFieldType(field.type, choiceMeta.default);
 			}
 			
-			multipleFieldsHash[fieldName] = Object.assign({}, field.choiceMeta, {
+			if (choiceMeta.default === '') {
+				delete choiceMeta.default;
+			}
+
+			multipleFieldsHash[fieldName] = Object.assign({}, choiceMeta, {
 				name: fieldName,
 				type: [],
 				choiceMeta
@@ -288,7 +338,7 @@ const handleChoice = (schema, choice, udt) => {
 	schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
 };
 
-const getChoiceIndex = choice => _.get(choice, 'choiceMeta.index', choice.index);
+const getChoiceIndex = choice => _.get(choice, 'choiceMeta.index');
 
 const addPropertiesFromChoices = (properties, choiceProperties) => {
 	if (_.isEmpty(choiceProperties)) {
@@ -296,7 +346,7 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 	}
 
 	const sortedKeys = Object.keys(choiceProperties).sort((a, b) => {
-		getChoiceIndex(a) - getChoiceIndex(b)
+		return getChoiceIndex(a) - getChoiceIndex(b)
 	});
 
 	return sortedKeys.reduce((sortedProperties, choicePropertyKey) => {
@@ -315,8 +365,16 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 			});
 		}
 
-		return Object.keys(sortedProperties).reduce((result, propertyKey, index) => {
-			if (index !== choicePropertyIndex || result[choicePropertyKey]) {
+		return Object.keys(sortedProperties).reduce((result, propertyKey, index, keys) => {
+			const currentIndex = getChoiceIndex(sortedProperties[propertyKey]);
+			const hasSameChoiceIndex = !_.isUndefined(currentIndex) && currentIndex <= choicePropertyIndex;
+			if (index < choicePropertyIndex || result[choicePropertyKey] || hasSameChoiceIndex) {
+				if (!result[choicePropertyKey] && keys.length === index + 1) {
+					return Object.assign({}, result, {
+						[propertyKey] : sortedProperties[propertyKey],
+						[choicePropertyKey]: choiceProperty,
+					});
+				}
 				return Object.assign({}, result, {
 					[propertyKey] : sortedProperties[propertyKey]
 				});
@@ -326,7 +384,7 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 				[choicePropertyKey]: choiceProperty,
 				[propertyKey] : sortedProperties[propertyKey]
 			});
-		}, {})
+		}, {});
 	}, properties || {});
 };
 
@@ -583,12 +641,6 @@ const handleItems = (schema, avroSchema, udt) => {
 	}
 };
 
-const uniqBy = (arr, prop) => {
-	return arr.map(function(e) { return e[prop]; }).filter(function(e,i,a){
-		return i === a.indexOf(e);
-	});
-};
-
 const handleOtherProps = (schema, prop, avroSchema) => {
 	if (prop === 'default') {
 		avroSchema[prop] = getDefault(schema.type, schema[prop]);
@@ -714,14 +766,15 @@ const getTargetFieldLevelPropertyNames = (type, data) => {
 	return fieldLevelConfig.structure[type].filter(property => {
 		if (typeof property === 'object' && property.isTargetProperty) {
 			if (property.dependency) {
-				return (data[property.dependency.key] == property.dependency.value);
+				const dependencyKey = resolveKey(type, property.dependency.key);
+				return (data[dependencyKey] == property.dependency.value);
 			} else {
 				return true;
 			}
 		}
 
 		return false;
-	}).map(property => property.propertyKeyword);
+	}).map(property => resolveKey(type, property));
 };
 
 const getAllowedPropertyNames = (type, data) => {
@@ -737,9 +790,14 @@ const getAllowedPropertyNames = (type, data) => {
 			return true;
 		}
 
-		return (data[property.dependency.key] === property.dependency.value);
-	}).map(property => _.isString(property) ? property : property.propertyKeyword);
+		const dependencyKey = resolveKey(type, property.dependency.key);
+
+		return (data[dependencyKey] === property.dependency.value);
+	}).map(property => _.isString(property) ? property : property.propertyKeyword)
+	.map(name => resolveKey(type, name));
 };
+
+const resolveKey = (type, key) => (key === 'subtype' && type !== 'map') ? 'logicalType' : key;
 
 const handleTargetProperties = (schema, avroSchema) => {
 	if (schema.type) {
