@@ -19,9 +19,13 @@
 		"foreignField": [],
 		"enum": [],
 		"sample": "",
+		"subtype": "",
 		"size": 0
 	},
 	"subtypes": {
+		"": {
+			"parentType": "string"
+		},
 		"decimal": {
 			"parentType": "number"
 		},
