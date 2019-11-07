@@ -57,7 +57,7 @@ module.exports = {
 				avroSchema = JSON.stringify({ schema: JSON.stringify(JSON.parse(avroSchema))}, null, 4);
 			}
 
-			const needMinify = (additionalOptions.find(option => option.id === 'MINIFY') || {}).value;
+			const needMinify = (additionalOptions.find(option => option.id === 'minify') || {}).value;
 			if (needMinify) {
 				avroSchema = JSON.stringify(JSON.parse(avroSchema));
 			}

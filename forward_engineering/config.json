@@ -10,7 +10,7 @@
 	],
 	"additionalOptions": [
 		{
-			"id": "MINIFY",
+			"id": "minify",
 			"value": false,
 			"name": "Minify"
 		}
