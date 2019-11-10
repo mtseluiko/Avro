@@ -5,8 +5,8 @@
 	"resolvedDefinitions": false,
 	"validation": true,
 	"options": [
-		{ "name": "Avro Schema", "keyword": "avro"},
-		{ "name": "Schema registry", "keyword": "schema-registry"}
+		{ "name": "Avro Schema", "keyword": "avroSchema"},
+		{ "name": "Schema registry", "keyword": "schemaRegistry"}
 	],
 	"additionalOptions": [
 		{

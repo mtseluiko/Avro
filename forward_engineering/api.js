@@ -53,7 +53,7 @@ module.exports = {
 			const options = data.options;
 			const additionalOptions = _.get(options, 'additionalOptions', []);
 			const targetScriptType = _.get(options, 'targetScriptOptions.keyword');
-			if (targetScriptType === 'schema-registry') {
+			if (targetScriptType === 'schemaRegistry') {
 				avroSchema = JSON.stringify({ schema: JSON.stringify(JSON.parse(avroSchema))}, null, 4);
 			}
 
