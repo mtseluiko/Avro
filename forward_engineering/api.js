@@ -202,6 +202,9 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 			case 'items':
 				handleItems(schema, avroSchema, udt);
 				break;
+			case 'default':
+				handleDefault(schema, avroSchema);
+				break;
 			default:
 				handleOtherProps(schema, prop, avroSchema);
 		}
@@ -659,19 +662,32 @@ const handleItems = (schema, avroSchema, udt) => {
 	}
 };
 
-const handleOtherProps = (schema, prop, avroSchema) => {
-	if (prop === 'default') {
-		avroSchema[prop] = getDefault(schema.type, schema[prop]);
-	} else if (ADDITIONAL_PROPS.includes(prop)) {
-		const allowedProperties = getAllowedPropertyNames(schema.type, schema);
-		if (!allowedProperties.includes(prop)) {
-			return;
-		}
-		avroSchema[prop] = schema[prop];
+const handleDefault = (schema, avroSchema) => {
+	const value = getDefault(schema.type, schema['default']);
+	if (_.isArray(schema.type)) {
+		avroSchema['default'] = value;
+		return;
+	}
 
-		if (prop === 'size' || prop === 'durationSize') {
-			avroSchema[prop] = Number(avroSchema[prop]);
-		}
+	const allowedProperties = getAllowedPropertyNames(schema.type, schema);
+	if (allowedProperties.includes('default')) {
+		avroSchema['default'] = value;
+	}
+};
+
+const handleOtherProps = (schema, prop, avroSchema) => {
+	if (!ADDITIONAL_PROPS.includes(prop)) {
+		return;
+	}
+
+	const allowedProperties = getAllowedPropertyNames(schema.type, schema);
+	if (!allowedProperties.includes(prop)) {
+		return;
+	}
+	avroSchema[prop] = schema[prop];
+
+	if (prop === 'size' || prop === 'durationSize') {
+		avroSchema[prop] = Number(avroSchema[prop]);
 	}
 };
 
