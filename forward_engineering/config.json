@@ -3,5 +3,16 @@
 	"filterName": "Avro schema",
 	"namePrefix": "Avro Schema",
 	"resolvedDefinitions": false,
-	"validation": true
+	"validation": true,
+	"options": [
+		{ "name": "Avro Schema", "keyword": "avroSchema"},
+		{ "name": "Schema registry", "keyword": "schemaRegistry"}
+	],
+	"additionalOptions": [
+		{
+			"id": "minify",
+			"value": false,
+			"name": "Minify"
+		}
+	]
 }

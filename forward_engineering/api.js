@@ -50,6 +50,18 @@ module.exports = {
 			avroSchema.type = 'record';
 			avroSchema = reorderAvroSchema(avroSchema);
 			avroSchema = JSON.stringify(avroSchema, null, 4);
+			const options = data.options;
+			const additionalOptions = _.get(options, 'additionalOptions', []);
+			const targetScriptType = _.get(options, 'targetScriptOptions.keyword');
+			if (targetScriptType === 'schemaRegistry') {
+				avroSchema = JSON.stringify({ schema: JSON.stringify(JSON.parse(avroSchema))}, null, 4);
+			}
+
+			const needMinify = (additionalOptions.find(option => option.id === 'minify') || {}).value;
+			if (needMinify) {
+				avroSchema = JSON.stringify(JSON.parse(avroSchema));
+			}
+
 			nameIndex = 0;
 			return cb(null, avroSchema);
 		} catch(err) {
@@ -60,8 +72,14 @@ module.exports = {
 	},
 	validate(data, logger, cb) {
 		try {
-			const messages = validationHelper.validate(data.script);
-			cb(null, messages);
+			let avroSchema = JSON.parse(data.script);
+			if (Object.keys(avroSchema).length === 1 && avroSchema.schema) {
+				const messages = validationHelper.validate(avroSchema.schema);
+				cb(null, messages);
+			} else {
+				const messages = validationHelper.validate(data.script);
+				cb(null, messages);
+			}
 		} catch (e) {
 			logger.log('error', { error: e }, 'Avro Validation Error');
 			cb(null, [{
