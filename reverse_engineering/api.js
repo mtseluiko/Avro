@@ -24,7 +24,9 @@ const DATA_TYPES = [
 	'float',
 	'double',
 	'map'
-]
+];
+
+const COMPLEX_TYPES = ['map', 'array', 'record'];
 
 module.exports = {
 	reFromFile(data, logger, callback) {
@@ -257,18 +259,7 @@ const isComplexType = (type) => {
 		return true;
 	}
 
-	const isNumber = [
-		'int',
-		'long',
-		'float',
-		'double',
-	].includes(type.type);
-
-	if (isNumber) {
-		return false;
-	} else {
-		return true;
-	}
+	return COMPLEX_TYPES.includes(type.type);
 };
 
 const getType = (schema, field, type) => {
