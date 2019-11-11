@@ -171,6 +171,16 @@ making sure that you maintain a proper JSON format.
 				"multi": true,
 				"valueType": "array"
 			},
+			{
+				"propertyName": "avro.java.string",
+				"propertyKeyword": "avro.java.string",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"",
+					"String"
+				]
+			},
 			"pattern",
 			"dependencies",
 			"primaryKey",
