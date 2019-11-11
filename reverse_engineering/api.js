@@ -9,7 +9,7 @@ const jsonSchemaAdapter = require('./helpers/adaptJsonSchema');
 const DEFAULT_FIELD_NAME = 'New_field';
 let stateExtension = null;
 
-const ADDITIONAL_PROPS = ['logicalType', 'scale', 'precision', 'name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern', 'choice'];
+const ADDITIONAL_PROPS = ['avro.java.string', 'logicalType', 'scale', 'precision', 'name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern', 'choice'];
 const DATA_TYPES = [
 	'string',
 	'bytes',
