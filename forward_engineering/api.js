@@ -650,7 +650,7 @@ const handleItems = (schema, avroSchema, udt) => {
 		avroSchema.items = avroSchema.items || {};
 		schemaItem.type = schemaItem.type || getTypeFromReference(schemaItem);
 
-		handleType(schemaItem, avroSchema.items, udt);
+		handleRecursiveSchema(schemaItem, avroSchema.items, avroSchema, udt);
 
 		if (avroSchema.items.type && typeof avroSchema.items.type === 'object') {
 			avroSchema.items = avroSchema.items.type;
