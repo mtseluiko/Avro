@@ -6,7 +6,7 @@ const _ = require('lodash');
 const validationHelper = require('./validationHelper');
 const mapJsonSchema = require('../reverse_engineering/helpers/mapJsonSchema');
 
-const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'durationSize', 'default', 'precision', 'scale'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'avro.java.string', 'symbols', 'namespace', 'size', 'durationSize', 'default', 'precision', 'scale'];
 const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
 const PRIMITIVE_FIELD_ATTRIBUTES = ['order', 'logicalType', 'precision', 'scale', 'aliases'];
 const DEFAULT_TYPE = 'string';
@@ -50,6 +50,18 @@ module.exports = {
 			avroSchema.type = 'record';
 			avroSchema = reorderAvroSchema(avroSchema);
 			avroSchema = JSON.stringify(avroSchema, null, 4);
+			const options = data.options;
+			const additionalOptions = _.get(options, 'additionalOptions', []);
+			const targetScriptType = _.get(options, 'targetScriptOptions.keyword');
+			if (targetScriptType === 'schemaRegistry') {
+				avroSchema = JSON.stringify({ schema: JSON.stringify(JSON.parse(avroSchema))}, null, 4);
+			}
+
+			const needMinify = (additionalOptions.find(option => option.id === 'minify') || {}).value;
+			if (needMinify) {
+				avroSchema = JSON.stringify(JSON.parse(avroSchema));
+			}
+
 			nameIndex = 0;
 			return cb(null, avroSchema);
 		} catch(err) {
@@ -60,8 +72,14 @@ module.exports = {
 	},
 	validate(data, logger, cb) {
 		try {
-			const messages = validationHelper.validate(data.script);
-			cb(null, messages);
+			let avroSchema = JSON.parse(data.script);
+			if (Object.keys(avroSchema).length === 1 && avroSchema.schema) {
+				const messages = validationHelper.validate(avroSchema.schema);
+				cb(null, messages);
+			} else {
+				const messages = validationHelper.validate(data.script);
+				cb(null, messages);
+			}
 		} catch (e) {
 			logger.log('error', { error: e }, 'Avro Validation Error');
 			cb(null, [{
@@ -183,6 +201,9 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 				break;
 			case 'items':
 				handleItems(schema, avroSchema, udt);
+				break;
+			case 'default':
+				handleDefault(schema, avroSchema);
 				break;
 			default:
 				handleOtherProps(schema, prop, avroSchema);
@@ -629,7 +650,7 @@ const handleItems = (schema, avroSchema, udt) => {
 		avroSchema.items = avroSchema.items || {};
 		schemaItem.type = schemaItem.type || getTypeFromReference(schemaItem);
 
-		handleType(schemaItem, avroSchema.items, udt);
+		handleRecursiveSchema(schemaItem, avroSchema.items, avroSchema, udt);
 
 		if (avroSchema.items.type && typeof avroSchema.items.type === 'object') {
 			avroSchema.items = avroSchema.items.type;
@@ -641,19 +662,32 @@ const handleItems = (schema, avroSchema, udt) => {
 	}
 };
 
-const handleOtherProps = (schema, prop, avroSchema) => {
-	if (prop === 'default') {
-		avroSchema[prop] = getDefault(schema.type, schema[prop]);
-	} else if (ADDITIONAL_PROPS.includes(prop)) {
-		const allowedProperties = getAllowedPropertyNames(schema.type, schema);
-		if (!allowedProperties.includes(prop)) {
-			return;
-		}
-		avroSchema[prop] = schema[prop];
+const handleDefault = (schema, avroSchema) => {
+	const value = getDefault(schema.type, schema['default']);
+	if (_.isArray(schema.type)) {
+		avroSchema['default'] = value;
+		return;
+	}
 
-		if (prop === 'size' || prop === 'durationSize') {
-			avroSchema[prop] = Number(avroSchema[prop]);
-		}
+	const allowedProperties = getAllowedPropertyNames(schema.type, schema);
+	if (allowedProperties.includes('default')) {
+		avroSchema['default'] = value;
+	}
+};
+
+const handleOtherProps = (schema, prop, avroSchema) => {
+	if (!ADDITIONAL_PROPS.includes(prop)) {
+		return;
+	}
+
+	const allowedProperties = getAllowedPropertyNames(schema.type, schema);
+	if (!allowedProperties.includes(prop)) {
+		return;
+	}
+	avroSchema[prop] = schema[prop];
+
+	if (prop === 'size' || prop === 'durationSize') {
+		avroSchema[prop] = Number(avroSchema[prop]);
 	}
 };
 
