@@ -130,12 +130,7 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
-			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean"
-			},
+			"required",
 			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
@@ -144,12 +139,30 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"required": true
 				},
+				"dependency": { 
+					"type": "and", 
+					"values": [{
+						"key": "required",
+						"value": false
+					}, {
+						"type": "not",
+						"values": {
+							"level": "parent",
+							"key": "childType",
+							"value": "array"
+						}
+					}]
+				}
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "text",
 				"dependency": [{
-					"key": "required",
-					"value": false
-				}, {
-					"key": "required",
-					"exist": false
+					"level": "parent",
+					"key": "childType",
+					"value": "array"
 				}]
 			},
 			{
@@ -170,6 +183,16 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "aliases",
 				"multi": true,
 				"valueType": "array"
+			},
+			{
+				"propertyName": "avro.java.string",
+				"propertyKeyword": "avro.java.string",
+				"shouldValidate": false,
+				"propertyType": "select",
+				"options": [
+					"",
+					"String"
+				]
 			},
 			"pattern",
 			"dependencies",
@@ -329,12 +352,7 @@ making sure that you maintain a proper JSON format.
 					"ignore"
 				]
 			},
-			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean"
-			},
+			"required",
 			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
@@ -343,12 +361,30 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"required": true
 				},
+				"dependency": { 
+					"type": "and", 
+					"values": [{
+						"key": "required",
+						"value": false
+					}, {
+						"type": "not",
+						"values": {
+							"level": "parent",
+							"key": "childType",
+							"value": "array"
+						}
+					}]
+				}
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "numeric",
 				"dependency": [{
-					"key": "required",
-					"value": false
-				}, {
-					"key": "required",
-					"exist": false
+					"level": "parent",
+					"key": "childType",
+					"value": "array"
 				}]
 			},
 			{
@@ -386,12 +422,7 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
-			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean"
-			},
+			"required",
 			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
@@ -405,12 +436,35 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"required": true
 				},
+				"dependency": { 
+					"type": "and", 
+					"values": [{
+						"key": "required",
+						"value": false
+					}, {
+						"type": "not",
+						"values": {
+							"level": "parent",
+							"key": "childType",
+							"value": "array"
+						}
+					}]
+				}
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "select",
+				"options": [
+					"",
+					"true",
+					"false"
+				],
 				"dependency": [{
-					"key": "required",
-					"value": false
-				}, {
-					"key": "required",
-					"exist": false
+					"level": "parent",
+					"key": "childType",
+					"value": "array"
 				}]
 			},
 			{
@@ -437,11 +491,29 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
+			"required",
 			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean"
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "text",
+				"validation": {
+					"enum": [null, "null", ""]
+				},
+				"dependency": { 
+					"type": "and", 
+					"values": [{
+						"key": "required",
+						"value": false
+					}, {
+						"type": "not",
+						"values": {
+							"level": "parent",
+							"key": "childType",
+							"value": "array"
+						}
+					}]
+				}
 			},
 			{
 				"propertyName": "Default",
@@ -452,11 +524,9 @@ making sure that you maintain a proper JSON format.
 					"enum": [null, "null", ""]
 				},
 				"dependency": [{
-					"key": "required",
-					"value": false
-				}, {
-					"key": "required",
-					"exist": false
+					"level": "parent",
+					"key": "childType",
+					"value": "array"
 				}]
 			},
 			"dependencies",
@@ -607,15 +677,7 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
-			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean",
-				"validation": {
-					"required": true
-				}
-			},
+			"required",
 			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
@@ -625,12 +687,34 @@ making sure that you maintain a proper JSON format.
 					"required": true,
 					"in": "symbols"
 				},
+				"dependency": { 
+					"type": "and", 
+					"values": [{
+						"key": "required",
+						"value": false
+					}, {
+						"type": "not",
+						"values": {
+							"level": "parent",
+							"key": "childType",
+							"value": "array"
+						}
+					}]
+				}
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"validation": {
+					"required": true,
+					"in": "symbols"
+				},
+				"propertyType": "text",
 				"dependency": [{
-					"key": "required",
-					"value": false
-				}, {
-					"key": "required",
-					"exist": false
+					"level": "parent",
+					"key": "childType",
+					"value": "array"
 				}]
 			},
 			{
