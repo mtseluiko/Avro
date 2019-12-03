@@ -578,17 +578,7 @@ const prepareDefinitionBeforeInsert = (definition, udt) => {
 		case 'record':
 			return replaceUdt(definition, udt);
 		case 'array':
-			if (!isUdtUsed(definition.items.type, udt)) {
-				const udtItem = cloneUdtItem(udt[definition.items.type]);
-
-				if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
-					useUdt(definition.items.type, udt);
-				}
-
-				return replaceUdt(Object.assign({}, definition, { items: { type: udtItem }}), udt);
-			} else {
-				return replaceUdt(definition, udt);
-			}
+			return replaceUdt(definition, udt);
 		default:
 			return replaceUdt(definition, udt);
 	}
@@ -868,7 +858,7 @@ const getField = (field, type) => {
 };
 
 const replaceUdt = (avroSchema, udt) => {
-	return mapAvroSchema(avroSchema, (schema) => {
+	const convertType = (schema) => {
 		if (Array.isArray(schema.type)) {
 			const type = schema.type.map(type => getTypeFromUdt(type, udt));
 
@@ -879,6 +869,22 @@ const replaceUdt = (avroSchema, udt) => {
 			return Object.assign({}, schema, { type });
 		} else {
 			return schema;
+		}
+	};
+	
+	return mapAvroSchema(avroSchema, (schema) => {
+		if (schema.type === 'array') {
+			const items = convertType(schema.items);
+			const previousType = _.get(schema, 'items.type', items.type);
+			const convertedType = items.type;
+
+			if (!convertedType || convertedType === previousType) {
+				return schema;
+			}
+			
+			return Object.assign({}, schema, { items: convertedType });
+		} else {
+			return convertType(schema);
 		}
 	});
 };
