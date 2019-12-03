@@ -18,6 +18,7 @@
 		"foreignField": [],
 		"enum": [],
 		"sample": "",
-		"symbols": ["Y"]
+		"symbols": ["Y"],
+		"namespace": ""
 	}
 }
