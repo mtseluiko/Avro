@@ -520,8 +520,8 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 };
 
 const getTypeFromUdt = (type, udt) => {
-	if (!udt[type]) {
-		return type;
+	if (isUdtUsed(type, udt)) {
+		return getTypeWithNamespace(type, udt);
 	}
 	const udtItem = cloneUdtItem(udt[type]);
 
@@ -529,13 +529,37 @@ const getTypeFromUdt = (type, udt) => {
 		return udtItem;
 	}
 
-	delete udt[type];
+	useUdt(type, udt);
 
 	if (Array.isArray(udtItem)) {
 		return udtItem.map(udtItemType => prepareDefinitionBeforeInsert(udtItemType, udt));
 	} else {
 		return prepareDefinitionBeforeInsert(udtItem, udt);
 	}
+};
+
+const getTypeWithNamespace = (type, udt) => {
+	const udtItem = udt[type];
+
+	if (!udtItem) {
+		return type;
+	}
+
+	if (!udtItem.namespace) {
+		return type;
+	}
+
+	return udtItem.namespace + '.' + type;
+};
+
+const useUdt = (type, udt) => {
+	udt[type] = cloneUdtItem(udt[type]);
+	
+	udt[type].used = true;
+};
+
+const isUdtUsed = (type, udt) => {
+	return !udt[type] || udt[type].used;
 };
 
 const isDefinitionTypeValidForAvroDefinition = (definition) => {
@@ -554,11 +578,11 @@ const prepareDefinitionBeforeInsert = (definition, udt) => {
 		case 'record':
 			return replaceUdt(definition, udt);
 		case 'array':
-			if (udt[definition.items.type]) {
+			if (!isUdtUsed(definition.items.type, udt)) {
 				const udtItem = cloneUdtItem(udt[definition.items.type]);
 
 				if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
-					delete udt[definition.items.type];
+					useUdt(definition.items.type, udt);
 				}
 
 				return replaceUdt(Object.assign({}, definition, { items: { type: udtItem }}), udt);
