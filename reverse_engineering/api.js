@@ -296,8 +296,16 @@ const getType = (schema, field, type) => {
 				subtype: `map<${field.values}>`
 			});
 		default:
-			return Object.assign(schema, { $ref: '#/definitions/' + type });
+			return Object.assign(schema, { $ref: '#/definitions/' + getDefinitionTypeName(type) });
 	}
+};
+
+const getDefinitionTypeName = (type) => {
+	if (typeof type !== 'string') {
+		return type;
+	}
+
+	return type.split('.').pop();
 };
 
 const getChoice = (data, parentSchema) => {
