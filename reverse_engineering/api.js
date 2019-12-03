@@ -264,6 +264,10 @@ const isComplexType = (type) => {
 
 const getType = (schema, field, type) => {
 	if (Object(type) === type) {
+		if (type.name) {
+			schema.typeName = type.name;
+		}
+
 		return Object.assign({}, schema, type, getType(schema, field, type.type));
 	}
 
