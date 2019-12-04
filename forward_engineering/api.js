@@ -92,28 +92,6 @@ module.exports = {
 	}
 };
 
-const resolveDefinitions = definitionsSchema => {
-	const definitions = _.get(definitionsSchema, 'properties', {});
-
-	return Object.keys(definitions).reduce(resolvedDefinitions => {
-		return mapJsonSchema(resolvedDefinitions, replaceReferenceByDefinitions(resolvedDefinitions))
-	}, definitionsSchema);
-};
-
-const replaceReferenceByDefinitions = definitionsSchema => field => {
-	if (!field.$ref) {
-		return field;
-	}
-	const definitionName = getTypeFromReference(field);
-	const definition = _.get(definitionsSchema, ['properties', definitionName]);
-
-	if (!definition) {
-		return field;
-	}
-
-	return _.cloneDeep(definition);
-};
-
 const getUserDefinedTypes = ({ internalDefinitions, externalDefinitions, modelDefinitions }) => {
 	let udt = convertSchemaToUserDefinedTypes(JSON.parse(externalDefinitions), {});
 	 udt = convertSchemaToUserDefinedTypes(JSON.parse(modelDefinitions), udt);
@@ -124,7 +102,7 @@ const getUserDefinedTypes = ({ internalDefinitions, externalDefinitions, modelDe
 
 const convertSchemaToUserDefinedTypes = (definitionsSchema, udt) => {
 	const avroSchema = {};
-	const jsonSchema = resolveDefinitions(definitionsSchema);
+	const jsonSchema = definitionsSchema;
 
 	handleRecursiveSchema(jsonSchema, avroSchema, {}, udt);
 
@@ -542,19 +520,46 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 };
 
 const getTypeFromUdt = (type, udt) => {
-	if (!udt[type]) {
-		return type;
+	if (isUdtUsed(type, udt)) {
+		return getTypeWithNamespace(type, udt);
 	}
 	const udtItem = cloneUdtItem(udt[type]);
-	if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
-		delete udt[type];
-		if (Array.isArray(udtItem)) {
-			return udtItem.map(udtItemType => prepareDefinitionBeforeInsert(udtItemType, udt));
-		}
-		return prepareDefinitionBeforeInsert(udtItem, udt);
+
+	if (!isDefinitionTypeValidForAvroDefinition(udtItem)) {
+		return udtItem;
 	}
 
-	return udtItem;
+	useUdt(type, udt);
+
+	if (Array.isArray(udtItem)) {
+		return udtItem.map(udtItemType => replaceUdt(udtItemType, udt));
+	} else {
+		return replaceUdt(udtItem, udt);
+	}
+};
+
+const getTypeWithNamespace = (type, udt) => {
+	const udtItem = udt[type];
+
+	if (!udtItem) {
+		return type;
+	}
+
+	if (!udtItem.namespace) {
+		return type;
+	}
+
+	return udtItem.namespace + '.' + type;
+};
+
+const useUdt = (type, udt) => {
+	udt[type] = cloneUdtItem(udt[type]);
+	
+	udt[type].used = true;
+};
+
+const isUdtUsed = (type, udt) => {
+	return !udt[type] || udt[type].used;
 };
 
 const isDefinitionTypeValidForAvroDefinition = (definition) => {
@@ -565,41 +570,6 @@ const isDefinitionTypeValidForAvroDefinition = (definition) => {
 		return definition.some(isDefinitionTypeValidForAvroDefinition);
 	} else {
 		return validTypes.includes(definition.type);
-	}
-}
-
-const prepareDefinitionBeforeInsert = (definition, udt) => {
-	switch(definition.type) {
-		case 'record':
-			const definitionFields = _.get(definition, 'fields', []);
-			const fields = definitionFields.reduce((acc, field) => {
-				if (udt[field.type]) {
-					const udtItem = cloneUdtItem(udt[field.type]);
-					const fieldWithRef = Object.assign({}, field);
-
-					if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
-						delete udt[field.type];
-					}
-
-					fieldWithRef.type = prepareDefinitionBeforeInsert(udtItem, udt);
-					return [...acc, fieldWithRef];
-				}
-				return [...acc, field];
-			}, []);
-			return Object.assign({}, definition, { fields });
-		case 'array':
-			if (udt[definition.items.type]) {
-				const udtItem = cloneUdtItem(udt[definition.items.type]);
-
-				if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
-					delete udt[definition.items.type];
-				}
-
-				return Object.assign({}, definition, { items: { type: udtItem }});
-			}
-			return Object.assign({}, definition, { items: prepareDefinitionBeforeInsert(definition.items, udt) }); 
-		default:
-			return definition;
 	}
 }
 
@@ -874,4 +844,75 @@ const getField = (field, type) => {
 	return Object.assign({ type }, filteredField, {
 		logicalType
 	});
+};
+
+const replaceUdt = (avroSchema, udt) => {
+	const convertType = (schema) => {
+		if (Array.isArray(schema.type)) {
+			const type = schema.type.map(type => getTypeFromUdt(type, udt));
+
+			return Object.assign({}, schema, { type });
+		} else if (typeof schema.type === 'string') {
+			const type = getTypeFromUdt(schema.type, udt);
+
+			return Object.assign({}, schema, { type });
+		} else {
+			return schema;
+		}
+	};
+	const extractArrayItem = (schema) => {
+		const items = convertType(schema.items);
+		const previousType = _.get(schema, 'items.type', items.type);
+		const convertedType = items.type;
+
+		if (!convertedType || convertedType === previousType) {
+			return schema;
+		}
+		
+		return Object.assign({}, schema, { items: convertedType });
+	};
+
+	return mapAvroSchema(avroSchema, (schema) => {
+		if (schema.type === 'array') {
+			return extractArrayItem(schema);
+		} else {
+			return convertType(schema);
+		}
+	});
+};
+
+const mapAvroSchema = (avroSchema, iteratee) => {
+	avroSchema = iteratee(avroSchema);
+	
+	if (_.isArray(avroSchema.fields)) {
+		const fields = avroSchema.fields.map(schema => mapAvroSchema(schema, iteratee));
+
+		avroSchema = Object.assign({}, avroSchema, { fields });
+	}
+
+	if (_.isPlainObject(avroSchema.type)) {
+		const type = mapAvroSchema(avroSchema.type, iteratee);
+
+		avroSchema = Object.assign({}, avroSchema, { type });
+	}
+
+	if (_.isArray(avroSchema.type)) {
+		const type = avroSchema.type.map(type => {
+			if (!_.isPlainObject(type)) {
+				return type;
+			}
+
+			return mapAvroSchema(type, iteratee);
+		});
+
+		avroSchema = Object.assign({}, avroSchema, { type });
+	}
+
+	if (_.isPlainObject(avroSchema.items)) {
+		const items = mapAvroSchema(avroSchema.items, iteratee);
+
+		avroSchema = Object.assign({}, avroSchema, { items });
+	}
+
+	return avroSchema;
 };
