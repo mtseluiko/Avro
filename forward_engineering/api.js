@@ -532,9 +532,9 @@ const getTypeFromUdt = (type, udt) => {
 	useUdt(type, udt);
 
 	if (Array.isArray(udtItem)) {
-		return udtItem.map(udtItemType => prepareDefinitionBeforeInsert(udtItemType, udt));
+		return udtItem.map(udtItemType => replaceUdt(udtItemType, udt));
 	} else {
-		return prepareDefinitionBeforeInsert(udtItem, udt);
+		return replaceUdt(udtItem, udt);
 	}
 };
 
@@ -570,17 +570,6 @@ const isDefinitionTypeValidForAvroDefinition = (definition) => {
 		return definition.some(isDefinitionTypeValidForAvroDefinition);
 	} else {
 		return validTypes.includes(definition.type);
-	}
-}
-
-const prepareDefinitionBeforeInsert = (definition, udt) => {
-	switch(definition.type) {
-		case 'record':
-			return replaceUdt(definition, udt);
-		case 'array':
-			return replaceUdt(definition, udt);
-		default:
-			return replaceUdt(definition, udt);
 	}
 }
 
@@ -871,18 +860,21 @@ const replaceUdt = (avroSchema, udt) => {
 			return schema;
 		}
 	};
-	
+	const extractArrayItem = (schema) => {
+		const items = convertType(schema.items);
+		const previousType = _.get(schema, 'items.type', items.type);
+		const convertedType = items.type;
+
+		if (!convertedType || convertedType === previousType) {
+			return schema;
+		}
+		
+		return Object.assign({}, schema, { items: convertedType });
+	};
+
 	return mapAvroSchema(avroSchema, (schema) => {
 		if (schema.type === 'array') {
-			const items = convertType(schema.items);
-			const previousType = _.get(schema, 'items.type', items.type);
-			const convertedType = items.type;
-
-			if (!convertedType || convertedType === previousType) {
-				return schema;
-			}
-			
-			return Object.assign({}, schema, { items: convertedType });
+			return extractArrayItem(schema);
 		} else {
 			return convertType(schema);
 		}
