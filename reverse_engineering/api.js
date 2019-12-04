@@ -264,6 +264,10 @@ const isComplexType = (type) => {
 
 const getType = (schema, field, type) => {
 	if (Object(type) === type) {
+		if (type.name) {
+			schema.typeName = type.name;
+		}
+
 		return Object.assign({}, schema, type, getType(schema, field, type.type));
 	}
 
@@ -292,8 +296,16 @@ const getType = (schema, field, type) => {
 				subtype: `map<${field.values}>`
 			});
 		default:
-			return Object.assign(schema, { $ref: '#/definitions/' + type });
+			return Object.assign(schema, { $ref: '#/definitions/' + getDefinitionTypeName(type) });
 	}
+};
+
+const getDefinitionTypeName = (type) => {
+	if (typeof type !== 'string') {
+		return type;
+	}
+
+	return type.split('.').pop();
 };
 
 const getChoice = (data, parentSchema) => {
