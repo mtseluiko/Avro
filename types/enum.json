@@ -20,6 +20,7 @@
 		"sample": "",
 		"symbols": ["Y"],
 		"namespace": "",
-		"typeName": ""
+		"typeName": "",
+		"metaProps": []
 	}
 }
