@@ -185,16 +185,6 @@ making sure that you maintain a proper JSON format.
 				"valueType": "array"
 			},
 			{
-				"propertyName": "avro.java.string",
-				"propertyKeyword": "avro.java.string",
-				"shouldValidate": false,
-				"propertyType": "select",
-				"options": [
-					"",
-					"String"
-				]
-			},
-			{
 				"propertyName": "Meta properties",
 				"propertyType": "group",
 				"propertyKeyword": "metaProps",
@@ -214,16 +204,6 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValue",
-						"propertyTooltip": "",
-						"propertyType": "text",
-						"dependency": { 
-							"key": "metaKey",
-							"value": "avro.java.string"
-						}
-					},
-					{
-						"propertyName": "Value",
-						"propertyKeyword": "metaValue",
 						"propertyType": "select",
 						"options": [
 							"String",
@@ -233,12 +213,23 @@ making sure that you maintain a proper JSON format.
 							"java.math.BigDecimal"
 						],
 						"dependency": { 
+							"key": "metaKey",
+							"value": "avro.java.string"
+						}					
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
 							"type": "not",
 							"values": [{
 								"key": "metaKey",
 								"value": "avro.java.string"
 							}]
 						}
+
 					}
 				]
 			},
@@ -324,7 +315,6 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "metaKey",
 						"propertyType": "select",
 						"options": [
-							"avro.java.string",
 							"java-element",
 							"java-element-class",
 							"java-class",
@@ -335,30 +325,7 @@ making sure that you maintain a proper JSON format.
 						"propertyName": "Value",
 						"propertyKeyword": "metaValue",
 						"propertyTooltip": "",
-						"propertyType": "text",
-						"dependency": { 
-							"key": "metaKey",
-							"value": "avro.java.string"
-						}
-					},
-					{
-						"propertyName": "Value",
-						"propertyKeyword": "metaValue",
-						"propertyType": "select",
-						"options": [
-							"String",
-							"java.lang.Integer",
-							"java.math.BigInteger",
-							"java.lang.Float",
-							"java.math.BigDecimal"
-						],
-						"dependency": { 
-							"type": "not",
-							"values": [{
-								"key": "metaKey",
-								"value": "avro.java.string"
-							}]
-						}
+						"propertyType": "text"
 					}
 				]
 			},
@@ -500,7 +467,6 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "metaKey",
 						"propertyType": "select",
 						"options": [
-							"avro.java.string",
 							"java-element",
 							"java-element-class",
 							"java-class",
@@ -511,30 +477,7 @@ making sure that you maintain a proper JSON format.
 						"propertyName": "Value",
 						"propertyKeyword": "metaValue",
 						"propertyTooltip": "",
-						"propertyType": "text",
-						"dependency": { 
-							"key": "metaKey",
-							"value": "avro.java.string"
-						}
-					},
-					{
-						"propertyName": "Value",
-						"propertyKeyword": "metaValue",
-						"propertyType": "select",
-						"options": [
-							"String",
-							"java.lang.Integer",
-							"java.math.BigInteger",
-							"java.lang.Float",
-							"java.math.BigDecimal"
-						],
-						"dependency": { 
-							"type": "not",
-							"values": [{
-								"key": "metaKey",
-								"value": "avro.java.string"
-							}]
-						}
+						"propertyType": "text"
 					}
 				]
 			},
@@ -628,7 +571,6 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "metaKey",
 						"propertyType": "select",
 						"options": [
-							"avro.java.string",
 							"java-element",
 							"java-element-class",
 							"java-class",
@@ -639,30 +581,7 @@ making sure that you maintain a proper JSON format.
 						"propertyName": "Value",
 						"propertyKeyword": "metaValue",
 						"propertyTooltip": "",
-						"propertyType": "text",
-						"dependency": { 
-							"key": "metaKey",
-							"value": "avro.java.string"
-						}
-					},
-					{
-						"propertyName": "Value",
-						"propertyKeyword": "metaValue",
-						"propertyType": "select",
-						"options": [
-							"String",
-							"java.lang.Integer",
-							"java.math.BigInteger",
-							"java.lang.Float",
-							"java.math.BigDecimal"
-						],
-						"dependency": { 
-							"type": "not",
-							"values": [{
-								"key": "metaKey",
-								"value": "avro.java.string"
-							}]
-						}
+						"propertyType": "text"
 					}
 				]
 			},
@@ -776,7 +695,6 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "metaKey",
 						"propertyType": "select",
 						"options": [
-							"avro.java.string",
 							"java-element",
 							"java-element-class",
 							"java-class",
@@ -787,30 +705,7 @@ making sure that you maintain a proper JSON format.
 						"propertyName": "Value",
 						"propertyKeyword": "metaValue",
 						"propertyTooltip": "",
-						"propertyType": "text",
-						"dependency": { 
-							"key": "metaKey",
-							"value": "avro.java.string"
-						}
-					},
-					{
-						"propertyName": "Value",
-						"propertyKeyword": "metaValue",
-						"propertyType": "select",
-						"options": [
-							"String",
-							"java.lang.Integer",
-							"java.math.BigInteger",
-							"java.lang.Float",
-							"java.math.BigDecimal"
-						],
-						"dependency": { 
-							"type": "not",
-							"values": [{
-								"key": "metaKey",
-								"value": "avro.java.string"
-							}]
-						}
+						"propertyType": "text"
 					}
 				]
 			},
@@ -858,7 +753,6 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "metaKey",
 						"propertyType": "select",
 						"options": [
-							"avro.java.string",
 							"java-element",
 							"java-element-class",
 							"java-class",
@@ -869,30 +763,7 @@ making sure that you maintain a proper JSON format.
 						"propertyName": "Value",
 						"propertyKeyword": "metaValue",
 						"propertyTooltip": "",
-						"propertyType": "text",
-						"dependency": { 
-							"key": "metaKey",
-							"value": "avro.java.string"
-						}
-					},
-					{
-						"propertyName": "Value",
-						"propertyKeyword": "metaValue",
-						"propertyType": "select",
-						"options": [
-							"String",
-							"java.lang.Integer",
-							"java.math.BigInteger",
-							"java.lang.Float",
-							"java.math.BigDecimal"
-						],
-						"dependency": { 
-							"type": "not",
-							"values": [{
-								"key": "metaKey",
-								"value": "avro.java.string"
-							}]
-						}
+						"propertyType": "text"
 					}
 				]
 			},
@@ -954,7 +825,6 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "metaKey",
 						"propertyType": "select",
 						"options": [
-							"avro.java.string",
 							"java-element",
 							"java-element-class",
 							"java-class",
@@ -965,30 +835,7 @@ making sure that you maintain a proper JSON format.
 						"propertyName": "Value",
 						"propertyKeyword": "metaValue",
 						"propertyTooltip": "",
-						"propertyType": "text",
-						"dependency": { 
-							"key": "metaKey",
-							"value": "avro.java.string"
-						}
-					},
-					{
-						"propertyName": "Value",
-						"propertyKeyword": "metaValue",
-						"propertyType": "select",
-						"options": [
-							"String",
-							"java.lang.Integer",
-							"java.math.BigInteger",
-							"java.lang.Float",
-							"java.math.BigDecimal"
-						],
-						"dependency": { 
-							"type": "not",
-							"values": [{
-								"key": "metaKey",
-								"value": "avro.java.string"
-							}]
-						}
+						"propertyType": "text"
 					}
 				]
 			},
@@ -1092,7 +939,6 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "metaKey",
 						"propertyType": "select",
 						"options": [
-							"avro.java.string",
 							"java-element",
 							"java-element-class",
 							"java-class",
@@ -1103,30 +949,7 @@ making sure that you maintain a proper JSON format.
 						"propertyName": "Value",
 						"propertyKeyword": "metaValue",
 						"propertyTooltip": "",
-						"propertyType": "text",
-						"dependency": { 
-							"key": "metaKey",
-							"value": "avro.java.string"
-						}
-					},
-					{
-						"propertyName": "Value",
-						"propertyKeyword": "metaValue",
-						"propertyType": "select",
-						"options": [
-							"String",
-							"java.lang.Integer",
-							"java.math.BigInteger",
-							"java.lang.Float",
-							"java.math.BigDecimal"
-						],
-						"dependency": { 
-							"type": "not",
-							"values": [{
-								"key": "metaKey",
-								"value": "avro.java.string"
-							}]
-						}
+						"propertyType": "text"
 					}
 				]
 			},
@@ -1256,7 +1079,6 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "metaKey",
 						"propertyType": "select",
 						"options": [
-							"avro.java.string",
 							"java-element",
 							"java-element-class",
 							"java-class",
@@ -1267,30 +1089,7 @@ making sure that you maintain a proper JSON format.
 						"propertyName": "Value",
 						"propertyKeyword": "metaValue",
 						"propertyTooltip": "",
-						"propertyType": "text",
-						"dependency": { 
-							"key": "metaKey",
-							"value": "avro.java.string"
-						}
-					},
-					{
-						"propertyName": "Value",
-						"propertyKeyword": "metaValue",
-						"propertyType": "select",
-						"options": [
-							"String",
-							"java.lang.Integer",
-							"java.math.BigInteger",
-							"java.lang.Float",
-							"java.math.BigDecimal"
-						],
-						"dependency": { 
-							"type": "not",
-							"values": [{
-								"key": "metaKey",
-								"value": "avro.java.string"
-							}]
-						}
+						"propertyType": "text"
 					}
 				]
 			},
