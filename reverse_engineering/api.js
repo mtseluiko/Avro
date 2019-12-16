@@ -264,6 +264,8 @@ const isComplexType = (type) => {
 	}
 	if (typeof type === 'string') {
 		return true;
+	} else if (Object(type.type) === type.type) {
+		return isComplexType(type.type);
 	}
 
 	return COMPLEX_TYPES.includes(type.type);
