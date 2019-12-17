@@ -927,8 +927,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "array",
 				"validation": {
 					"regex": "^[A-Za-z_][A-Za-z0-9_]*$"
-				},
-				"isTargetProperty": true
+				}
 			},
 			{
 				"propertyName": "Meta properties",
