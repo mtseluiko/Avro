@@ -185,13 +185,52 @@ making sure that you maintain a proper JSON format.
 				"valueType": "array"
 			},
 			{
-				"propertyName": "avro.java.string",
-				"propertyKeyword": "avro.java.string",
-				"shouldValidate": false,
-				"propertyType": "select",
-				"options": [
-					"",
-					"String"
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"avro.java.string",
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyType": "select",
+						"options": [
+							"String",
+							"java.lang.Integer",
+							"java.math.BigInteger",
+							"java.lang.Float",
+							"java.math.BigDecimal"
+						],
+						"dependency": { 
+							"key": "metaKey",
+							"value": "avro.java.string"
+						}					
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"type": "not",
+							"values": [{
+								"key": "metaKey",
+								"value": "avro.java.string"
+							}]
+						}
+
+					}
 				]
 			},
 			"pattern",
@@ -265,6 +304,30 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "aliases",
 				"multi": true,
 				"valueType": "array"
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
 			},
 			"dependencies",
 			"sample",
@@ -394,6 +457,30 @@ making sure that you maintain a proper JSON format.
 				"multi": true,
 				"valueType": "array"
 			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
 			"dependencies",
 			"primaryKey",
 			"foreignCollection",
@@ -473,6 +560,30 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "aliases",
 				"multi": true,
 				"valueType": "array"
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
 			},
 			"dependencies",
 			"sample",
@@ -574,6 +685,30 @@ making sure that you maintain a proper JSON format.
 				"multi": true,
 				"valueType": "array"
 			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
+			},
 			"dependencies",
 			"minProperties",
 			"maxProperties",
@@ -607,6 +742,30 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "aliases",
 				"multi": true,
 				"valueType": "array"
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
 			},
 			"dependencies",
 			"minItems",
@@ -655,6 +814,30 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "aliases",
 				"multi": true,
 				"valueType": "array"
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
 			},
 			"dependencies",
 			"minProperties",
@@ -745,6 +928,30 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"regex": "^[A-Za-z_][A-Za-z0-9_]*$"
 				}
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
 			},
 			"dependencies",
 			{
@@ -861,6 +1068,30 @@ making sure that you maintain a proper JSON format.
 					"key": "subtype",
 					"value": "duration"
 				}
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text"
+					}
+				]
 			},
 			"dependencies",
 			"sample",

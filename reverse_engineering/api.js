@@ -9,7 +9,7 @@ const jsonSchemaAdapter = require('./helpers/adaptJsonSchema');
 const DEFAULT_FIELD_NAME = 'New_field';
 let stateExtension = null;
 
-const ADDITIONAL_PROPS = ['avro.java.string', 'logicalType', 'scale', 'precision', 'name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern', 'choice'];
+const ADDITIONAL_PROPS = ['logicalType', 'scale', 'precision', 'name', 'arrayItemName', 'doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern', 'choice'];
 const DATA_TYPES = [
 	'string',
 	'bytes',
@@ -24,6 +24,13 @@ const DATA_TYPES = [
 	'float',
 	'double',
 	'map'
+];
+const META_PROPERTIES = [
+	'avro.java.string',
+	'java-element',
+	'java-element-class',
+	'java-class',
+	'java-key-class'
 ];
 
 const COMPLEX_TYPES = ['map', 'array', 'record'];
@@ -257,9 +264,24 @@ const isComplexType = (type) => {
 	}
 	if (typeof type === 'string') {
 		return true;
+	} else if (Object(type.type) === type.type) {
+		return isComplexType(type.type);
 	}
 
 	return COMPLEX_TYPES.includes(type.type);
+};
+
+const getTypeProperties = (type) => {
+	return Object.keys(type).reduce((schema, property) => {
+		if (['fields', 'items', 'type'].includes(property)) {
+			schema[property] = type[property];
+		} else {
+			handleOtherProps(type, property, schema);
+		}
+		
+
+		return schema;
+	}, {});
 };
 
 const getType = (schema, field, type) => {
@@ -268,7 +290,12 @@ const getType = (schema, field, type) => {
 			schema.typeName = type.name;
 		}
 
-		return Object.assign({}, schema, type, getType(schema, field, type.type));
+		return Object.assign(
+			{},
+			schema,
+			getTypeProperties(type),
+			getType(schema, field, type.type)
+		);
 	}
 
 	switch(type) {
@@ -382,7 +409,25 @@ const handleItems = (data, prop, schema, definitions) => {
 	}
 };
 
+const isMetaProperty = (propertyName) => {
+	return META_PROPERTIES.includes(propertyName);
+};
+
+const addMetaProperty = (schema, metaKey, metaValue) => {
+	if (!Array.isArray(schema.metaProps)) {
+		schema.metaProps = [];
+	}
+
+	schema.metaProps.push({
+		metaKey, metaValue
+	});
+};
+
 const handleOtherProps = (data, prop, schema) => {
+	if (isMetaProperty(prop)) {
+		addMetaProperty(schema, prop, data[prop]);
+	}
+
 	if (!ADDITIONAL_PROPS.includes(prop)) {
 		return;
 	}
