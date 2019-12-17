@@ -26,11 +26,11 @@ const DATA_TYPES = [
 	'map'
 ];
 const META_PROPERTIES = [
-	"avro.java.string",
-	"java-element",
-	"java-element-class",
-	"java-class",
-	"java-key-class"
+	'avro.java.string',
+	'java-element',
+	'java-element-class',
+	'java-class',
+	'java-key-class'
 ];
 
 const COMPLEX_TYPES = ['map', 'array', 'record'];
