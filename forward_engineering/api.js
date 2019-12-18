@@ -653,10 +653,6 @@ const handleDefault = (schema, avroSchema) => {
 };
 
 const handleOtherProps = (schema, prop, avroSchema) => {
-	if (!ADDITIONAL_PROPS.includes(prop)) {
-		return;
-	}
-
 	const allowedProperties = getAllowedPropertyNames(schema.type, schema);
 	if (!allowedProperties.includes(prop)) {
 		return;
@@ -792,8 +788,21 @@ const getAllowedPropertyNames = (type, data) => {
 	if (!fieldLevelConfig.structure[type]) {
 		return [];
 	}
+	const isAllowed = (property) => {
+		if (typeof property === 'string') {
+			return ADDITIONAL_PROPS.includes(property)
+		} else if (Object(property) === property) {
+			return ADDITIONAL_PROPS.includes(property.propertyKeyword) || property.isTargetProperty;
+		} else {
+			return false;
+		}
+	};
 
 	return fieldLevelConfig.structure[type].filter(property => {
+		if (!isAllowed(property)) {
+			return false;
+		}
+		
 		if (typeof property !== 'object') {
 			return true;
 		}
