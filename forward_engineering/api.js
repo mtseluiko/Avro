@@ -6,7 +6,7 @@ const _ = require('lodash');
 const validationHelper = require('./validationHelper');
 const mapJsonSchema = require('../reverse_engineering/helpers/mapJsonSchema');
 
-const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'avro.java.string', 'symbols', 'namespace', 'size', 'durationSize', 'default', 'precision', 'scale'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'durationSize', 'default', 'precision', 'scale'];
 const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
 const PRIMITIVE_FIELD_ATTRIBUTES = ['order', 'logicalType', 'precision', 'scale', 'aliases'];
 const DEFAULT_TYPE = 'string';
@@ -194,6 +194,8 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 
 	handleRequired(parentSchema, avroSchema, schema);
 
+	addMetaPropertiesToType(avroSchema, schema);
+
 	return;
 };
 
@@ -315,13 +317,18 @@ const handleChoice = (schema, choice, udt) => {
 			multipleField.type = [multipleField.type];
 		}
 
+		let newField = {};
+
+		handleRecursiveSchema(field, newField, {}, udt);
+
 		if (isComplexType(filedType)) {
-			let newField = {};
-			handleRecursiveSchema(field, newField, {}, udt);
 			newField.name = newField.name || field.name || fieldName;
 			newField.type.name = newField.type.name || field.name || fieldName;
 			newField.type = reorderName(newField.type);
 			multipleField.type.push(newField);
+		} else if (Object(newField.type) === newField.type) {
+			newField.name = newField.name || field.name || fieldName;
+			multipleField.type = multipleField.type.concat([newField]);
 		} else if (Array.isArray(filedType)) {
 			multipleField.type = multipleField.type.concat(filedType);
 		} else {
@@ -621,10 +628,10 @@ const handleItems = (schema, avroSchema, udt) => {
 		schemaItem.type = schemaItem.type || getTypeFromReference(schemaItem);
 
 		handleRecursiveSchema(schemaItem, avroSchema.items, avroSchema, udt);
+	}
 
-		if (avroSchema.items.type && typeof avroSchema.items.type === 'object') {
-			avroSchema.items = avroSchema.items.type;
-		}
+	if (avroSchema.items.type && typeof avroSchema.items.type === 'object') {
+		avroSchema.items = Object.assign({}, avroSchema.items, avroSchema.items.type);
 	}
 
 	if (schemaItemName) {
@@ -646,10 +653,6 @@ const handleDefault = (schema, avroSchema) => {
 };
 
 const handleOtherProps = (schema, prop, avroSchema) => {
-	if (!ADDITIONAL_PROPS.includes(prop)) {
-		return;
-	}
-
 	const allowedProperties = getAllowedPropertyNames(schema.type, schema);
 	if (!allowedProperties.includes(prop)) {
 		return;
@@ -785,8 +788,21 @@ const getAllowedPropertyNames = (type, data) => {
 	if (!fieldLevelConfig.structure[type]) {
 		return [];
 	}
+	const isAllowed = (property) => {
+		if (typeof property === 'string') {
+			return ADDITIONAL_PROPS.includes(property)
+		} else if (Object(property) === property) {
+			return ADDITIONAL_PROPS.includes(property.propertyKeyword) || property.isTargetProperty;
+		} else {
+			return false;
+		}
+	};
 
 	return fieldLevelConfig.structure[type].filter(property => {
+		if (!isAllowed(property)) {
+			return false;
+		}
+		
 		if (typeof property !== 'object') {
 			return true;
 		}
@@ -912,6 +928,56 @@ const mapAvroSchema = (avroSchema, iteratee) => {
 		const items = mapAvroSchema(avroSchema.items, iteratee);
 
 		avroSchema = Object.assign({}, avroSchema, { items });
+	}
+
+	return avroSchema;
+};
+
+const getMetaProperties = (metaProperties) => {
+	const metaValueKeyMap = {
+		'avro.java.string': 'metaValueString',
+		'java-element': 'metaValueElement',
+		'java-element-class': 'metaValueElementClass',
+		'java-class': 'metaValueClass',
+		'java-key-class': 'metaValueKeyClass'
+	};
+
+	return metaProperties.reduce((props, property) => {
+		const metaValueKey = _.get(metaValueKeyMap, property.metaKey, 'metaValue');
+
+		return Object.assign(props, { [property.metaKey]: property[metaValueKey] });
+	}, {});
+};
+
+const getTypeWithMeta = (type, meta) => {
+	if (typeof type !== 'string') {
+		return Object.assign({}, type, meta);
+	} else {
+		return Object.assign({ type }, meta);
+	}
+};
+
+const getMultipleTypeWithMeta = (types, meta) => {
+	return types.map(type => {
+		if (type === 'null') {
+			return type;
+		}
+
+		return getTypeWithMeta(type, meta);
+	});
+};
+
+const addMetaPropertiesToType = (avroSchema, jsonSchema) => {
+	if (!Array.isArray(jsonSchema.metaProps) || !jsonSchema.metaProps.length) {
+		return avroSchema;
+	}
+
+	const meta = getMetaProperties(jsonSchema.metaProps);
+
+	if (Array.isArray(avroSchema.type)) {
+		avroSchema.type = getMultipleTypeWithMeta(avroSchema.type, meta);
+	} else {
+		avroSchema.type = getTypeWithMeta(avroSchema.type, meta);
 	}
 
 	return avroSchema;

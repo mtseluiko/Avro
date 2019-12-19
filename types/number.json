@@ -24,6 +24,7 @@
 		"foreignField": [],
 		"enum": [],
 		"mode": "int",
-		"sample": ""
+		"sample": "",
+		"metaProps": []
 	}
 }
