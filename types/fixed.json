@@ -20,7 +20,8 @@
 		"enum": [],
 		"sample": "",
 		"subtype": "",
-		"size": 0
+		"size": 0,
+		"metaProps": []
 	},
 	"subtypes": {
 		"": {

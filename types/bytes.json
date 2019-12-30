@@ -19,7 +19,8 @@
 		"foreignField": [],
 		"enum": [],
 		"subtype": "",
-		"sample": ""
+		"sample": "",
+		"metaProps": []
 	},
 	"subtypes": {
 		"": {
