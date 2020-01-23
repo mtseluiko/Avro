@@ -280,7 +280,10 @@ const handleChoice = (schema, choice, udt) => {
 		if (subSchema.oneOf) {
 			handleChoice(subSchema, 'oneOf', udt);
 		}
-		allSubSchemaFields = allSubSchemaFields.concat(Object.keys(subSchema.properties).map(item => {
+		if (subSchema.allOf) {
+			handleChoice(subSchema, 'allOf', udt);
+		}
+		allSubSchemaFields = allSubSchemaFields.concat(Object.keys(subSchema.properties || {}).map(item => {
 			return Object.assign({
 				name: item
 			}, subSchema.properties[item]);
