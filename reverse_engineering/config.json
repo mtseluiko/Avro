@@ -1,5 +1,7 @@
 {
   "menu_label": "Avro schema or data file",
   "name": "avro",
-  "extensions": ["avsc", "avro"]
+  "extensions": ["avsc", "avro"],
+  "useCloudStorage": true,
+  "useMultipleFileReverse": true
 }
