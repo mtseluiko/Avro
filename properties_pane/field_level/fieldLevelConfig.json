@@ -843,6 +843,7 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Namespace",
 				"propertyKeyword": "namespace",
+				"enableForReference": true,
 				"shouldValidate": false,
 				"propertyType": "text"
 			},
@@ -1209,6 +1210,7 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Namespace",
 				"propertyKeyword": "namespace",
+				"enableForReference": true,
 				"shouldValidate": false,
 				"propertyType": "text"
 			},
@@ -1376,6 +1378,7 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Namespace",
 				"propertyKeyword": "namespace",
+				"enableForReference": true,
 				"shouldValidate": false,
 				"propertyType": "text"
 			},

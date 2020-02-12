@@ -181,10 +181,10 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 				handleItems(schema, avroSchema, udt);
 				break;
 			case 'default':
-				handleDefault(schema, avroSchema);
+				handleDefault(schema, avroSchema, udt);
 				break;
 			default:
-				handleOtherProps(schema, prop, avroSchema);
+				handleOtherProps(schema, prop, avroSchema, udt);
 		}
 	}
 	handleComplexTypeStructure(avroSchema, parentSchema);
@@ -642,21 +642,21 @@ const handleItems = (schema, avroSchema, udt) => {
 	}
 };
 
-const handleDefault = (schema, avroSchema) => {
+const handleDefault = (schema, avroSchema, udt) => {
 	const value = getDefault(schema.type, schema['default']);
 	if (_.isArray(schema.type)) {
 		avroSchema['default'] = value;
 		return;
 	}
 
-	const allowedProperties = getAllowedPropertyNames(schema.type, schema);
+	const allowedProperties = getAllowedPropertyNames(schema.type, schema, udt);
 	if (allowedProperties.includes('default')) {
 		avroSchema['default'] = value;
 	}
 };
 
-const handleOtherProps = (schema, prop, avroSchema) => {
-	const allowedProperties = getAllowedPropertyNames(schema.type, schema);
+const handleOtherProps = (schema, prop, avroSchema, udt) => {
+	const allowedProperties = getAllowedPropertyNames(schema.type, schema, udt);
 	if (!allowedProperties.includes(prop)) {
 		return;
 	}
@@ -787,7 +787,10 @@ const getTargetFieldLevelPropertyNames = (type, data) => {
 	}).map(property => resolveKey(type, property));
 };
 
-const getAllowedPropertyNames = (type, data) => {
+const getAllowedPropertyNames = (type, data, udt) => {
+	if (udt && udt[type]) {
+		return getAllowedPropertyNames(_.get(udt[type], 'type'), data, udt);
+	}
 	if (!fieldLevelConfig.structure[type]) {
 		return [];
 	}
