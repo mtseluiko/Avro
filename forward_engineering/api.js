@@ -832,7 +832,11 @@ const handleTargetProperties = (schema, avroSchema) => {
 			if (_.isString(prop)) {
 				return avroSchema[prop] = schema[prop];
 			}
-			avroSchema[prop.propertyKeyword] = schema[prop.propertyKeyword];
+			const keyword = _.get(prop, 'propertyKeyword', '');
+			if (!keyword) {
+				return;
+			}
+			avroSchema[keyword] = schema[keyword];
 		});
 	}
 };
