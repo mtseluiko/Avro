@@ -829,7 +829,10 @@ const handleTargetProperties = (schema, avroSchema) => {
 	if (schema.type) {
 		const targetProperties = getTargetFieldLevelPropertyNames(schema.type, schema);
 		targetProperties.forEach(prop => {
-			avroSchema[prop] = schema[prop];
+			if (_.isString(prop)) {
+				return avroSchema[prop] = schema[prop];
+			}
+			avroSchema[prop.propertyKeyword] = schema[prop.propertyKeyword];
 		});
 	}
 };
