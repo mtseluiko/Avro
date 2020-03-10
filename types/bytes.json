@@ -23,7 +23,7 @@
 		"metaProps": []
 	},
 	"subtypes": {
-		"": {
+		"bytes": {
 			"parentType": "string"
 		},
 		"decimal": {

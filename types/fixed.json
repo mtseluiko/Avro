@@ -24,7 +24,7 @@
 		"metaProps": []
 	},
 	"subtypes": {
-		"": {
+		"fixed": {
 			"parentType": "string"
 		},
 		"decimal": {
