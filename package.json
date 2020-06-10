@@ -19,7 +19,7 @@
             "enableJsonType": false,
             "enableArrayItemName": true,
             "validateMultipleDefaultByFirstType": true,
-			"reverseNotRequiredJsonDocumentPropertiesAsMultiple": true,
+			"reverseMissedJsonPropertyAsNull": true,
 			"forwardEngineering": {
 				"jsonSchema": {
 					"keepParentType": {
