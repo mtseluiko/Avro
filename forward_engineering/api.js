@@ -4,9 +4,11 @@ const fs = require('fs');
 const path = require('path');
 const _ = require('lodash');
 const validationHelper = require('./validationHelper');
+const mapJsonSchema = require('../reverse_engineering/helpers/mapJsonSchema');
 
-const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'default', 'pattern'];
+const ADDITIONAL_PROPS = ['doc', 'order', 'aliases', 'symbols', 'namespace', 'size', 'durationSize', 'default', 'precision', 'scale'];
 const ADDITIONAL_CHOICE_META_PROPS = ADDITIONAL_PROPS.concat('index');
+const PRIMITIVE_FIELD_ATTRIBUTES = ['order', 'logicalType', 'precision', 'scale', 'aliases'];
 const DEFAULT_TYPE = 'string';
 const DEFAULT_NAME = 'New_field';
 const VALID_FULL_NAME_REGEX = /[^A-Za-z0-9_]/g;
@@ -16,6 +18,20 @@ const readConfig = (pathToConfig) => {
 };
 const fieldLevelConfig = readConfig('../properties_pane/field_level/fieldLevelConfig.json');
 let nameIndex = 0;
+
+const LOGICAL_TYPES_MAP = {
+	bytes: ['decimal'],
+	int: [
+		'date',
+		'time-millis'
+	],
+	long: [
+		'time-micros',
+		'timestamp-millis',
+		'timestamp-micros'
+	],
+	fixed: ['decimal', 'duration']
+};
 
 module.exports = {
 	generateScript(data, logger, cb) {
@@ -34,6 +50,18 @@ module.exports = {
 			avroSchema.type = 'record';
 			avroSchema = reorderAvroSchema(avroSchema);
 			avroSchema = JSON.stringify(avroSchema, null, 4);
+			const options = data.options;
+			const additionalOptions = _.get(options, 'additionalOptions', []);
+			const targetScriptType = _.get(options, 'targetScriptOptions.keyword');
+			if (targetScriptType === 'schemaRegistry') {
+				avroSchema = JSON.stringify({ schema: JSON.stringify(JSON.parse(avroSchema))}, null, 4);
+			}
+
+			const needMinify = (additionalOptions.find(option => option.id === 'minify') || {}).value;
+			if (needMinify) {
+				avroSchema = JSON.stringify(JSON.parse(avroSchema));
+			}
+
 			nameIndex = 0;
 			return cb(null, avroSchema);
 		} catch(err) {
@@ -44,8 +72,14 @@ module.exports = {
 	},
 	validate(data, logger, cb) {
 		try {
-			const messages = validationHelper.validate(data.script);
-			cb(null, messages);
+			let avroSchema = JSON.parse(data.script);
+			if (Object.keys(avroSchema).length === 1 && avroSchema.schema) {
+				const messages = validationHelper.validate(avroSchema.schema);
+				cb(null, messages);
+			} else {
+				const messages = validationHelper.validate(data.script);
+				cb(null, messages);
+			}
 		} catch (e) {
 			logger.log('error', { error: e }, 'Avro Validation Error');
 			cb(null, [{
@@ -66,8 +100,9 @@ const getUserDefinedTypes = ({ internalDefinitions, externalDefinitions, modelDe
 	return udt;
 };
 
-const convertSchemaToUserDefinedTypes = (jsonSchema, udt) => {
+const convertSchemaToUserDefinedTypes = (definitionsSchema, udt) => {
 	const avroSchema = {};
+	const jsonSchema = definitionsSchema;
 
 	handleRecursiveSchema(jsonSchema, avroSchema, {}, udt);
 
@@ -77,14 +112,30 @@ const convertSchemaToUserDefinedTypes = (jsonSchema, udt) => {
 				[field.name]: field.type
 			});
 		}
+		if (_.isArray(field.type)) {
+			return Object.assign({}, result, {
+				[field.name]: Object.assign({}, filterProperties(field), {
+					name: field.name,
+					type: field.type,
+				})
+			});
+		}
+
 		return Object.assign({}, result, {
-			name: field.name,
-			[field.name]: Object.assign({name: field.name}, field.type, {
+			[field.name]: Object.assign({}, filterProperties(field), field.type, {
 				name: field.name
 			})
 		});
 	}, udt);
 };
+
+const filterProperties = field => {
+	const redundantFieldProperties = getRedundantProperties(field);
+
+	return _.omit(field, redundantFieldProperties);
+};
+
+const getRedundantProperties = field => Object.keys(field).filter(key => !ADDITIONAL_PROPS.includes(key));
 
 const getRecordName = (data) => {
 	return (
@@ -113,6 +164,10 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 		handleChoice(schema, 'allOf', udt);
 	}
 	schema.type = schema.type || getTypeFromReference(schema);
+	if (schema.subtype && schema.type !== 'map') {
+		schema.logicalType = schema.subtype;
+		delete schema.subtype;
+	}
 
 	for (let prop in schema) {
 		switch (prop) {
@@ -125,20 +180,63 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 			case 'items':
 				handleItems(schema, avroSchema, udt);
 				break;
+			case 'default':
+				handleDefault(schema, avroSchema, udt);
+				break;
 			default:
-				handleOtherProps(schema, prop, avroSchema);
+				handleOtherProps(schema, prop, avroSchema, udt);
 		}
 	}
 	handleComplexTypeStructure(avroSchema, parentSchema);
 	handleSchemaName(avroSchema, parentSchema);
 	avroSchema = reorderName(avroSchema);
 	handleEmptyNestedObjects(avroSchema);
-	handleTargetProperties(schema, avroSchema, parentSchema);
 
 	handleRequired(parentSchema, avroSchema, schema);
 
+	addMetaPropertiesToType(avroSchema, schema);
+
 	return;
 };
+
+const handleMergedChoice = (schema, udt) => {
+	const meta = schema.allOf_meta;
+	const separateChoices = meta.reduce((choices, meta) => {
+		const items = schema.allOf.filter(item => {
+			const ids = _.get(meta, 'ids', []);
+
+			return ids.includes(item.GUID);
+		});
+		const type = _.get(meta, 'choice');
+		if (!type || type === 'allOf') {
+			return choices.concat({ items, type: 'allOf', meta });
+		}
+
+		const choiceItems = _.first(items)[type];
+
+		return choices.concat({ items: choiceItems, type, meta });
+		
+
+	}, []);
+	
+	const newSchema = separateChoices.reduce((updatedSchema, choiceData) => {
+		const choiceType = choiceData.type;
+		const schemaWithChoice = Object.assign({}, removeChoices(updatedSchema), {
+			[choiceType]: choiceData.items,
+			[`${choiceType}_meta`]: choiceData.meta
+		});
+
+		handleChoice(schemaWithChoice, choiceType, udt);
+
+		return schemaWithChoice;
+	}, schema);
+
+	return Object.assign(schema, newSchema);
+};
+
+const removeChoices = schema => _.omit(schema, [
+	'oneOf', 'oneOf_meta', 'allOf', 'allOf_meta', 'anyOf', 'anyOf_meta', 'not', 'not_meta'
+]);
 
 const handleChoice = (schema, choice, udt) => {
 	const convertDefaultMetaFieldType = (type, value) => {
@@ -153,6 +251,9 @@ const handleChoice = (schema, choice, udt) => {
 	};
 	
 	const choiceRawMeta = schema[`${choice}_meta`];
+	if (_.isArray(choiceRawMeta)) {
+		return handleMergedChoice(schema, udt);
+	}
 
 	let choiceMeta = {};
 	let allSubSchemaFields = [];
@@ -179,7 +280,10 @@ const handleChoice = (schema, choice, udt) => {
 		if (subSchema.oneOf) {
 			handleChoice(subSchema, 'oneOf', udt);
 		}
-		allSubSchemaFields = allSubSchemaFields.concat(Object.keys(subSchema.properties).map(item => {
+		if (subSchema.allOf) {
+			handleChoice(subSchema, 'allOf', udt);
+		}
+		allSubSchemaFields = allSubSchemaFields.concat(Object.keys(subSchema.properties || {}).map(item => {
 			return Object.assign({
 				name: item
 			}, subSchema.properties[item]);
@@ -191,11 +295,15 @@ const handleChoice = (schema, choice, udt) => {
 	allSubSchemaFields.forEach(field => {
 		const fieldName = choiceMeta.name || field.name;
 		if (!multipleFieldsHash[fieldName]) {
-			if (choiceMeta.default) {
+			if (!_.isUndefined(choiceMeta.default)) {
 				choiceMeta.default = convertDefaultMetaFieldType(field.type, choiceMeta.default);
 			}
 			
-			multipleFieldsHash[fieldName] = Object.assign({}, field.choiceMeta, {
+			if (choiceMeta.default === '') {
+				delete choiceMeta.default;
+			}
+
+			multipleFieldsHash[fieldName] = Object.assign({}, choiceMeta, {
 				name: fieldName,
 				type: [],
 				choiceMeta
@@ -212,20 +320,26 @@ const handleChoice = (schema, choice, udt) => {
 			multipleField.type = [multipleField.type];
 		}
 
+		let newField = {};
+
+		handleRecursiveSchema(field, newField, {}, udt);
+
 		if (isComplexType(filedType)) {
-			let newField = {};
-			handleRecursiveSchema(field, newField, {}, udt);
 			newField.name = newField.name || field.name || fieldName;
 			newField.type.name = newField.type.name || field.name || fieldName;
 			newField.type = reorderName(newField.type);
 			multipleField.type.push(newField);
+		} else if (Object(newField.type) === newField.type) {
+			newField.name = newField.name || field.name || fieldName;
+			multipleField.type = multipleField.type.concat([newField]);
 		} else if (Array.isArray(filedType)) {
 			multipleField.type = multipleField.type.concat(filedType);
 		} else {
 			multipleField.type = multipleField.type.concat([filedType]);
 		}
 
-		if (_.uniq(multipleField.type).length === 1) {
+		multipleField.type = _.uniq(multipleField.type);
+		if (multipleField.type.length === 1) {
 			multipleField.type = _.first(multipleField.type);
 		}
 	});
@@ -233,7 +347,7 @@ const handleChoice = (schema, choice, udt) => {
 	schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
 };
 
-const getChoiceIndex = choice => _.get(choice, 'choiceMeta.index', choice.index);
+const getChoiceIndex = choice => _.get(choice, 'choiceMeta.index');
 
 const addPropertiesFromChoices = (properties, choiceProperties) => {
 	if (_.isEmpty(choiceProperties)) {
@@ -241,7 +355,7 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 	}
 
 	const sortedKeys = Object.keys(choiceProperties).sort((a, b) => {
-		getChoiceIndex(a) - getChoiceIndex(b)
+		return getChoiceIndex(a) - getChoiceIndex(b)
 	});
 
 	return sortedKeys.reduce((sortedProperties, choicePropertyKey) => {
@@ -260,8 +374,16 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 			});
 		}
 
-		return Object.keys(sortedProperties).reduce((result, propertyKey, index) => {
-			if (index !== choicePropertyIndex || result[choicePropertyKey]) {
+		return Object.keys(sortedProperties).reduce((result, propertyKey, index, keys) => {
+			const currentIndex = getChoiceIndex(sortedProperties[propertyKey]);
+			const hasSameChoiceIndex = !_.isUndefined(currentIndex) && currentIndex <= choicePropertyIndex;
+			if (index < choicePropertyIndex || result[choicePropertyKey] || hasSameChoiceIndex) {
+				if (!result[choicePropertyKey] && keys.length === index + 1) {
+					return Object.assign({}, result, {
+						[propertyKey] : sortedProperties[propertyKey],
+						[choicePropertyKey]: choiceProperty,
+					});
+				}
 				return Object.assign({}, result, {
 					[propertyKey] : sortedProperties[propertyKey]
 				});
@@ -271,7 +393,7 @@ const addPropertiesFromChoices = (properties, choiceProperties) => {
 				[choicePropertyKey]: choiceProperty,
 				[propertyKey] : sortedProperties[propertyKey]
 			});
-		}, {})
+		}, {});
 	}, properties || {});
 };
 
@@ -316,13 +438,26 @@ const handleMultiple = (avroSchema, schema, prop, udt) => {
 					delete schema[prop];
 				});
 
-				return Object.assign({}, fieldProperties, {
+				return Object.assign({
 					name: fieldName,
 					type
-				})
+				}, fieldProperties)
 			}
 
-			return field.type;
+			const fieldAttributesKeys = PRIMITIVE_FIELD_ATTRIBUTES.filter(attribute => field[attribute]);
+			if (_.isEmpty(fieldAttributesKeys)) {
+				return field.type;
+			}
+			
+			const attributes = fieldAttributesKeys.reduce((attributes, key) => {
+				return Object.assign({}, attributes, {
+					[key]: field[key]
+				});
+			}, {});
+
+			return Object.assign({
+				type: field.type
+			}, attributes);
 		}
 	});
 	return avroSchema;
@@ -333,12 +468,14 @@ const getMultipleComplexTypeProperties = (schema, type) => {
 	const allowedComplexFields = {
 		"enum": [
 			"symbols",
-			"pattern",
 			"namespace"
 		],
 		"fixed": [
 			"size",
-			"namespace"
+			"namespace",
+			"logicalType",
+			"precision",
+			"scale"
 		],
 		"array": ["items"],
 		"map": ["values"],
@@ -363,44 +500,76 @@ const getMultipleComplexTypeProperties = (schema, type) => {
 const getFieldWithConvertedType = (schema, field, type, udt) => {
 	switch(type) {
 		case 'string':
-		case 'bytes':
 		case 'boolean':
+		case 'bytes':
 		case 'null':
 		case 'array':
-			return Object.assign(schema, { type, });
+			return Object.assign(schema, getField(field, type));
 		case 'record':
 		case 'enum':
 		case 'fixed':
-			return Object.assign(schema, { 
-				type,
+			return Object.assign(schema, getField(field, type), {
 				typeName: field.typeName 
 			});
 		case 'number':
-			return Object.assign(schema, getNumberType(field));
+			return Object.assign(schema, getNumberField(field));
 		case 'map':
 			return Object.assign(schema, {
 				type,
 				values: getValues(type, field.subtype)
 			});
 		default:
-			return Object.assign(schema, { type: getTypeFromUdt(type, udt) || DEFAULT_TYPE });
+			const typeFromUdt = getTypeFromUdt(type, udt);
+			if (_.isArray(_.get(typeFromUdt, 'type'))) {
+				return Object.assign(schema, typeFromUdt, {
+					name: schema.name
+				} );
+			}
+			return Object.assign(schema, { type: typeFromUdt || DEFAULT_TYPE });
 	}
 };
 
 const getTypeFromUdt = (type, udt) => {
-	if (!udt[type]) {
-		return type;
+	if (isUdtUsed(type, udt)) {
+		return getTypeWithNamespace(type, udt);
 	}
 	const udtItem = cloneUdtItem(udt[type]);
-	if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
-		delete udt[type];
-		if (Array.isArray(udtItem)) {
-			return udtItem.map(udtItemType => prepareDefinitionBeforeInsert(udtItemType, udt));
-		}
-		return prepareDefinitionBeforeInsert(udtItem, udt);
+
+	if (!isDefinitionTypeValidForAvroDefinition(udtItem)) {
+		return udtItem;
 	}
 
-	return udtItem;
+	useUdt(type, udt);
+
+	if (Array.isArray(udtItem)) {
+		return udtItem.map(udtItemType => replaceUdt(udtItemType, udt));
+	} else {
+		return replaceUdt(udtItem, udt);
+	}
+};
+
+const getTypeWithNamespace = (type, udt) => {
+	const udtItem = udt[type];
+
+	if (!udtItem) {
+		return type;
+	}
+
+	if (!udtItem.namespace) {
+		return type;
+	}
+
+	return udtItem.namespace + '.' + type;
+};
+
+const useUdt = (type, udt) => {
+	udt[type] = cloneUdtItem(udt[type]);
+	
+	udt[type].used = true;
+};
+
+const isUdtUsed = (type, udt) => {
+	return !udt[type] || udt[type].used;
 };
 
 const isDefinitionTypeValidForAvroDefinition = (definition) => {
@@ -411,41 +580,6 @@ const isDefinitionTypeValidForAvroDefinition = (definition) => {
 		return definition.some(isDefinitionTypeValidForAvroDefinition);
 	} else {
 		return validTypes.includes(definition.type);
-	}
-}
-
-const prepareDefinitionBeforeInsert = (definition, udt) => {
-	switch(definition.type) {
-		case 'record':
-			const definitionFields = _.get(definition, 'fields', []);
-			const fields = definitionFields.reduce((acc, field) => {
-				if (udt[field.type]) {
-					const udtItem = cloneUdtItem(udt[field.type]);
-					const fieldWithRef = Object.assign({}, field);
-
-					if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
-						delete udt[field.type];
-					}
-
-					fieldWithRef.type = prepareDefinitionBeforeInsert(udtItem, udt);
-					return [...acc, fieldWithRef];
-				}
-				return [...acc, field];
-			}, []);
-			return Object.assign({}, definition, { fields });
-		case 'array':
-			if (udt[definition.items.type]) {
-				const udtItem = cloneUdtItem(udt[definition.items.type]);
-
-				if (isDefinitionTypeValidForAvroDefinition(udtItem)) {
-					delete udt[definition.items.type];
-				}
-
-				return Object.assign({}, definition, { items: { type: udtItem }});
-			}
-			return Object.assign({}, definition, { items: prepareDefinitionBeforeInsert(definition.items, udt) }); 
-		default:
-			return definition;
 	}
 }
 
@@ -496,11 +630,11 @@ const handleItems = (schema, avroSchema, udt) => {
 		avroSchema.items = avroSchema.items || {};
 		schemaItem.type = schemaItem.type || getTypeFromReference(schemaItem);
 
-		handleType(schemaItem, avroSchema.items, udt);
+		handleRecursiveSchema(schemaItem, avroSchema.items, avroSchema, udt);
+	}
 
-		if (avroSchema.items.type && typeof avroSchema.items.type === 'object') {
-			avroSchema.items = avroSchema.items.type;
-		}
+	if (avroSchema.items.type && typeof avroSchema.items.type === 'object') {
+		avroSchema.items = Object.assign({}, avroSchema.items, avroSchema.items.type);
 	}
 
 	if (schemaItemName) {
@@ -508,21 +642,28 @@ const handleItems = (schema, avroSchema, udt) => {
 	}
 };
 
-const uniqBy = (arr, prop) => {
-	return arr.map(function(e) { return e[prop]; }).filter(function(e,i,a){
-		return i === a.indexOf(e);
-	});
+const handleDefault = (schema, avroSchema, udt) => {
+	const value = getDefault(schema.type, schema['default']);
+	if (_.isArray(schema.type)) {
+		avroSchema['default'] = value;
+		return;
+	}
+
+	const allowedProperties = getAllowedPropertyNames(schema.type, schema, udt);
+	if (allowedProperties.includes('default')) {
+		avroSchema['default'] = value;
+	}
 };
 
-const handleOtherProps = (schema, prop, avroSchema) => {
-	if (prop === 'default') {
-		avroSchema[prop] = getDefault(schema.type, schema[prop]);
-	} else if (ADDITIONAL_PROPS.includes(prop)) {
-		avroSchema[prop] = schema[prop];
+const handleOtherProps = (schema, prop, avroSchema, udt) => {
+	const allowedProperties = getAllowedPropertyNames(schema.type, schema, udt);
+	if (!allowedProperties.includes(prop)) {
+		return;
+	}
+	avroSchema[prop] = schema[prop];
 
-		if (prop === 'size') {
-			avroSchema[prop] = Number(avroSchema[prop]);
-		}
+	if (prop === 'size' || prop === 'durationSize') {
+		avroSchema[prop] = Number(avroSchema[prop]);
 	}
 };
 
@@ -542,6 +683,7 @@ const getDefault = (type, value) => {
 const handleComplexTypeStructure = (avroSchema, parentSchema) => {
 	const rootComplexProps = ['doc', 'default'];
 	const isParentArray = parentSchema && parentSchema.type && parentSchema.type === 'array';
+	avroSchema = setDurationSize(avroSchema);
 
 	if (!isParentArray && isComplexType(avroSchema.type)) {
 		const name = avroSchema.name;
@@ -634,36 +776,222 @@ const getTargetFieldLevelPropertyNames = (type, data) => {
 	return fieldLevelConfig.structure[type].filter(property => {
 		if (typeof property === 'object' && property.isTargetProperty) {
 			if (property.dependency) {
-				return (data[property.dependency.key] == property.dependency.value);
+				const dependencyKey = resolveKey(type, property.dependency.key);
+				return (data[dependencyKey] == property.dependency.value);
 			} else {
 				return true;
 			}
 		}
 
 		return false;
-	}).map(property => property.propertyKeyword);
+	}).map(property => resolveKey(type, property));
 };
+
+const getAllowedPropertyNames = (type, data, udt) => {
+	if (udt && udt[type]) {
+		return getAllowedPropertyNames(_.get(udt[type], 'type'), data, udt);
+	}
+	if (!fieldLevelConfig.structure[type]) {
+		return [];
+	}
+	const isAllowed = (property) => {
+		if (typeof property === 'string') {
+			return ADDITIONAL_PROPS.includes(property)
+		} else if (Object(property) === property) {
+			return ADDITIONAL_PROPS.includes(property.propertyKeyword) || property.isTargetProperty;
+		} else {
+			return false;
+		}
+	};
+
+	return fieldLevelConfig.structure[type].filter(property => {
+		if (!isAllowed(property)) {
+			return false;
+		}
+		
+		if (typeof property !== 'object') {
+			return true;
+		}
+		if (!property.dependency) {
+			return true;
+		}
+
+		const dependencyKey = resolveKey(type, property.dependency.key);
+
+		return (data[dependencyKey] === property.dependency.value);
+	}).map(property => _.isString(property) ? property : property.propertyKeyword)
+	.map(name => resolveKey(type, name));
+};
+
+const resolveKey = (type, key) => (key === 'subtype' && type !== 'map') ? 'logicalType' : key;
 
 const handleTargetProperties = (schema, avroSchema) => {
 	if (schema.type) {
 		const targetProperties = getTargetFieldLevelPropertyNames(schema.type, schema);
 		targetProperties.forEach(prop => {
-			avroSchema[prop] = schema[prop];
+			if (_.isString(prop)) {
+				return avroSchema[prop] = schema[prop];
+			}
+			const keyword = _.get(prop, 'propertyKeyword', '');
+			if (!keyword) {
+				return;
+			}
+			avroSchema[keyword] = schema[keyword];
 		});
 	}
 };
 
-const getNumberType = (field) => {
+const getNumberField = field => {
 	const type = field.mode || 'int';
 
-	if (field.logicalType) {
-		return {
-			type: type,
-			logicalType: field.logicalType
-		};
-	} else {
-		return {
-			type
-		};
+	return getField(field, type);
+};
+
+const setDurationSize = field => {
+	const size = field.durationSize;
+	delete field.durationSize;
+
+	if (field.type !== 'fixed' || field.logicalType !== 'duration' || !size) {
+		return field;
 	}
+
+	return Object.assign(field, { size });
+};
+
+const getField = (field, type) => {
+	const logicalType = field.logicalType;
+	const correctLogicalTypes = _.get(LOGICAL_TYPES_MAP, type, []);
+	const logicalTypeIsCorrect = correctLogicalTypes.includes(logicalType);
+	const fieldWithType = Object.assign({}, field, { type });
+	let filteredField = {};
+	handleTargetProperties(fieldWithType, filteredField);
+
+	if (!logicalTypeIsCorrect) {
+		return Object.assign({ type }, filteredField);
+	}
+
+	return Object.assign({ type }, filteredField, {
+		logicalType
+	});
+};
+
+const replaceUdt = (avroSchema, udt) => {
+	const convertType = (schema) => {
+		if (Array.isArray(schema.type)) {
+			const type = schema.type.map(type => getTypeFromUdt(type, udt));
+
+			return Object.assign({}, schema, { type });
+		} else if (typeof schema.type === 'string') {
+			const type = getTypeFromUdt(schema.type, udt);
+
+			return Object.assign({}, schema, { type });
+		} else {
+			return schema;
+		}
+	};
+	const extractArrayItem = (schema) => {
+		const items = convertType(schema.items);
+		const previousType = _.get(schema, 'items.type', items.type);
+		const convertedType = items.type;
+
+		if (!convertedType || convertedType === previousType) {
+			return schema;
+		}
+		
+		return Object.assign({}, schema, { items: convertedType });
+	};
+
+	return mapAvroSchema(avroSchema, (schema) => {
+		if (schema.type === 'array') {
+			return extractArrayItem(schema);
+		} else {
+			return convertType(schema);
+		}
+	});
+};
+
+const mapAvroSchema = (avroSchema, iteratee) => {
+	avroSchema = iteratee(avroSchema);
+	
+	if (_.isArray(avroSchema.fields)) {
+		const fields = avroSchema.fields.map(schema => mapAvroSchema(schema, iteratee));
+
+		avroSchema = Object.assign({}, avroSchema, { fields });
+	}
+
+	if (_.isPlainObject(avroSchema.type)) {
+		const type = mapAvroSchema(avroSchema.type, iteratee);
+
+		avroSchema = Object.assign({}, avroSchema, { type });
+	}
+
+	if (_.isArray(avroSchema.type)) {
+		const type = avroSchema.type.map(type => {
+			if (!_.isPlainObject(type)) {
+				return type;
+			}
+
+			return mapAvroSchema(type, iteratee);
+		});
+
+		avroSchema = Object.assign({}, avroSchema, { type });
+	}
+
+	if (_.isPlainObject(avroSchema.items)) {
+		const items = mapAvroSchema(avroSchema.items, iteratee);
+
+		avroSchema = Object.assign({}, avroSchema, { items });
+	}
+
+	return avroSchema;
+};
+
+const getMetaProperties = (metaProperties) => {
+	const metaValueKeyMap = {
+		'avro.java.string': 'metaValueString',
+		'java-element': 'metaValueElement',
+		'java-element-class': 'metaValueElementClass',
+		'java-class': 'metaValueClass',
+		'java-key-class': 'metaValueKeyClass'
+	};
+
+	return metaProperties.reduce((props, property) => {
+		const metaValueKey = _.get(metaValueKeyMap, property.metaKey, 'metaValue');
+
+		return Object.assign(props, { [property.metaKey]: property[metaValueKey] });
+	}, {});
+};
+
+const getTypeWithMeta = (type, meta) => {
+	if (typeof type !== 'string') {
+		return Object.assign({}, type, meta);
+	} else {
+		return Object.assign({ type }, meta);
+	}
+};
+
+const getMultipleTypeWithMeta = (types, meta) => {
+	return types.map(type => {
+		if (type === 'null') {
+			return type;
+		}
+
+		return getTypeWithMeta(type, meta);
+	});
+};
+
+const addMetaPropertiesToType = (avroSchema, jsonSchema) => {
+	if (!Array.isArray(jsonSchema.metaProps) || !jsonSchema.metaProps.length) {
+		return avroSchema;
+	}
+
+	const meta = getMetaProperties(jsonSchema.metaProps);
+
+	if (Array.isArray(avroSchema.type)) {
+		avroSchema.type = getMultipleTypeWithMeta(avroSchema.type, meta);
+	} else {
+		avroSchema.type = getTypeWithMeta(avroSchema.type, meta);
+	}
+
+	return avroSchema;
 };

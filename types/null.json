@@ -3,9 +3,9 @@
 	"name": "null",
 	"erdAbbreviation": "<null>",
 	"dtdAbbreviation": "{null}",
-	"useSample": false,
+	"useSample": true,
 	"defaultValues": {
-		"default": "",
+		"default": null,
 		"type": "null",
 		"primaryKey": false,
 		"relationshipType": "",

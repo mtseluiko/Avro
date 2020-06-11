@@ -10,6 +10,7 @@
 		"maxLength": "",
 		"pattern": "",
 		"default": "",
+		"durationSize": 12,
 		"primaryKey": false,
 		"relationshipType": "",
 		"parentRelationship": "",
@@ -18,6 +19,19 @@
 		"foreignField": [],
 		"enum": [],
 		"sample": "",
-		"size": 0
+		"subtype": "",
+		"size": 0,
+		"metaProps": []
+	},
+	"subtypes": {
+		"fixed": {
+			"parentType": "string"
+		},
+		"decimal": {
+			"parentType": "number"
+		},
+		"duration": {
+			"parentType": "string"
+		}
 	}
 }

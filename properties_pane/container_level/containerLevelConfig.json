@@ -120,6 +120,20 @@ making sure that you maintain a proper JSON format.
 		"containerLevelKeys": [],
 		"structure": [
 			{
+				"propertyName": "Namespace",
+				"propertyKeyword": "name",
+				"shouldValidate": true,
+				"propertyType": "text",
+				"regex": "^[A-Za-z_][A-Za-z0-9_.]*$"
+			},
+			{
+				"propertyName": "Technical name",
+				"propertyKeyword": "code",
+				"shouldValidate": true,
+				"propertyType": "text",
+				"regex": "^[A-Za-z_][A-Za-z0-9_.]*$"
+			},
+			{
 				"propertyName": "Description",
 				"propertyKeyword": "description",
 				"shouldValidate": false,

@@ -15,6 +15,7 @@
 		"childRelationships": [],
 		"foreignEntity": "",
 		"foreignField": [],
-		"sample": ""
+		"sample": "",
+		"metaProps": []
 	}
 }

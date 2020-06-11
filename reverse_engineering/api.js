@@ -5,7 +5,7 @@ const path = require('path');
 const _ = require('lodash');
 const avro = require('avsc');
 const snappy = require('snappyjs');
-const adaptJsonSchema = require('./helpers/adaptJsonSchema');
+const jsonSchemaAdapter = require('./helpers/adaptJsonSchema');
 const DEFAULT_FIELD_NAME = 'New_field';
 let stateExtension = null;
 
@@ -24,7 +24,16 @@ const DATA_TYPES = [
 	'float',
 	'double',
 	'map'
-]
+];
+const META_PROPERTIES = [
+	'avro.java.string',
+	'java-element',
+	'java-element-class',
+	'java-class',
+	'java-key-class'
+];
+
+const COMPLEX_TYPES = ['map', 'array', 'record'];
 
 module.exports = {
 	reFromFile(data, logger, callback) {
@@ -64,13 +73,14 @@ module.exports = {
 		logger.log('info', 'Adaptation of JSON Schema started...', 'Adapt JSON Schema');
 		try {
 			const jsonSchema = JSON.parse(data.jsonSchema);
-
-			const adaptedJsonSchema = adaptJsonSchema(jsonSchema);
+			const adaptedJsonSchema = jsonSchemaAdapter.adaptJsonSchema(jsonSchema);
+			const jsonSchemaName = jsonSchemaAdapter.adaptJsonSchemaName(data.jsonSchemaName);
 
 			logger.log('info', 'Adaptation of JSON Schema finished.', 'Adapt JSON Schema');
 
 			callback(null, {
-				jsonSchema: JSON.stringify(adaptedJsonSchema)
+				jsonSchema: JSON.stringify(adaptedJsonSchema),
+				jsonSchemaName
 			});
 		} catch(error) {
 			const formattedError = formatError(error);
@@ -254,25 +264,38 @@ const isComplexType = (type) => {
 	}
 	if (typeof type === 'string') {
 		return true;
+	} else if (Object(type.type) === type.type) {
+		return isComplexType(type.type);
 	}
 
-	const isNumber = [
-		'int',
-		'long',
-		'float',
-		'double',
-	].includes(type.type);
+	return COMPLEX_TYPES.includes(type.type);
+};
 
-	if (isNumber) {
-		return false;
-	} else {
-		return true;
-	}
+const getTypeProperties = (type) => {
+	return Object.keys(type).reduce((schema, property) => {
+		if (['fields', 'items', 'type'].includes(property)) {
+			schema[property] = type[property];
+		} else {
+			handleOtherProps(type, property, schema);
+		}
+		
+
+		return schema;
+	}, {});
 };
 
 const getType = (schema, field, type) => {
 	if (Object(type) === type) {
-		return Object.assign({}, schema, type, getType(schema, field, type.type));
+		if (type.name) {
+			schema.typeName = type.name;
+		}
+
+		return Object.assign(
+			{},
+			schema,
+			getTypeProperties(type),
+			getType(schema, field, type.type)
+		);
 	}
 
 	switch(type) {
@@ -300,8 +323,16 @@ const getType = (schema, field, type) => {
 				subtype: `map<${field.values}>`
 			});
 		default:
-			return Object.assign(schema, { $ref: '#/definitions/' + type });
+			return Object.assign(schema, { $ref: '#/definitions/' + getDefinitionTypeName(type) });
 	}
+};
+
+const getDefinitionTypeName = (type) => {
+	if (typeof type !== 'string') {
+		return type;
+	}
+
+	return type.split('.').pop();
 };
 
 const getChoice = (data, parentSchema) => {
@@ -378,10 +409,41 @@ const handleItems = (data, prop, schema, definitions) => {
 	}
 };
 
+const isMetaProperty = (propertyName) => {
+	return META_PROPERTIES.includes(propertyName);
+};
+
+const addMetaProperty = (schema, metaKey, metaValue) => {
+	if (!Array.isArray(schema.metaProps)) {
+		schema.metaProps = [];
+	}
+
+	const metaValueKeyMap = {
+		'avro.java.string': 'metaValueString',
+		'java-element': 'metaValueElement',
+		'java-element-class': 'metaValueElementClass',
+		'java-class': 'metaValueClass',
+		'java-key-class': 'metaValueKeyClass'
+	};
+
+	const metaValueKey = _.get(metaValueKeyMap, metaKey, 'metaValue');
+
+	schema.metaProps.push({
+		metaKey, [metaValueKey]: metaValue
+	});
+};
+
 const handleOtherProps = (data, prop, schema) => {
+	if (isMetaProperty(prop)) {
+		addMetaProperty(schema, prop, data[prop]);
+	}
+
 	if (!ADDITIONAL_PROPS.includes(prop)) {
 		return;
-  	}
+	}
+	if (prop === 'logicalType' && (data.type === 'bytes' || data.type === 'fixed')) {
+		schema['subtype'] = data.prop;
+	}
   	if (prop === 'default' && typeof data[prop] === 'boolean') {
 		schema[prop] = data[prop].toString();	
 	} else {

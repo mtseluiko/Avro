@@ -130,12 +130,7 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
-			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean"
-			},
+			"required",
 			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
@@ -144,12 +139,30 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"required": true
 				},
+				"dependency": { 
+					"type": "and", 
+					"values": [{
+						"key": "required",
+						"value": false
+					}, {
+						"type": "not",
+						"values": {
+							"level": "parent",
+							"key": "childType",
+							"value": "array"
+						}
+					}]
+				}
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "text",
 				"dependency": [{
-					"key": "required",
-					"value": false
-				}, {
-					"key": "required",
-					"exist": false
+					"level": "parent",
+					"key": "childType",
+					"value": "array"
 				}]
 			},
 			{
@@ -171,6 +184,92 @@ making sure that you maintain a proper JSON format.
 				"multi": true,
 				"valueType": "array"
 			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"avro.java.string",
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": ""
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueString",
+						"propertyType": "select",
+						"options": [
+							"String",
+							"java.lang.Integer",
+							"java.math.BigInteger",
+							"java.lang.Float",
+							"java.math.BigDecimal"
+						],
+						"dependency": { 
+							"key": "metaKey",
+							"value": "avro.java.string"
+						}					
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElement",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElementClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueKeyClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-key-class"
+						}
+					}
+				]
+			},
+			"pattern",
 			"dependencies",
 			"primaryKey",
 			"foreignCollection",
@@ -194,7 +293,7 @@ making sure that you maintain a proper JSON format.
 			"type",
 			{
 				"propertyName": "Logical type",
-				"propertyKeyword": "logicalType",
+				"propertyKeyword": "subtype",
 				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
@@ -217,7 +316,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
-					"key": "logicalType",
+					"key": "subtype",
 					"value": "decimal"
 				},
 				"isTargetProperty": true
@@ -230,7 +329,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
-					"key": "logicalType",
+					"key": "subtype",
 					"value": "decimal"
 				},
 				"isTargetProperty": true
@@ -241,6 +340,74 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "aliases",
 				"multi": true,
 				"valueType": "array"
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": ""
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElement",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElementClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueKeyClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-key-class"
+						}
+					}
+				]
 			},
 			"dependencies",
 			"sample",
@@ -271,7 +438,17 @@ making sure that you maintain a proper JSON format.
 					"double"
 				],
 				"data": "options",
-				"valueType": "string"
+				"valueType": "string",
+				"dependency": {
+					"type": "not",
+					"values": [{
+						"key": "childType",
+						"value": "bytes"
+					},{
+						"key": "childType",
+						"value": "fixed"
+					}]
+				}
 			},
 			{
 				"propertyName": "Logical type",
@@ -318,12 +495,7 @@ making sure that you maintain a proper JSON format.
 					"ignore"
 				]
 			},
-			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean"
-			},
+			"required",
 			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
@@ -332,12 +504,30 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"required": true
 				},
+				"dependency": { 
+					"type": "and", 
+					"values": [{
+						"key": "required",
+						"value": false
+					}, {
+						"type": "not",
+						"values": {
+							"level": "parent",
+							"key": "childType",
+							"value": "array"
+						}
+					}]
+				}
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "numeric",
 				"dependency": [{
-					"key": "required",
-					"value": false
-				}, {
-					"key": "required",
-					"exist": false
+					"level": "parent",
+					"key": "childType",
+					"value": "array"
 				}]
 			},
 			{
@@ -346,6 +536,74 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "aliases",
 				"multi": true,
 				"valueType": "array"
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": ""
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElement",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElementClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueKeyClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-key-class"
+						}
+					}
+				]
 			},
 			"dependencies",
 			"primaryKey",
@@ -375,12 +633,7 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
-			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean"
-			},
+			"required",
 			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
@@ -394,12 +647,35 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"required": true
 				},
+				"dependency": { 
+					"type": "and", 
+					"values": [{
+						"key": "required",
+						"value": false
+					}, {
+						"type": "not",
+						"values": {
+							"level": "parent",
+							"key": "childType",
+							"value": "array"
+						}
+					}]
+				}
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "select",
+				"options": [
+					"",
+					"true",
+					"false"
+				],
 				"dependency": [{
-					"key": "required",
-					"value": false
-				}, {
-					"key": "required",
-					"exist": false
+					"level": "parent",
+					"key": "childType",
+					"value": "array"
 				}]
 			},
 			{
@@ -409,6 +685,74 @@ making sure that you maintain a proper JSON format.
 				"multi": true,
 				"valueType": "array"
 			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": ""
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElement",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElementClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueKeyClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-key-class"
+						}
+					}
+				]
+			},
 			"dependencies",
 			"sample",
 			"comments"
@@ -417,15 +761,52 @@ making sure that you maintain a proper JSON format.
 			"name",
 			"schemaId",
 			"description",
+			{
+				"propertyName": "Doc",
+				"propertyKeyword": "doc",
+				"propertyValidate": false,
+				"propertyTooltip": "Popup for multi-line text entry",
+				"propertyType": "details",
+				"template": "textarea"
+			},
 			"type",
+			"required",
 			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
 				"shouldValidate": true,
 				"propertyType": "text",
 				"validation": {
-					"enum": ["null", ""]
+					"enum": [null, "null", ""]
+				},
+				"dependency": { 
+					"type": "and", 
+					"values": [{
+						"key": "required",
+						"value": false
+					}, {
+						"type": "not",
+						"values": {
+							"level": "parent",
+							"key": "childType",
+							"value": "array"
+						}
+					}]
 				}
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"propertyType": "text",
+				"validation": {
+					"enum": [null, "null", ""]
+				},
+				"dependency": [{
+					"level": "parent",
+					"key": "childType",
+					"value": "array"
+				}]
 			},
 			"dependencies",
 			"comments"
@@ -451,11 +832,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "required",
-					"value": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Type name",
@@ -466,6 +843,7 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Namespace",
 				"propertyKeyword": "namespace",
+				"enableForReference": true,
 				"shouldValidate": false,
 				"propertyType": "text"
 			},
@@ -475,6 +853,74 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "aliases",
 				"multi": true,
 				"valueType": "array"
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": ""
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElement",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElementClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueKeyClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-key-class"
+						}
+					}
+				]
 			},
 			"dependencies",
 			"minProperties",
@@ -501,11 +947,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "required",
-					"value": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Aliases",
@@ -513,6 +955,74 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "aliases",
 				"multi": true,
 				"valueType": "array"
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": ""
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElement",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElementClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueKeyClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-key-class"
+						}
+					}
+				]
 			},
 			"dependencies",
 			"minItems",
@@ -538,7 +1048,7 @@ making sure that you maintain a proper JSON format.
 			"type",
 			{
 				"propertyName": "Values",
-				"propertyKeyword": "subtype",
+				"propertyKeyword": "logicalType",
 				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
@@ -553,11 +1063,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Required",
 				"propertyKeyword": "required",
 				"propertyType": "checkbox",
-				"template": "boolean",
-				"dependency": [{
-					"key": "required",
-					"value": false
-				}]
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Aliases",
@@ -565,6 +1071,74 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "aliases",
 				"multi": true,
 				"valueType": "array"
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": ""
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElement",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElementClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueKeyClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-key-class"
+						}
+					}
+				]
 			},
 			"dependencies",
 			"minProperties",
@@ -587,15 +1161,7 @@ making sure that you maintain a proper JSON format.
 				"template": "textarea"
 			},
 			"type",
-			{
-				"propertyName": "Required",
-				"propertyKeyword": "required",
-				"propertyType": "checkbox",
-				"template": "boolean",
-				"validation": {
-					"required": true
-				}
-			},
+			"required",
 			{
 				"propertyName": "Default",
 				"propertyKeyword": "default",
@@ -605,12 +1171,34 @@ making sure that you maintain a proper JSON format.
 					"required": true,
 					"in": "symbols"
 				},
+				"dependency": { 
+					"type": "and", 
+					"values": [{
+						"key": "required",
+						"value": false
+					}, {
+						"type": "not",
+						"values": {
+							"level": "parent",
+							"key": "childType",
+							"value": "array"
+						}
+					}]
+				}
+			},
+			{
+				"propertyName": "Default",
+				"propertyKeyword": "default",
+				"shouldValidate": true,
+				"validation": {
+					"required": true,
+					"in": "symbols"
+				},
+				"propertyType": "text",
 				"dependency": [{
-					"key": "required",
-					"value": false
-				}, {
-					"key": "required",
-					"exist": false
+					"level": "parent",
+					"key": "childType",
+					"value": "array"
 				}]
 			},
 			{
@@ -622,6 +1210,7 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Namespace",
 				"propertyKeyword": "namespace",
+				"enableForReference": true,
 				"shouldValidate": false,
 				"propertyType": "text"
 			},
@@ -641,6 +1230,74 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"regex": "^[A-Za-z_][A-Za-z0-9_]*$"
 				}
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": ""
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElement",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElementClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueKeyClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-key-class"
+						}
+					}
+				]
 			},
 			"dependencies",
 			{
@@ -682,7 +1339,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"propertyName": "Logical type",
-				"propertyKeyword": "logicalType",
+				"propertyKeyword": "subtype",
 				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
@@ -700,7 +1357,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
-					"key": "logicalType",
+					"key": "subtype",
 					"value": "decimal"
 				},
 				"isTargetProperty": true
@@ -713,7 +1370,7 @@ making sure that you maintain a proper JSON format.
 				"valueType": "number",
 				"allowNegative": false,
 				"dependency": {
-					"key": "logicalType",
+					"key": "subtype",
 					"value": "decimal"
 				},
 				"isTargetProperty": true
@@ -721,6 +1378,7 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Namespace",
 				"propertyKeyword": "namespace",
+				"enableForReference": true,
 				"shouldValidate": false,
 				"propertyType": "text"
 			},
@@ -731,15 +1389,100 @@ making sure that you maintain a proper JSON format.
 				"multi": true,
 				"valueType": "array"
 			},
-			"schemaId",
-			"type",
 			{
 				"propertyName": "Size",
 				"propertyKeyword": "size",
 				"propertyValidate": true,
 				"propertyType": "numeric",
 				"valueType": "number",
-				"allowNegative": false
+				"allowNegative": false,
+				"dependency": {
+					"type": "not",
+					"values": {
+						"key": "subtype",
+						"value": "duration"
+					}
+				}
+			},
+			{
+				"propertyName": "Size",
+				"propertyKeyword": "durationSize",
+				"propertyValidate": true,
+				"propertyType": "numeric",
+				"valueType": "number",
+				"allowNegative": false,
+				"dependency": {
+					"key": "subtype",
+					"value": "duration"
+				}
+			},
+			{
+				"propertyName": "Meta properties",
+				"propertyType": "group",
+				"propertyKeyword": "metaProps",
+				"structure": [
+					{
+						"propertyName": "Key",
+						"propertyKeyword": "metaKey",
+						"propertyType": "select",
+						"options": [
+							"java-element",
+							"java-element-class",
+							"java-class",
+							"java-key-class"
+						]
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValue",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": ""
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElement",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueElementClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-element-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-class"
+						}
+					},
+					{
+						"propertyName": "Value",
+						"propertyKeyword": "metaValueKeyClass",
+						"propertyTooltip": "",
+						"propertyType": "text",
+						"dependency": { 
+							"key": "metaKey",
+							"value": "java-key-class"
+						}
+					}
+				]
 			},
 			"dependencies",
 			"sample",
@@ -756,6 +1499,11 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "Popup for multi-line text entry",
 				"propertyType": "details",
 				"template": "textarea"
+			},{
+				"propertyName": "Required",
+				"propertyKeyword": "required",
+				"propertyType": "checkbox",
+				"template": "boolean"
 			},
 			{
 				"propertyName": "Default",
@@ -764,7 +1512,14 @@ making sure that you maintain a proper JSON format.
 				"propertyTooltip": "default",
 				"propertyType": "details",
 				"template": "textarea",
-				"markdown": false
+				"markdown": false,
+				"dependency": [{
+					"key": "required",
+					"value": false
+				}, {
+					"key": "required",
+					"exist": false
+				}]
 			},
 			"comments"
 		],
