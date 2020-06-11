@@ -637,7 +637,7 @@ const handleItems = (schema, avroSchema, udt) => {
 		avroSchema.items = Object.assign({}, avroSchema.items, avroSchema.items.type);
 	}
 
-	if (schemaItemName) {
+	if (schemaItemName && ['record', 'array', 'map', 'enum', 'fixed'].includes(avroSchema.items.type)) {
 		avroSchema.items.name = schemaItemName;
 	}
 };
