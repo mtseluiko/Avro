@@ -234,7 +234,7 @@ const handleMultipleTypes = (data, schema, parentSchema, definitions) => {
 
 	if (hasComplexType) {
 		data.type = addDefinitions(data.type, definitions);
-		parentSchema = getChoice(data, parentSchema);
+		parentSchema = getChoice(data, parentSchema, definitions);
 	} else {
 		const typeObjects = data.type.map(type => getType({}, data, type));
 		schema = Object.assign(schema, ...typeObjects);
@@ -335,20 +335,20 @@ const getDefinitionTypeName = (type) => {
 	return type.split('.').pop();
 };
 
-const getChoice = (data, parentSchema) => {
-	const oneOfItem = getOneOf(data);
+const getChoice = (data, parentSchema, definitions = {}) => {
+	const oneOfItem = getOneOf(data, definitions);
 	parentSchema.properties = Object.assign({} ,parentSchema.properties, oneOfItem);
 
 	return parentSchema;
 };
 
-const getOneOf = (data) => {
+const getOneOf = (data, definitions = {}) => {
 	const name = data.name || DEFAULT_FIELD_NAME;
 	const oneOfProperties = data.type.map(item => {
 
 		const subField = getSubField(item);
 		const subFieldSchema = {};
-		handleRecursiveSchema(subField, subFieldSchema);
+		handleRecursiveSchema(subField, subFieldSchema, {}, definitions);
 		
 		return getCommonSubSchema(subFieldSchema, name, item.name);
 	});
@@ -398,8 +398,17 @@ const handleFields = (data, prop, schema, definitions) => {
 
 const handleItems = (data, prop, schema, definitions) => {
 	const items = data[prop];
+	if (_.isArray(items)) {
+		schema.items = items.map(item => {
+			let schemaItem = {};
+			if (_.isString(item)) {
+				return { type: item };
+			}
+			handleRecursiveSchema(item, schemaItem, {}, definitions);
 
-	if (typeof items === 'object') {
+			return schemaItem;
+		});
+	} else if (typeof items === 'object') {
 		schema.items = {};
 		handleRecursiveSchema(items, schema.items, schema, definitions);
 	} else {
