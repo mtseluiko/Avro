@@ -813,6 +813,7 @@ making sure that you maintain a proper JSON format.
 		],
 		"___1": [],
 		"record": [
+			"arrayItemName",
 			"arrayItemCode",
 			"name",
 			"code",
@@ -927,6 +928,7 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"array": [
+			"arrayItemName",
 			"arrayItemCode",
 			"name",
 			"code",
@@ -1029,6 +1031,7 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"map": [
+			"arrayItemName",
 			"arrayItemCode",
 			"name",
 			"code",
@@ -1143,6 +1146,7 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"enum": [
+			"arrayItemName",
 			"arrayItemCode",
 			"name",
 			"code",
@@ -1306,6 +1310,7 @@ making sure that you maintain a proper JSON format.
 			"comments"
 		],
 		"fixed": [
+			"arrayItemName",
 			"arrayItemCode",
 			"name",
 			"code",
