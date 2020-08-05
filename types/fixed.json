@@ -33,5 +33,11 @@
 		"duration": {
 			"parentType": "string"
 		}
-	}
+	},
+	"descriptor": [{
+		"schema": {
+			"subtype": "duration"
+		},
+		"format": "PnYnMnDTnHnMnS"
+	}]
 }

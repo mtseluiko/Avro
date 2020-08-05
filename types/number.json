@@ -26,5 +26,48 @@
 		"mode": "int",
 		"sample": "",
 		"metaProps": []
-	}
+	},
+	"descriptor": [{
+		"schema": {
+			"mode": "int",
+			"logicalType": "date"
+		},
+		"format": "YYYY-MM-DD"
+	}, {
+		"schema": {
+			"mode": "int",
+			"logicalType": "time-millis"
+		},
+		"format": "hh:mm:ss.nnn"
+	}, {
+		"schema": {
+			"mode": "long",
+			"logicalType": "time-micros"
+		},
+		"format": "hh:mm:ss.nnnnnn"
+	}, {
+		"schema": {
+			"mode": "long",
+			"logicalType": "timestamp-millis"
+		},
+		"format": "YYYY-MM-DD hh:mm:ss.nnn"
+	}, {
+		"schema": {
+			"mode": "long",
+			"logicalType": "timestamp-micros"
+		},
+		"format": "YYYY-MM-DD hh:mm:ss.nnnnnn"
+	}, {
+		"schema": {
+			"mode": "long",
+			"logicalType": "local-timestamp-millis"
+		},
+		"format": "YYYY-MM-DD hh:mm:ss.nnnZ"
+	}, {
+		"schema": {
+			"mode": "long",
+			"logicalType": "local-timestamp-micros"
+		},
+		"format": "YYYY-MM-DD hh:mm:ss.nnnnnnZ"
+	}]
 }

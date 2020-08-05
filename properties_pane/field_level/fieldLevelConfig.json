@@ -475,7 +475,9 @@ making sure that you maintain a proper JSON format.
 					"",
 					"time-micros",
 					"timestamp-millis",
-					"timestamp-micros"
+					"timestamp-micros",
+					"local-timestamp-millis",
+					"local-timestamp-micros"
 				],
 				"dependency": {
 					"key": "mode",
