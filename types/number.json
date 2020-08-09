@@ -48,6 +48,12 @@
 	}, {
 		"schema": {
 			"mode": "long",
+			"logicalType": "time-micros"
+		},
+		"format": "hh:mm:ss.nnnnnnnnn"
+	}, {
+		"schema": {
+			"mode": "long",
 			"logicalType": "timestamp-millis"
 		},
 		"format": "YYYY-MM-DD hh:mm:ss.nnn"
