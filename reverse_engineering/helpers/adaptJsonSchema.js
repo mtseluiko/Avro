@@ -26,6 +26,10 @@ const handleDateTime = field => {
 };
 
 const handleNumber = field => {
+	if (field.mode || field.logicalType) {
+		return field;
+	}
+
 	return Object.assign({}, field, {
 		type: 'bytes',
 		logicalType: 'decimal'
@@ -40,13 +44,15 @@ const handleInt = field => {
 };
 
 const handleStringFormat = field => {
-	switch(field.format) {
+	const { format, ...fieldData } = field;
+
+	switch(format) {
 		case 'date':
-			return handleDate(field);
+			return handleDate(fieldData);
 		case 'time':
-			return handleTime(field);
+			return handleTime(fieldData);
 		case 'date-time':
-			return handleDateTime(field);
+			return handleDateTime(fieldData);
 		default:
 			return field;
 	};
