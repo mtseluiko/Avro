@@ -365,10 +365,10 @@ const handleChoice = (schema, choice, udt) => {
 		});
 	}
 
-	if(schema.properties) {
-		schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
-	} else {
+	if(schema.type === 'array') {
 		schema.items = schema.items.filter(item => !_.isEmpty(item)).concat(allSubSchemaFields);
+	} else {
+		schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
 	}
 };
 
