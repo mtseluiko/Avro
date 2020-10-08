@@ -432,7 +432,7 @@ const handleItems = (data, prop, schema, definitions) => {
 		schema.items = items.map(item => {
 			let schemaItem = {};
 			if (_.isString(item)) {
-				return { type: item };
+				return getType({}, schemaItem, item);
 			}
 			handleRecursiveSchema(item, schemaItem, {}, definitions);
 
