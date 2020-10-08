@@ -344,7 +344,9 @@ const handleChoice = (schema, choice, udt) => {
 		}
 	});
 
-	schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
+	if(schema.properties) {
+		schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
+	}
 };
 
 const getChoiceIndex = choice => _.get(choice, 'choiceMeta.index');
