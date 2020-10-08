@@ -276,76 +276,99 @@ const handleChoice = (schema, choice, udt) => {
 		}
 	}
 	
-	schema[choice].forEach(subSchema => {
-		if (subSchema.oneOf) {
-			handleChoice(subSchema, 'oneOf', udt);
+	schema[choice].forEach((subSchema) => {
+    	if (subSchema.oneOf) {
+    	  handleChoice(subSchema, "oneOf", udt);
+    	}
+    	if (subSchema.allOf) {
+    	  handleChoice(subSchema, "allOf", udt);
+    	}
+
+    	if (subSchema.type === "array") {
+    		allSubSchemaFields = allSubSchemaFields.concat(
+    		  	subSchema.items.reduce((items, item) => {
+					if(!_.isEmpty(item)) {
+						return [...items, {...item}]
+					}
+    		  	  	return items;
+    		  	}, [])
+			);	
+
+			return;
 		}
-		if (subSchema.allOf) {
-			handleChoice(subSchema, 'allOf', udt);
-		}
-		allSubSchemaFields = allSubSchemaFields.concat(Object.keys(subSchema.properties || {}).map(item => {
-			return Object.assign({
-				name: item
-			}, subSchema.properties[item]);
-		}));
-	});
+
+		allSubSchemaFields = allSubSchemaFields.concat(
+    		Object.keys(subSchema.properties || {}).map((item) => {
+    			return Object.assign(
+    				{
+    				  name: item,
+    				},
+    				subSchema.properties[item]
+    			);
+    		})
+    	);
+ 	});
 
 	let multipleFieldsHash = {};
 
-	allSubSchemaFields.forEach(field => {
-		const fieldName = choiceMeta.name || field.name;
-		if (!multipleFieldsHash[fieldName]) {
-			if (!_.isUndefined(choiceMeta.default)) {
-				choiceMeta.default = convertDefaultMetaFieldType(field.type, choiceMeta.default);
+	if (schema.type !== "array") {
+		allSubSchemaFields.forEach(field => {
+			const fieldName = choiceMeta.name || field.name;
+			if (!multipleFieldsHash[fieldName]) {
+				if (!_.isUndefined(choiceMeta.default)) {
+					choiceMeta.default = convertDefaultMetaFieldType(field.type, choiceMeta.default);
+				}
+
+				if (choiceMeta.default === '') {
+					delete choiceMeta.default;
+				}
+
+				multipleFieldsHash[fieldName] = Object.assign({}, choiceMeta, {
+					name: fieldName,
+					type: [],
+					choiceMeta
+				});
 			}
-			
-			if (choiceMeta.default === '') {
-				delete choiceMeta.default;
+			let multipleField = multipleFieldsHash[fieldName];
+			const filedType = field.type || getTypeFromReference(field) || DEFAULT_TYPE;
+
+			if (!_.isArray(multipleField.type)) {
+				multipleField.type = [multipleField.type];
 			}
 
-			multipleFieldsHash[fieldName] = Object.assign({}, choiceMeta, {
-				name: fieldName,
-				type: [],
-				choiceMeta
-			});
-		}
-		let multipleField = multipleFieldsHash[fieldName];
-		const filedType = field.type || getTypeFromReference(field) || DEFAULT_TYPE;
+			if (!_.isArray(multipleField.type)) {
+				multipleField.type = [multipleField.type];
+			}
 
-		if (!_.isArray(multipleField.type)) {
-			multipleField.type = [multipleField.type];
-		}
+			let newField = {};
 
-		if (!_.isArray(multipleField.type)) {
-			multipleField.type = [multipleField.type];
-		}
+			handleRecursiveSchema(field, newField, {}, udt);
 
-		let newField = {};
+			if (isComplexType(filedType)) {
+				newField.name = newField.name || field.name || fieldName;
+				newField.type.name = newField.type.name || field.name || fieldName;
+				newField.type = reorderName(newField.type);
+				multipleField.type.push(newField);
+			} else if (Object(newField.type) === newField.type) {
+				newField.name = newField.name || field.name || fieldName;
+				multipleField.type = multipleField.type.concat([newField]);
+			} else if (Array.isArray(filedType)) {
+				multipleField.type = multipleField.type.concat(filedType);
+			} else {
+				multipleField.type = multipleField.type.concat([filedType]);
+			}
 
-		handleRecursiveSchema(field, newField, {}, udt);
-
-		if (isComplexType(filedType)) {
-			newField.name = newField.name || field.name || fieldName;
-			newField.type.name = newField.type.name || field.name || fieldName;
-			newField.type = reorderName(newField.type);
-			multipleField.type.push(newField);
-		} else if (Object(newField.type) === newField.type) {
-			newField.name = newField.name || field.name || fieldName;
-			multipleField.type = multipleField.type.concat([newField]);
-		} else if (Array.isArray(filedType)) {
-			multipleField.type = multipleField.type.concat(filedType);
-		} else {
-			multipleField.type = multipleField.type.concat([filedType]);
-		}
-
-		multipleField.type = _.uniq(multipleField.type);
-		if (multipleField.type.length === 1) {
-			multipleField.type = _.first(multipleField.type);
-		}
-	});
+			multipleField.type = _.uniq(multipleField.type);
+			if (multipleField.type.length === 1) {
+				multipleField.type = _.first(multipleField.type);
+			}
+		});
+	}
 
 	if(schema.properties) {
 		schema.properties = addPropertiesFromChoices(schema.properties, multipleFieldsHash);
+	} else {
+		schema.items = schema.items.filter(item => !_.isEmpty(item)).concat(allSubSchemaFields);
 	}
 };
 
@@ -621,26 +644,19 @@ const handleFields = (schema, avroSchema, udt) => {
 
 const handleItems = (schema, avroSchema, udt) => {
 	schema.items = !Array.isArray(schema.items) ? [schema.items] : schema.items;
-	const schemaItem = schema.items[0] || {};
-	const arrayItemType = schemaItem.type || DEFAULT_TYPE;
-	const schemaItemName = schemaItem.arrayItemCode || schemaItem.arrayItemName || schemaItem.code || schemaItem.name;
 
-	if (isComplexType(arrayItemType)) {
-		avroSchema.items = {};
-		handleRecursiveSchema(schemaItem, avroSchema.items, schema, udt);
-	} else {
-		avroSchema.items = avroSchema.items || {};
-		schemaItem.type = schemaItem.type || getTypeFromReference(schemaItem);
-
-		handleRecursiveSchema(schemaItem, avroSchema.items, avroSchema, udt);
-	}
-
-	if (avroSchema.items.type && typeof avroSchema.items.type === 'object') {
-		avroSchema.items = Object.assign({}, avroSchema.items, avroSchema.items.type);
-	}
-
-	if (schemaItemName && ['record', 'array', 'map', 'enum', 'fixed'].includes(avroSchema.items.type)) {
-		avroSchema.items.name = schemaItemName;
+	const items = schema.items
+		.map(schemaItem => {
+			let complexType = {};
+			if(isComplexType(schemaItem.type || DEFAULT_TYPE)) {
+				handleRecursiveSchema(schemaItem, complexType, schema, udt);
+				return complexType;
+			}
+			return getFieldWithConvertedType({}, schemaItem, schemaItem.type, udt).type ||  getTypeFromReference(schemaItem);
+		});
+	avroSchema.items = _.uniq(items);
+	if(avroSchema.items.length === 1) {
+		avroSchema.items = avroSchema.items[0];
 	}
 };
 
