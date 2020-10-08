@@ -44,12 +44,8 @@ module.exports = {
 			.then(schema => {
 				try {
 					const jsonSchema = convertToJsonSchema(schema);
-					let namespace = jsonSchema.namespace;
-					const { name, namespace: namespaceFromName } = getNameAndNamespace(jsonSchema.name);
-					if (namespaceFromName) {
-						namespace = namespace ? namespace + '.' + namespaceFromName : namespaceFromName;
-					}
-					jsonSchema.title = name;
+					const namespace = jsonSchema.namespace;
+					jsonSchema.title = jsonSchema.name;
 					delete jsonSchema.namespace;
 					delete jsonSchema.name;
 					const strJsonSchema = JSON.stringify(jsonSchema, null, 4);
@@ -179,12 +175,6 @@ const handleRecursiveSchema = (data, schema, parentSchema = {}, definitions = {}
 				handleOtherProps(data, prop, schema);
 		}
 	}
-	const { namespace, name } = getNameAndNamespace(schema.name);
-	if (namespace) {
-		schema.namespace = schema.namespace ? schema.namespace + '.' + namespace : namespace;
-		schema.name = name;
-	}
-
 	if (isRequired(data, schema)) {
 		addRequired(parentSchema, data.name);
 	}
@@ -261,16 +251,10 @@ const addDefinitions = (types, definitions) => {
 		}
 
 		let schema = {};
-		const { name, namespace } = getNameAndNamespace(type.name);
-		type.name = name;
-
 		handleRecursiveSchema(type, schema, {}, definitions);
-		if (namespace) {
-			schema.namespace = schema.namespace ? schema.namespace + '.' + namespace : namespace;
-		}
-		definitions[name] = schema;
+		definitions[type.name] = schema;
 
-		return name;
+		return type.name;
 	});
 };
 
@@ -349,20 +333,6 @@ const getDefinitionTypeName = (type) => {
 	}
 
 	return type.split('.').pop();
-};
-
-const getNameAndNamespace = name => {
-	if (!name || typeof name !== 'string') {
-		return { name, namespace: '' };
-	}
-
-	const splittedName = name.split('.');
-	const namespace = splittedName.slice(0, -1);
-	if (_.isEmpty(namespace)) {
-		return { name, namespace: '' };
-	}
-
-	return { namespace:namespace.join('.'), name:  _.last(splittedName) };
 };
 
 const getChoice = (data, parentSchema, definitions = {}) => {
