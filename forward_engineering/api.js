@@ -647,12 +647,19 @@ const handleItems = (schema, avroSchema, udt) => {
 
 	const items = schema.items
 		.map(schemaItem => {
-			let complexType = {};
-			if(isComplexType(schemaItem.type || DEFAULT_TYPE)) {
+			const schemaType = schemaItem.type || getTypeFromReference(schemaItem);
+
+			if(!isComplexType(schemaItem.type)) {
+				schemaItem = getFieldWithConvertedType({}, schemaItem, schemaType, udt);
+			}
+
+			if(isComplexType(schemaItem.type)) {
+				let complexType = {};
 				handleRecursiveSchema(schemaItem, complexType, schema, udt);
 				return complexType;
 			}
-			return getFieldWithConvertedType({}, schemaItem, schemaItem.type, udt).type ||  getTypeFromReference(schemaItem);
+
+			return schemaItem.type;
 		});
 	avroSchema.items = _.uniq(items);
 	if(avroSchema.items.length === 1) {
@@ -729,7 +736,7 @@ const handleComplexTypeStructure = (avroSchema, parentSchema) => {
 
 const handleSchemaName = (avroSchema, parentSchema) => {
 	if (!avroSchema.name && isComplexType(avroSchema.type) && avroSchema.type !== 'array') {
-		avroSchema.name = avroSchema.arrayItemName || parentSchema.name || getDefaultName();
+		avroSchema.name = avroSchema.arrayItemName || getDefaultName();
 	}
 
 	if (avroSchema.name) {
