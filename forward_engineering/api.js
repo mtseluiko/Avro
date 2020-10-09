@@ -647,25 +647,45 @@ const handleItems = (schema, avroSchema, udt) => {
 
 	const items = schema.items
 		.map(schemaItem => {
-			const schemaType = schemaItem.type || getTypeFromReference(schemaItem);
+			let itemData = {};
+			const schemaItemName = schemaItem.arrayItemCode || schemaItem.arrayItemName || schemaItem.code || schemaItem.name;
+			handleRecursiveSchema(schemaItem, itemData, avroSchema, udt);
 
-			if(!isComplexType(schemaItem.type)) {
-				schemaItem = getFieldWithConvertedType({}, schemaItem, schemaType, udt);
+			if(isComplexType(itemData.type)) {
+				itemData = {};
+				handleRecursiveSchema(schemaItem, itemData, schema, udt);
 			}
 
-			if(isComplexType(schemaItem.type)) {
-				let complexType = {};
-				handleRecursiveSchema(schemaItem, complexType, schema, udt);
-				return complexType;
+			if(schemaItemName) {
+				itemData.name = schemaItemName;
+			}
+			
+			if(itemData.type.type){
+				Object.assign(itemData, itemData.type);
 			}
 
-			return schemaItem.type;
+			return itemData;
 		});
-	avroSchema.items = _.uniq(items);
+	avroSchema.items = getUniqueItemsInArray(items);
 	if(avroSchema.items.length === 1) {
 		avroSchema.items = avroSchema.items[0];
 	}
 };
+
+const getUniqueItemsInArray = (items) => {
+	return items.reduce((allItems, item) => {
+		if(!isComplexType(item.type)){
+			if(!allItems.some(addedItem => addedItem.type === item.type)) {
+				return [ ...allItems, item];
+			}
+			return allItems;
+		}
+		if(!allItems.some(addedItem => addedItem.name === item.name)){
+			return [ ...allItems, item];
+		}
+		return allItems;
+	}, [])
+}
 
 const handleDefault = (schema, avroSchema, udt) => {
 	const value = getDefault(schema.type, schema['default']);
@@ -736,7 +756,7 @@ const handleComplexTypeStructure = (avroSchema, parentSchema) => {
 
 const handleSchemaName = (avroSchema, parentSchema) => {
 	if (!avroSchema.name && isComplexType(avroSchema.type) && avroSchema.type !== 'array') {
-		avroSchema.name = avroSchema.arrayItemName || getDefaultName();
+		avroSchema.name = avroSchema.arrayItemName || parentSchema.name || getDefaultName();
 	}
 
 	if (avroSchema.name) {
