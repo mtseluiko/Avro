@@ -109,7 +109,7 @@ const convertSchemaToUserDefinedTypes = (definitionsSchema, udt) => {
 	return (avroSchema.fields || []).reduce((result, field) => {
 		if (typeof field.type !== 'object') {
 			return Object.assign({}, result, {
-				[field.name]: field.type
+				[field.name]: field.logicalType ? { type: field.type, logicalType: field.logicalType } : field.type
 			});
 		}
 		if (_.isArray(field.type)) {
@@ -550,7 +550,7 @@ const getFieldWithConvertedType = (schema, field, type, udt) => {
 					name: schema.name
 				} );
 			}
-			return Object.assign(schema, { type: typeFromUdt || DEFAULT_TYPE });
+			return Object.assign(schema, prepareTypeFromUDT(typeFromUdt));
 	}
 };
 
@@ -572,6 +572,13 @@ const getTypeFromUdt = (type, udt) => {
 		return replaceUdt(udtItem, udt);
 	}
 };
+
+const prepareTypeFromUDT = (typeFromUdt) => {
+	if (_.isObject(typeFromUdt) && typeFromUdt.logicalType) {
+		return { ...typeFromUdt };
+	}
+	return { type: typeFromUdt || DEFAULT_TYPE };
+}
 
 const getTypeWithNamespace = (type, udt) => {
 	const udtItem = udt[type];
