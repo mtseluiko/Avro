@@ -190,7 +190,7 @@ const handleRecursiveSchema = (schema, avroSchema, parentSchema = {}, udt) => {
 	}
 	handleComplexTypeStructure(avroSchema, parentSchema);
 	handleSchemaName(avroSchema, parentSchema);
-	avroSchema = reorderName(avroSchema);
+	avroSchema = reorderAttributes(avroSchema);
 	handleEmptyNestedObjects(avroSchema);
 
 	handleRequired(parentSchema, avroSchema, schema);
@@ -348,7 +348,7 @@ const handleChoice = (schema, choice, udt) => {
 			if (isComplexType(filedType)) {
 				newField.name = newField.name || field.name || fieldName;
 				newField.type.name = newField.type.name || field.name || fieldName;
-				newField.type = reorderName(newField.type);
+				newField.type = reorderAttributes(newField.type);
 				multipleField.type.push(newField);
 			} else if (Object(newField.type) === newField.type) {
 				newField.name = newField.name || field.name || fieldName;
@@ -448,9 +448,13 @@ const handleType = (schema, avroSchema, udt) => {
 	} else {
 		avroSchema = getFieldWithConvertedType(avroSchema, schema, schema.type, udt);
 	}
+	if (_.isPlainObject(avroSchema.type)) {
+		avroSchema.type = reorderAttributes(avroSchema.type)
+	}
 };
 
 const handleMultiple = (avroSchema, schema, prop, udt) => {
+	const commonAttributes = ["aliases", "doc", "default"];
 	avroSchema[prop] = schema[prop].map(type => {
 		if (type && typeof type === 'object') {
 			return type.type;
@@ -486,11 +490,21 @@ const handleMultiple = (avroSchema, schema, prop, udt) => {
 			}, attributes);
 		}
 	});
-	return avroSchema;
+
+	const fieldProperties = commonAttributes.reduce((fieldProps, prop) => {
+		if (schema[prop]) {
+			return Object.assign({}, fieldProps, {
+				[prop]: schema[prop]
+			});
+		}
+
+		return fieldProps;
+	}, {});
+	return Object.assign(avroSchema, fieldProperties);
 };
 
 const getMultipleComplexTypeProperties = (schema, type) => {
-	const commonComplexFields = ["aliases", "doc", "default"];
+	const commonComplexFields = ["default"];
 	const allowedComplexFields = {
 		"enum": [
 			"symbols",
@@ -791,10 +805,18 @@ const getDefaultName = () => {
 	}
 };
 
-const reorderName = (avroSchema) => {
+const reorderAttributes = (avroSchema) => {
+	return _.flow([
+		setPropertyAsFirst('doc'),
+		setPropertyAsFirst('type'),
+		setPropertyAsFirst('name')
+	])(avroSchema);
+};
+
+const setPropertyAsFirst = key => avroSchema => {
 	let objKeys = Object.keys(avroSchema);
-	if (objKeys.includes('name')) {
-		objKeys = ['name', ...objKeys.filter(item => item !== 'name')];
+	if (objKeys.includes(key)) {
+		objKeys = [key, ...objKeys.filter(item => item !== key)];
 	}
 
 	objKeys.forEach(prop => {
@@ -804,7 +826,7 @@ const reorderName = (avroSchema) => {
 	});
 
 	return avroSchema;
-};
+}
 
 const isComplexType = (type) => {
 	if (!type) {
@@ -845,7 +867,7 @@ const getAllowedPropertyNames = (type, data, udt) => {
 		return getAllowedPropertyNames(_.get(udt[type], 'type'), data, udt);
 	}
 	if(type === 'root') {
-		return ['doc'];
+		return ['aliases', 'doc'];
 	}
 	if (!fieldLevelConfig.structure[type]) {
 		return [];

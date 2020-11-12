@@ -1306,8 +1306,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Pattern",
 				"propertyType": "text",
 				"propertyKeyword": "pattern",
-				"disabled": true,
-				"hidden": true
+				"disabled": true
 			},
 			"sample",
 			"comments"
