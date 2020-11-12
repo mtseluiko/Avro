@@ -42,6 +42,7 @@ module.exports = {
 			let jsonSchema = JSON.parse(data.jsonSchema);
 			const udt = getUserDefinedTypes(data);
 
+			jsonSchema.type = 'root';
 			handleRecursiveSchema(jsonSchema, avroSchema, {}, udt);
 
 			if (data.containerData) {
@@ -842,6 +843,9 @@ const getTargetFieldLevelPropertyNames = (type, data) => {
 const getAllowedPropertyNames = (type, data, udt) => {
 	if (udt && udt[type]) {
 		return getAllowedPropertyNames(_.get(udt[type], 'type'), data, udt);
+	}
+	if(type === 'root') {
+		return ['doc'];
 	}
 	if (!fieldLevelConfig.structure[type]) {
 		return [];
