@@ -807,8 +807,8 @@ const getDefaultName = () => {
 
 const reorderAttributes = (avroSchema) => {
 	return _.flow([
-		setPropertyAsFirst('doc'),
 		setPropertyAsFirst('type'),
+		setPropertyAsFirst('doc'),
 		setPropertyAsFirst('name')
 	])(avroSchema);
 };
