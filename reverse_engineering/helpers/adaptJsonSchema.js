@@ -32,7 +32,7 @@ const handleNumber = field => {
 
 	return Object.assign({}, field, {
 		type: 'bytes',
-		logicalType: 'decimal'
+		subtype: 'decimal'
 	});
 };
 
