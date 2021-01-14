@@ -252,6 +252,16 @@ const handleMultipleTypes = (data, schema, parentSchema, definitions) => {
 	}
 };
 
+const resolveRecursiveReferences = (parentName, child) => {
+	if (!child || parentName !== child.type) {
+		return child;
+	}
+
+	child.type = 'string';
+
+	return child;
+};
+
 const addDefinitions = (types, definitions) => {
 	return types.map(type => {
 		if (Object(type) !== type) {
@@ -263,6 +273,7 @@ const addDefinitions = (types, definitions) => {
 		let schema = {};
 		const { name, namespace } = getNameAndNamespace(type.name);
 		type.name = name;
+		type = resolveRecursiveReferences(name, type);
 
 		handleRecursiveSchema(type, schema, {}, definitions);
 		if (namespace) {
