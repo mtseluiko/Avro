@@ -79,23 +79,22 @@ const adaptMultiple = field => {
 };
 
 const handleEmptyDefault = field => {
-	const typesWithoutDefault = ['bytes', 'fixed', 'object', 'record', 'array', 'map', 'null'];
 	const hasDefault = !_.isUndefined(field.default) && field.default !== '';
-	const isMultiple = _.isArray(field.types);
-	if (isMultiple && field.types.every(type => typesWithoutDefault.includes(type))) {
+	const isMultiple = _.isArray(field.type);
+	const types = isMultiple ? field.type : [ field.type ];
+
+	if (hasDefault || _.first(types) === 'null') {
 		return field;
 	}
 
-	if (hasDefault || typesWithoutDefault.includes(field.type)) {
-		return field;
-	}
-
-	return Object.assign({}, field, {
-		error: {
-			"default": true
-		}
-	});
+	return {
+		...field,
+		default: null,
+		type: _.uniq([ 'null', ...types ]),
+	};
 };
+
+const isComplexType = type => ['object', 'record', 'array', 'map'].includes(type)
 
 const handleEmptyDefaultInProperties = field => {
 	let required = _.get(field, 'required', []);
@@ -108,20 +107,44 @@ const handleEmptyDefaultInProperties = field => {
 		const property = field.properties[key];
 
 		if (required.includes(key)) {
-			return Object.assign({}, properties, {
-				[key]: property
-			});
+			return { ...properties, [key]: property };
 		}
 
 		const updatedProperty = handleEmptyDefault(property);
-		if (property !== updatedProperty) {
-			required = required.filter(name => name !== key);
+		if (property === updatedProperty || !_.isArray(updatedProperty.type)) {
+			return {
+				...properties,
+				[key]: property,
+			};
 		}
 
-		return Object.assign({}, properties, {
-			[key]: updatedProperty
-		});
-	
+		required = required.filter(name => name !== key);
+		const hasComplexType = updatedProperty.type.find(isComplexType);
+
+		if (!hasComplexType) {
+			return { ...properties, [key]: updatedProperty };
+		}
+
+		const complexProperties = ['properties', 'items'];
+		
+		const propertyWithChoice = {
+			..._.omit(updatedProperty, complexProperties),
+			oneOf: updatedProperty.type.map(type => {
+				if (!isComplexType(type)) {
+					return {
+						..._.omit(updatedProperty, complexProperties),
+						type
+					}
+				}
+
+				return {
+					..._.omit(updatedProperty, type === 'array' ? 'properties' : 'items'),
+					type
+				};
+			})
+		};
+
+		return { ...properties, [key]: propertyWithChoice };
 	}, {});
 
 	return Object.assign({}, field, {
