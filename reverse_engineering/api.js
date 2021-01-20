@@ -196,7 +196,7 @@ const handleType = (data, schema, parentSchema, definitions) => {
 	if (Array.isArray(data.type)) {
 		schema = handleMultipleTypes(data, schema, parentSchema, definitions);
 	} else if (typeof data.type === 'object') {
-		if (data.type.name) {		
+		if (data.type.name && ['record', 'enum', 'fixed'].includes(data.type.type)) {		
 			data.type = addDefinitions([data.type], definitions).pop();
 
 			handleRecursiveSchema(data, schema, {}, definitions);
@@ -452,6 +452,8 @@ const handleItems = (data, prop, schema, definitions) => {
 	} else if (typeof items === 'object') {
 		schema.items = {};
 		handleRecursiveSchema(items, schema.items, schema, definitions);
+	} else if (typeof items === 'string') {
+		schema.items = getType({}, data, items)
 	} else {
 		schema.items = {
 			type: items
