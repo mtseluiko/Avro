@@ -690,7 +690,11 @@ const handleItems = (schema, avroSchema, udt) => {
 		});
 	avroSchema.items = getUniqueItemsInArray(items);
 	if(avroSchema.items.length === 1) {
-		avroSchema.items = avroSchema.items[0];
+		if (schema.items[0].$ref && !avroSchema.items[0].name) {
+			avroSchema.items = avroSchema.items[0].type;
+		} else {
+			avroSchema.items = avroSchema.items[0];
+		}
 	}
 };
 

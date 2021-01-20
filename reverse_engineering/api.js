@@ -452,6 +452,8 @@ const handleItems = (data, prop, schema, definitions) => {
 	} else if (typeof items === 'object') {
 		schema.items = {};
 		handleRecursiveSchema(items, schema.items, schema, definitions);
+	} else if (typeof items === 'string') {
+		schema.items = getType({}, data, items)
 	} else {
 		schema.items = {
 			type: items
