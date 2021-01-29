@@ -125,10 +125,10 @@ const handleEmptyDefaultInProperties = field => {
 			return { ...properties, [key]: updatedProperty };
 		}
 
-		const complexProperties = ['properties', 'items'];
+		const complexProperties = ['patternProperties', 'properties', 'items'];
 		
 		const propertyWithChoice = {
-			..._.omit(updatedProperty, complexProperties),
+			..._.omit(updatedProperty, [ ...complexProperties, 'type' ]),
 			oneOf: updatedProperty.type.map(type => {
 				if (!isComplexType(type)) {
 					return {
@@ -138,7 +138,7 @@ const handleEmptyDefaultInProperties = field => {
 				}
 
 				return {
-					..._.omit(updatedProperty, type === 'array' ? 'properties' : 'items'),
+					..._.omit(updatedProperty, type === 'array' ? ['patternProperties', 'properties'] : 'items'),
 					type
 				};
 			})
