@@ -972,6 +972,12 @@ const replaceUdt = (avroSchema, udt) => {
 		}
 	};
 	const extractArrayItem = (schema) => {
+		if (typeof schema.items === 'string') {
+			return {
+				...schema,
+				items: getTypeFromUdt(schema.items, udt),
+			};
+		}
 		const items = convertType(schema.items);
 		const previousType = _.get(schema, 'items.type', items.type);
 		const convertedType = items.type;
