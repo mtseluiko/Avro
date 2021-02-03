@@ -214,6 +214,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueString",
+						"propertyNameFull": "Meta value for string",
 						"propertyType": "select",
 						"options": [
 							"String",
@@ -230,6 +231,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElement",
+						"propertyNameFull": "Meta value for element",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -240,6 +242,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElementClass",
+						"propertyNameFull": "Meta value for element class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -250,6 +253,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueClass",
+						"propertyNameFull": "Meta value for class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -260,6 +264,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueKeyClass",
+						"propertyNameFull": "Meta value for key class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -370,6 +375,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElement",
+						"propertyNameFull": "Meta value for element",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -380,6 +386,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElementClass",
+						"propertyNameFull": "Meta value for element class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -390,6 +397,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueClass",
+						"propertyNameFull": "Meta value for class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -400,6 +408,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueKeyClass",
+						"propertyNameFull": "Meta value for key class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -568,6 +577,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElement",
+						"propertyNameFull": "Meta value for element",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -578,6 +588,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElementClass",
+						"propertyNameFull": "Meta value for element class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -588,6 +599,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueClass",
+						"propertyNameFull": "Meta value for class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -598,6 +610,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueKeyClass",
+						"propertyNameFull": "Meta value for key class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -716,6 +729,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElement",
+						"propertyNameFull": "Meta value for element",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -726,6 +740,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElementClass",
+						"propertyNameFull": "Meta value for element class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -736,6 +751,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueClass",
+						"propertyNameFull": "Meta value for class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -746,6 +762,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueKeyClass",
+						"propertyNameFull": "Meta value for key class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -885,6 +902,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElement",
+						"propertyNameFull": "Meta value for element",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -895,6 +913,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElementClass",
+						"propertyNameFull": "Meta value for element class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -905,6 +924,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueClass",
+						"propertyNameFull": "Meta value for class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -915,6 +935,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueKeyClass",
+						"propertyNameFull": "Meta value for key class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -987,6 +1008,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElement",
+						"propertyNameFull": "Meta value for element",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -997,6 +1019,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElementClass",
+						"propertyNameFull": "Meta value for element class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1007,6 +1030,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueClass",
+						"propertyNameFull": "Meta value for class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1017,6 +1041,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueKeyClass",
+						"propertyNameFull": "Meta value for key class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1103,6 +1128,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElement",
+						"propertyNameFull": "Meta value for element",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1113,6 +1139,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElementClass",
+						"propertyNameFull": "Meta value for element class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1123,6 +1150,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueClass",
+						"propertyNameFull": "Meta value for class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1133,6 +1161,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueKeyClass",
+						"propertyNameFull": "Meta value for key class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1262,6 +1291,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElement",
+						"propertyNameFull": "Meta value for element",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1272,6 +1302,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElementClass",
+						"propertyNameFull": "Meta value for element class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1282,6 +1313,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueClass",
+						"propertyNameFull": "Meta value for class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1292,6 +1324,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueKeyClass",
+						"propertyNameFull": "Meta value for key class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1409,6 +1442,7 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Size",
 				"propertyKeyword": "durationSize",
+				"propertyNameFull": "Duration size",
 				"propertyValidate": true,
 				"propertyType": "numeric",
 				"valueType": "number",
@@ -1447,6 +1481,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElement",
+						"propertyNameFull": "Meta value for element",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1457,6 +1492,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueElementClass",
+						"propertyNameFull": "Meta value for element class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1467,6 +1503,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueClass",
+						"propertyNameFull": "Meta value for class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
@@ -1477,6 +1514,7 @@ making sure that you maintain a proper JSON format.
 					{
 						"propertyName": "Value",
 						"propertyKeyword": "metaValueKeyClass",
+						"propertyNameFull": "Meta value for key class",
 						"propertyTooltip": "",
 						"propertyType": "text",
 						"dependency": { 
