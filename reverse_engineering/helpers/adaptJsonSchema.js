@@ -103,7 +103,13 @@ const handleEmptyDefaultInProperties = field => {
 		return field;
 	}
 
-	const updatedProperties = Object.keys(field.properties).reduce((properties, key) => {
+	const isRoot = field.$schema && field.type === 'object';
+	const propertiesKeys = Object.keys(field.properties);
+	if (isRoot && propertiesKeys.length === 1 && isComplexType(field.properties[_.first(propertiesKeys)].type)) {
+		return field;
+	}
+
+	const updatedProperties = propertiesKeys.reduce((properties, key) => {
 		const property = field.properties[key];
 
 		if (required.includes(key)) {
