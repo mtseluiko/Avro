@@ -453,6 +453,9 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Logical type",
 				"propertyKeyword": "logicalType",
+				"typeDecorator": {
+					"useAsTypeName": true
+				},
 				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
@@ -469,6 +472,9 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Logical type",
 				"propertyKeyword": "logicalType",
+				"typeDecorator": {
+					"useAsTypeName": true
+				},
 				"shouldValidate": false,
 				"propertyType": "select",
 				"options": [
@@ -1052,6 +1058,9 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Values",
 				"propertyKeyword": "logicalType",
 				"shouldValidate": false,
+				"typeDecorator": {
+					"useAsTypeName": true
+				},
 				"propertyType": "select",
 				"options": [
 					{ "value": "map<string>", "name": "string" },
@@ -1305,6 +1314,7 @@ making sure that you maintain a proper JSON format.
 			{
 				"propertyName": "Pattern",
 				"propertyType": "text",
+				"propertyTooltip": "Validation rule for enum values",
 				"propertyKeyword": "pattern",
 				"disabled": true
 			},
